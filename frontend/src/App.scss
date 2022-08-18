@@ -1,0 +1,5 @@
+@use './utils/style.variables' as styles;
+
+body {
+  background-color: styles.$primaryColor;
+}
