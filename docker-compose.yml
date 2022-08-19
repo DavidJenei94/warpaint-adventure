@@ -1,0 +1,59 @@
+version: "3.8"
+
+services:
+  ui:
+    depends_on:
+      - mariadb
+      - api
+    build: ./frontend
+    container_name: wpa_frontend
+    ports:
+      - 3000:3000
+    working_dir: /app/frontend
+    volumes:
+      - ./frontend:/app/frontend
+    environment:
+      - WATCHPACK_POLLING=true # replaced: - CHOKIDAR_USEPOLLING=true / to check changes in react
+      # https://github.com/facebook/create-react-app/issues/10253 
+      # https://stackoverflow.com/questions/70488471/docker-with-create-react-app-is-not-updating-changes
+  api:
+    depends_on:
+      - mariadb
+    build: ./backend
+    container_name: wpa_backend
+    restart: unless-stopped
+    env_file: ./.env
+    ports:
+      - 4000:4000
+    working_dir: /app/backend
+    volumes:
+      - ./backend:/app/backend
+    environment:
+      - DB_HOST=mariadb
+      - DB_USER=$DB_USER
+      - DB_PASSWORD=$DB_PASSWORD
+      - DB_NAME=$DB_NAME
+      - DB_PORT=$DB_PORT
+  mariadb:
+    image: mariadb:10.8
+    container_name: wpa_mariadb
+    restart: always
+    ports:
+      - 3306:3306
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+  phpmyadmin:
+    depends_on:
+      - mariadb
+    image: phpmyadmin:5.2.0
+    container_name: wpa_phpmyadmin
+    ports:
+      - 8000:80
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mariadb
+
+volumes:
+  mariadb-data:

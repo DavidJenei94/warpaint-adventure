@@ -1,0 +1,9 @@
+@use '../../utils/style.variables' as styles;
+
+.paral-button {
+  @include styles.paralElement;
+
+  &:hover {
+    @include styles.paralElementTransformingHover;
+  }
+}

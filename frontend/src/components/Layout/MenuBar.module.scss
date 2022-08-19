@@ -1,0 +1,34 @@
+@use '../../utils/style.variables' as styles;
+
+.menu-bar {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+  z-index: 100;
+  box-shadow: styles.$primaryInsetBoxShadow;
+
+  overflow: hidden;
+}
+
+.hamburger-menu-icon {
+  margin-left: auto;
+  margin-right: 1rem;
+  display: none;
+}
+
+.hamburger-menu {
+  display: none;
+  box-shadow: styles.$primaryDownBoxShadow;
+}
+
+@media only screen and (max-width: styles.$smallScreenSize) {
+  .hamburger-menu-icon {
+    display: block;
+  }
+
+  .hamburger-menu {
+    display: block;
+  }
+}
