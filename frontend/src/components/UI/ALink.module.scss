@@ -1,0 +1,10 @@
+@use '../../utils/style.variables' as styles;
+
+.link {
+  @include styles.paralElementBorderless;
+  text-decoration: none;
+
+  &:hover {
+    @include styles.paralElementHover;
+  }
+}
