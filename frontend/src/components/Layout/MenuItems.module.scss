@@ -1,0 +1,31 @@
+@use '../../utils/style.variables' as styles;
+
+.menu-items {
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: 16px;
+  white-space: nowrap;
+}
+
+.to-right {
+  margin-left: auto;
+}
+
+.hamburger-menu-item {
+  @include styles.rectElement;
+  display: block;
+  box-shadow: styles.$primaryLightBoxShadow;
+  font-style: italic;
+
+  &:hover {
+    @include styles.rectElementHover;
+  }
+}
+
+@media only screen and (max-width: styles.$smallScreenSize) {
+  .menu-items {
+    display: none
+  }
+}
