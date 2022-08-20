@@ -3,8 +3,13 @@
 .link {
   @include styles.paralElementBorderless;
   text-decoration: none;
+  font-family: inherit;
 
   &:hover {
     @include styles.paralElementHover;
   }
+}
+
+.active {
+  @include styles.paralElementHover;
 }
