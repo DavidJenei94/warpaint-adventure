@@ -1,3 +1,5 @@
+import { NavLink, Link } from 'react-router-dom';
+
 import ALink from '../UI/ALink';
 import MenuItems from './MenuItems';
 
@@ -16,7 +18,7 @@ const MenuBar = () => {
   return (
     <nav>
       <div className={styles['menu-bar']}>
-        <ALink>WpA</ALink>
+        <ALink to="/home" type='Link'>WpA</ALink>
         <MenuItems />
         <Button
           className={styles['hamburger-menu-icon']}
