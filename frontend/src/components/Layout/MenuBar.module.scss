@@ -1,13 +1,13 @@
 @use '../../utils/style.variables' as styles;
 
 .menu-bar {
-  height: 56px;
+  height: styles.$menubarHeight;
   display: flex;
   align-items: center;
   gap: 16px;
   padding: 0 16px;
   z-index: 100;
-  box-shadow: styles.$primaryInsetBoxShadow;
+  box-shadow: styles.$primaryBoxShadow;
 
   overflow: hidden;
 }
