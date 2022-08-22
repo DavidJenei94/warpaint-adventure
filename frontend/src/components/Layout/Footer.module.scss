@@ -1,0 +1,32 @@
+@use '../../utils/style.variables' as styles;
+
+@mixin footerBaseFlexDisplay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer {
+  @include footerBaseFlexDisplay;
+  margin-top: auto;
+  padding: 6px 0 6px 0;
+  background-color: styles.$primaryColor;
+  box-shadow: styles.$primaryBoxShadow;
+
+  &-about {
+    @include footerBaseFlexDisplay;
+    padding-right: 8px;
+    margin-right: 4px;
+    box-shadow: styles.$primaryRightBoxShadow;
+  }
+
+  &-rights-reserved {
+    @include footerBaseFlexDisplay;
+  }
+
+  a,
+  p {
+    font-size: 12px;
+  }
+}

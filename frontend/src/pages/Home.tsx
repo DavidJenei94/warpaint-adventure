@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Footer from '../components/Layout/Footer';
 
 import styles from './Home.module.scss';
 
@@ -17,6 +18,7 @@ const Home = () => {
     <>
       {user4 && <p>{user4.Email}</p>}
       <p style={{ color: 'red' }}>Home asd Page refresh! </p>
+      <Footer />
     </>
   );
 };
