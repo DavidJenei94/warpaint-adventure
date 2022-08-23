@@ -1,0 +1,24 @@
+@use '../../utils/style.variables' as styles;
+
+.reg-container {
+  margin: 50px auto;
+  padding: 16px 36px;
+  text-align: center;
+  box-shadow: styles.$primaryBoxShadow;
+
+  max-width: styles.$smallScreenSize;
+
+  form {
+    text-align: center;
+
+    & > * {
+      display: block;
+      margin: 24px auto;
+      font-size: 16px;
+    }
+
+    a, button {
+      padding: 4px;
+    }
+  }
+}

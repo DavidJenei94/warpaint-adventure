@@ -1,0 +1,29 @@
+@use '../../utils/style.variables' as styles;
+
+.login-container {
+  margin: 50px auto;
+  padding: 16px 36px;
+  text-align: center;
+  box-shadow: styles.$primaryBoxShadow;
+
+  max-width: styles.$smallScreenSize;
+
+  form {
+    text-align: center;
+
+    & > * {
+      display: block;
+      margin: 24px auto;
+      font-size: 16px;
+    }
+
+    .other-actions {
+      padding: 24px 12px 0;
+      box-shadow: styles.$primaryUpBoxShadow;
+
+      button {
+        margin: 0 12px;
+      }
+    }
+  }
+}
