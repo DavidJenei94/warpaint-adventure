@@ -1,16 +1,12 @@
-import { ChildrenProps, ClassNameChildrenProps } from '../../models/basicProps';
+import { ComponentProps } from 'react';
 
 import styles from './Button.module.scss';
 
-type ButtonProps = ClassNameChildrenProps & {
-  onClick: () => any;
-};
-
-const Button = ({ children, className, onClick }: ButtonProps) => {
+const Button = ({ children, className, ...otherProps }: ComponentProps<'button'>) => {
   return (
     <button
+      {...otherProps}
       className={`${className} ${styles['paral-button']}`}
-      onClick={onClick}
     >
       {children}
     </button>
