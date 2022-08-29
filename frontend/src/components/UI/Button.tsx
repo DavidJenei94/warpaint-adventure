@@ -1,16 +1,22 @@
-import { ChildrenProps, ClassNameChildrenProps } from '../../models/basicProps';
+import { ComponentProps } from 'react';
+import { isUppercase } from '../../utils/general.utils';
 
 import styles from './Button.module.scss';
 
-type ButtonProps = ClassNameChildrenProps & {
-  onClick: () => any;
-};
+const Button = ({
+  children,
+  className,
+  ...otherProps
+}: ComponentProps<'button'>) => {
+  let adjClassName = '';
+  if (className) {
+    adjClassName = isUppercase(className) ? className : styles[className];
+  }
 
-const Button = ({ children, className, onClick }: ButtonProps) => {
   return (
     <button
-      className={`${className} ${styles['paral-button']}`}
-      onClick={onClick}
+      {...otherProps}
+      className={`${adjClassName} ${styles['paral-button']}`}
     >
       {children}
     </button>

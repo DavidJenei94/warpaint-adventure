@@ -1,0 +1,19 @@
+@use '../../utils/style.variables' as styles;
+
+.paral-input {
+  @include styles.paralElement;
+
+  &:hover {
+    @include styles.paralElementHover;
+    cursor: text;
+  }
+
+  &::placeholder {
+    color: styles.$primaryContrastColor;
+    opacity: 0.9;
+  }
+
+  &.invalid {
+    box-shadow: styles.$errorBoxShadow;
+  }
+}

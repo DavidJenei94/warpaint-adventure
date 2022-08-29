@@ -10,9 +10,9 @@ const Home = () => {
     getData();
   }, []);
   const getData = async () => {
-    const response = await fetch('http://localhost:4000/api/users/4');
-    const user4Data = await response.json();
-    setUser4(user4Data);
+    // const response = await fetch('http://localhost:4000/api/users/3');
+    // const user4Data = await response.json();
+    // setUser4(user4Data);
   };
   return (
     <>

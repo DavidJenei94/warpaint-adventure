@@ -1,16 +1,28 @@
 $primaryColor: #021b17;
 $primaryLightColor: #092D27;
 $primaryContrastColor: #ffffff;
+$secondaryColor: #27073E;
+$warningColor: #a5a20c;
+$disabledColor: #666666;
+$errorColor: $disabledColor;
+// $errorColor: #59050D;
+// quaternary, quinary, senary, septenary, octonary, nonary, denary
+
 $fontFamily: 'SF Pro Text', 'SF Pro Icons', 'AOS Icons', 'Helvetica Neue',
   Helvetica, Arial, sans-serif;
 
 $primaryBoxShadow: 0px 0px 8px 2px rgba(255, 255, 255, 0.25);
 $primaryLightBoxShadow: 0px 0px 2px 0px rgba(255, 255, 255, 0.25);
+$primaryStrongBoxShadow: 0px 0px 8px 3px rgba(255, 255, 255, 0.25);
 $primaryDownBoxShadow: 0px 3px 8px 0px rgba(255, 255, 255, 0.25);
+$primaryUpBoxShadow: 0px -5px 5px -5px rgba(255, 255, 255, 0.25);
 $primaryRightBoxShadow: 5px 0px 5px -5px rgba(255, 255, 255, 0.25);
 $primaryLeftBoxShadow: -5px 0px 5px -5px rgba(255, 255, 255, 0.25);
 $primaryInsetBoxShadow: inset 0px 0px 8px 2px rgba(255, 255, 255, 0.25);
 $primaryHoverBoxShadow: 0px 0px 4px 2px rgba(0, 0, 0, 0.6);
+
+$errorBoxShadow: 0px 0px 8px 2px #59050d;
+$disabledBoxShadow: 0px 0px 8px 2px $disabledColor;
 
 $xsmallScreenSize: 300px;
 $smallScreenSize: 600px;
@@ -20,12 +32,20 @@ $xlargeScreenSize: 1500px;
 
 $menubarHeight: 56px;
 
+@mixin basicSkewTransformation {
+  transform: skew(-15deg);
+} 
+
+@mixin movingSkewTransformation {
+  transform: skew(-15deg) translateY(-2px);
+} 
+
 @mixin paralElementBorderless {
-  padding: 6px;
+  padding: 8px;
   color: $primaryContrastColor;
   background-color: $primaryColor;
   border: 0 solid transparent;
-  transform: skew(-15deg);
+  @include basicSkewTransformation;
 }
 
 @mixin paralElement {
@@ -54,5 +74,5 @@ $menubarHeight: 56px;
 @mixin paralElementTransformingHover {
   @include paralElementHover;
 
-  transform: skew(-15deg) translateY(-2px);
+  @include movingSkewTransformation;
 }

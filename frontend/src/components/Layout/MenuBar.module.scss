@@ -10,17 +10,21 @@
   box-shadow: styles.$primaryBoxShadow;
 
   overflow: hidden;
-}
 
-.hamburger-menu-icon {
-  margin-left: auto;
-  margin-right: 1rem;
-  display: none;
+  a, button { 
+    padding: 6px;
+  }
 }
 
 .hamburger-menu {
   display: none;
   box-shadow: styles.$primaryDownBoxShadow;
+  
+  &-icon {
+    margin-left: auto;
+    margin-right: 1rem;
+    display: none;
+  }
 }
 
 @media only screen and (max-width: styles.$smallScreenSize) {

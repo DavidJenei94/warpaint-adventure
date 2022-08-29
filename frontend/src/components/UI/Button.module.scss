@@ -6,4 +6,14 @@
   &:hover {
     @include styles.paralElementTransformingHover;
   }
+
+  &.disabled {
+    @include styles.paralElementBorderless;
+    color: styles.$disabledColor;
+    
+    &:hover {
+      cursor: default;
+      box-shadow: styles.$primaryBoxShadow;
+    }
+  }
 }
