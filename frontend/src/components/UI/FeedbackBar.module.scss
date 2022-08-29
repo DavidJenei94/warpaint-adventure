@@ -1,0 +1,26 @@
+@use '../../utils/style.variables' as styles;
+
+.container {
+  @include styles.paralElement;
+
+  z-index: 1000;
+  position: fixed;
+  left: 50%;
+  top: 15%;
+  min-width: 50%;
+  text-align: center;
+
+  transform: skew(-15deg) translateX(-50%);
+
+  &.success {
+    background-color: styles.$secondaryColor;
+  }
+
+  &.warning {
+    background-color: styles.$warningColor;
+  }
+
+  &.error {
+    background-color: styles.$errorColor;
+  }
+}

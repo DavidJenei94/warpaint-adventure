@@ -1,7 +1,12 @@
 $primaryColor: #021b17;
 $primaryLightColor: #092D27;
 $primaryContrastColor: #ffffff;
-$secondaryColor: #a5a20c;
+$secondaryColor: #27073E;
+$warningColor: #a5a20c;
+$disabledColor: #666666;
+$errorColor: $disabledColor;
+// $errorColor: #59050D;
+// quaternary, quinary, senary, septenary, octonary, nonary, denary
 
 $fontFamily: 'SF Pro Text', 'SF Pro Icons', 'AOS Icons', 'Helvetica Neue',
   Helvetica, Arial, sans-serif;
@@ -15,6 +20,9 @@ $primaryRightBoxShadow: 5px 0px 5px -5px rgba(255, 255, 255, 0.25);
 $primaryLeftBoxShadow: -5px 0px 5px -5px rgba(255, 255, 255, 0.25);
 $primaryInsetBoxShadow: inset 0px 0px 8px 2px rgba(255, 255, 255, 0.25);
 $primaryHoverBoxShadow: 0px 0px 4px 2px rgba(0, 0, 0, 0.6);
+
+$errorBoxShadow: 0px 0px 8px 2px #59050d;
+$disabledBoxShadow: 0px 0px 8px 2px $disabledColor;
 
 $xsmallScreenSize: 300px;
 $smallScreenSize: 600px;
