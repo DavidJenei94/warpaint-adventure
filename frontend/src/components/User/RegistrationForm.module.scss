@@ -1,7 +1,7 @@
 @use '../../utils/style.variables' as styles;
 
 .reg-container {
-  margin: 50px auto;
+  margin: 45px auto;
   padding: 16px 36px;
   text-align: center;
   box-shadow: styles.$primaryBoxShadow;
@@ -17,7 +17,7 @@
       font-size: 16px;
     }
 
-    a, button {
+    a {
       padding: 4px;
     }
   }

@@ -1,7 +1,7 @@
 @use '../../utils/style.variables' as styles;
 
 .login-container {
-  margin: 50px auto;
+  margin: 45px auto;
   padding: 16px 36px;
   text-align: center;
   box-shadow: styles.$primaryBoxShadow;
@@ -16,14 +16,15 @@
       margin: 24px auto;
       font-size: 16px;
     }
-
-    .other-actions {
-      padding: 24px 12px 0;
-      box-shadow: styles.$primaryUpBoxShadow;
-
-      button {
-        margin: 0 12px;
-      }
+  }
+  
+  .other-actions {
+    padding: 24px 12px;
+    box-shadow: styles.$primaryUpBoxShadow;
+  
+    a, button {
+      margin: 0 12px;
+      font-size: 14px;
     }
   }
 }
