@@ -12,4 +12,8 @@
     color: styles.$primaryContrastColor;
     opacity: 0.9;
   }
+
+  &.invalid {
+    box-shadow: styles.$errorBoxShadow;
+  }
 }
