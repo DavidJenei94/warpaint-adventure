@@ -157,7 +157,7 @@ const RegistrationForm = () => {
           className={emailClass}
           placeholder="Email..."
           type="email"
-          title="Enter a valid email address"
+          required
           value={email}
           onChange={emailChangeHandler}
           onBlur={emailBlurHandler}
@@ -166,6 +166,7 @@ const RegistrationForm = () => {
           className={nameClass}
           placeholder="Name..."
           title="Firstname Lastname"
+          required
           value={name}
           onChange={nameChangeHandler}
           onBlur={nameBlurHandler}
@@ -174,7 +175,8 @@ const RegistrationForm = () => {
           className={passwordClass}
           type="password"
           placeholder="Password..."
-          title="Password must be at least 8 character long and must contain at least 1 uppercase character."
+          title='Password must be at least 8 characters long and must contain at least one letter and one number.'
+          required
           value={password}
           onChange={passwordChangeHandler}
           onBlur={passwordBlurHandler}
@@ -184,6 +186,7 @@ const RegistrationForm = () => {
           type="password"
           placeholder="Confirm password..."
           title='Passwords must be the same.'
+          required
           value={rePassword}
           onChange={rePasswordChangeHandler}
           onBlur={rePasswordBlurHandler}

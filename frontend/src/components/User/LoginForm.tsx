@@ -37,7 +37,7 @@ const LoginForm = () => {
     changeHandler: passwordChangeHandler,
     blurHandler: passwordBlurHandler,
     reset: passwordReset,
-  } = useInput((value) => validatePassword(value));
+  } = useInput((value) => value.trim() !== "");
 
   const formIsValid = emailIsValid && passwordIsValid;
 
@@ -117,6 +117,7 @@ const LoginForm = () => {
           className={emailClass}
           type="email"
           placeholder="Email..."
+          required
           value={email}
           onChange={emailChangeHandler}
           onBlur={emailBlurHandler}
@@ -125,6 +126,7 @@ const LoginForm = () => {
           className={passwordClass}
           type="password"
           placeholder="Password..."
+          required
           value={password}
           onChange={passwordChangeHandler}
           onBlur={passwordBlurHandler}
