@@ -103,6 +103,7 @@ const LoginForm = () => {
   const emailClass = `${emailHasError ? 'invalid' : ''}`;
   const passwordClass = `${passwordHasError ? 'invalid' : ''}`;
   const signInButtonClass = `${!formIsValid ? 'disabled' : ''}`;
+  const signInButtonDisabled = !formIsValid ? true : false;
 
   return (
     <div className={styles['login-container']}>
@@ -114,6 +115,7 @@ const LoginForm = () => {
       <form onSubmit={loginHandler}>
         <Input
           className={emailClass}
+          type="email"
           placeholder="Email..."
           value={email}
           onChange={emailChangeHandler}
@@ -127,7 +129,7 @@ const LoginForm = () => {
           onChange={passwordChangeHandler}
           onBlur={passwordBlurHandler}
         />
-        <Button type="submit" className={signInButtonClass}>Sign In</Button>
+        <Button type="submit" className={signInButtonClass} disabled={signInButtonDisabled}>Sign In</Button>
       </form>
       <div className={styles['other-actions']}>
         <Button onClick={signUpClickHandler}>Register</Button>

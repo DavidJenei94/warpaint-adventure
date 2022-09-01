@@ -39,8 +39,8 @@ const retrieveStoredToken = () => {
 };
 
 const tokenData = retrieveStoredToken();
-console.log('tokenData');
-console.log(tokenData);
+// console.log('tokenData');
+// console.log(tokenData);
 
 type AuthBaseState = {
   token: string;

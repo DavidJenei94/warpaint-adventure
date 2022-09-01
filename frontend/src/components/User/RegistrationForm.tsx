@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 import useInput from '../../hooks/use-input';
 import { FeedbackBarObj } from '../../models/uiModels';
@@ -18,7 +17,7 @@ import Input from '../UI/Input';
 import styles from './RegistrationForm.module.scss';
 
 const RegistrationForm = () => {
-  const navigate = useNavigate();
+  const [arePasswordsSame, setArePasswordsSame] = useState(true);
 
   const [feedback, setFeedback] = useState<FeedbackBarObj>({
     shown: false,
@@ -61,7 +60,12 @@ const RegistrationForm = () => {
     changeHandler: rePasswordChangeHandler,
     blurHandler: rePasswordBlurHandler,
     reset: rePasswordReset,
-  } = useInput((value) => validatePassword(value));
+  } = useInput((value) => validatePassword(value), password);
+
+  useEffect(() => {
+    setArePasswordsSame(password === rePassword);
+    
+  }, [password, rePassword]);
 
   const formIsValid =
     termAccepted &&
@@ -69,12 +73,22 @@ const RegistrationForm = () => {
     nameIsValid &&
     passwordIsValid &&
     rePasswordIsValid &&
-    password === rePassword;
+    arePasswordsSame;
+
+  let registerButtonDisabled = !formIsValid ? true : false;
 
   const regHandler = async (event: React.FormEvent) => {
     event.preventDefault();
 
+    registerButtonDisabled = true;
+
     if (!formIsValid) {
+      setFeedback({
+        shown: true,
+        status: 'error',
+        message: "Not all fields are valid! (Hover the fields for more information.)",
+      });
+
       return;
     }
 
@@ -129,6 +143,7 @@ const RegistrationForm = () => {
   const passwordClass = `${passwordHasError ? 'invalid' : ''}`;
   const rePasswordClass = `${rePasswordHasError ? 'invalid' : ''}`;
   const registerButtonClass = `${!formIsValid ? 'disabled' : ''}`;
+  
 
   return (
     <div className={styles['reg-container']}>
@@ -142,6 +157,7 @@ const RegistrationForm = () => {
           className={emailClass}
           placeholder="Email..."
           type="email"
+          title="Enter a valid email address"
           value={email}
           onChange={emailChangeHandler}
           onBlur={emailBlurHandler}
@@ -158,6 +174,7 @@ const RegistrationForm = () => {
           className={passwordClass}
           type="password"
           placeholder="Password..."
+          title="Password must be at least 8 character long and must contain at least 1 uppercase character."
           value={password}
           onChange={passwordChangeHandler}
           onBlur={passwordBlurHandler}
@@ -166,6 +183,7 @@ const RegistrationForm = () => {
           className={rePasswordClass}
           type="password"
           placeholder="Confirm password..."
+          title='Passwords must be the same.'
           value={rePassword}
           onChange={rePasswordChangeHandler}
           onBlur={rePasswordBlurHandler}
@@ -181,7 +199,7 @@ const RegistrationForm = () => {
           </ALink>
           .
         </CheckBox>
-        <Button type="submit" className={registerButtonClass}>
+        <Button type="submit" className={registerButtonClass} disabled={registerButtonDisabled}>
           Register
         </Button>
       </form>

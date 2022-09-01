@@ -1,13 +1,13 @@
 @use '../../utils/style.variables' as styles;
 
 @mixin iconImageUrl {
-  &-checkbox-blue {
-    background-image: url('../../assets/logo20blue.png');
-  }
+  // &-checkbox-blue {
+  //   background-image: url('../../assets/logo20blue.png');
+  // }
 
-  &-checkbox-red {
-    background-image: url('../../assets/logo20red.png');
-  }
+  // &-checkbox-red {
+  //   background-image: url('../../assets/logo20red.png');
+  // }
 }
 
 .container {
