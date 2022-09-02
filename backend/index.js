@@ -5,6 +5,9 @@ const port = process.env.PORT || 4000;
 
 const authRouter = require('./src/routes/auth.route');
 const userRouter = require('./src/routes/users.route');
+const packinglistRouter = require('./src/routes/packinglist.route');
+const packingitemRouter = require('./src/routes/packingitem.route');
+const verifyToken = require('./src/middlewares/auth');
 
 const app = express();
 app.use(express.json());
@@ -13,18 +16,20 @@ app.use(cors());
 
 app.use('/api/users', userRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/packinglist', verifyToken, packinglistRouter);
+app.use('/api/packinglist', verifyToken, packingitemRouter);
 
 /* Error handler middleware */
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   console.error(`${statusCode} - ${err.message}\n`, err.stack);
   res.status(statusCode).json({ message: err.message });
-  
+
   return;
 });
 
 app.get('/', (req, res) => {
-  res.json({'message': 'Server is ok'});
+  res.json({ message: 'Server is ok' });
 });
 
 app.listen(port, () => console.log(`Server is listening on port ${port}.`));
