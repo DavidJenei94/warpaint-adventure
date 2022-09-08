@@ -2,13 +2,19 @@ const jwt = require('jsonwebtoken');
 const db = require('./db.service');
 const config = require('../configs/general.config');
 const HttpError = require('../utils/HttpError');
+const PackingList = require('../models/PackingList');
 
 const getAll = async (user) => {
-  const result = await db.query(`SELECT * FROM PackingList WHERE UserID = ?;`, [
-    user.id,
-  ]);
+  const result = await db.query(
+    `SELECT ID AS id, Name AS name FROM PackingList WHERE UserID = ?;`,
+    [user.id]
+  );
 
-  return { message: 'Packing lists are selected!', packingLists: result };
+  const packingLists = result.map(
+    (packingList) => new PackingList(packingList.id, packingList.name)
+  );
+
+  return { message: 'Packing lists are selected!', packingLists };
 };
 
 const create = async (user, packingList) => {
@@ -34,7 +40,9 @@ const get = async (packingListID) => {
     throw new HttpError('Packing list does not exist.', 400);
   }
 
-  return { message: 'Packing list is selected!', packingList: result };
+  const packingList = new PackingList(result.ID, result.Name);
+
+  return { message: 'Packing list is selected!', packingList };
 };
 
 const update = async (packingList, packingListID) => {

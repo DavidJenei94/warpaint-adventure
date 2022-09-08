@@ -1,6 +1,7 @@
 const db = require('./db.service');
 const packinglist = require('../services/packinglist.service');
 const HttpError = require('../utils/HttpError');
+const PackingItem = require('../models/PackingItem');
 
 const getAll = async (listId) => {
   const result = await db.query(
@@ -11,7 +12,12 @@ const getAll = async (listId) => {
     [listId]
   );
 
-  return { message: 'Packing items are selected!', packingItems: result };
+  const packingItems = result.map(
+    (packignItem) =>
+      new PackingItem(packignItem.id, packignItem.name, packignItem.status)
+  );
+
+  return { message: 'Packing items are selected!', packingItems };
 };
 
 const create = async (packingItem, listId) => {
@@ -26,6 +32,21 @@ const create = async (packingItem, listId) => {
 
   const packingItemId = result.insertId.toString();
   return { message: 'New packing item created!', packingItemId };
+};
+
+const updateAll = async (packingItemNewStatus, listId) => {
+  const result = await db.query(
+    `UPDATE PackingItem
+    SET Status = ?
+    WHERE PackingListID = ?;`,
+    [packingItemNewStatus, listId]
+  );
+
+  if (!result.affectedRows) {
+    throw new HttpError('Error in updating all packing items.', 400);
+  }
+
+  return { message: 'Packing items are updated!' };
 };
 
 const get = async (itemId) => {
@@ -43,7 +64,9 @@ const get = async (itemId) => {
     throw new HttpError('Packing item does not exists.', 400);
   }
 
-  return { packingItem: result };
+  const packingItem = new PackingItem(result.id, result.name, result.status);
+
+  return { packingItem };
 };
 
 const update = async (packingList, itemId) => {
@@ -80,6 +103,7 @@ const remove = async (itemId) => {
 module.exports = {
   getAll,
   create,
+  updateAll,
   get,
   update,
   remove,

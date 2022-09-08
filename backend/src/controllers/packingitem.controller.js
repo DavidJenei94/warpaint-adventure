@@ -1,7 +1,6 @@
 const packingitem = require('../services/packingitem.service');
 
 async function getAll(req, res, next) {
-  console.log(req.params);
   try {
     res.status(200).json(await packingitem.getAll(req.params.listId));
   } catch (err) {
@@ -18,6 +17,15 @@ async function create(req, res, next) {
     res.status(200).json(await packingitem.create(req.body, req.params.listId));
   } catch (err) {
     console.error(`Error while creating packing item:`, err.message);
+    next(err);
+  }
+}
+
+async function updateAll(req, res, next) {
+  try {
+    res.status(200).json(await packingitem.updateAll(req.body.status, req.params.listId));
+  } catch (err) {
+    console.error(`Error while updating packing items:`, err.message);
     next(err);
   }
 }
@@ -52,6 +60,7 @@ async function remove(req, res, next) {
 module.exports = {
   getAll,
   create,
+  updateAll,
   get,
   update,
   remove,
