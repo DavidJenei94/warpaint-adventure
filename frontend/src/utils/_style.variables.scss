@@ -14,7 +14,8 @@ $fontFamily: 'SF Pro Text', 'SF Pro Icons', 'AOS Icons', 'Helvetica Neue',
 $primaryBoxShadow: 0px 0px 8px 2px rgba(255, 255, 255, 0.25);
 $primaryLightBoxShadow: 0px 0px 2px 0px rgba(255, 255, 255, 0.25);
 $primaryStrongBoxShadow: 0px 0px 8px 3px rgba(255, 255, 255, 0.25);
-$primaryDownBoxShadow: 0px 3px 8px 0px rgba(255, 255, 255, 0.25);
+// $primaryDownBoxShadow: 0px 3px 8px 0px rgba(255, 255, 255, 0.25);
+$primaryDownBoxShadow: 0px 5px 5px -5px rgba(255, 255, 255, 0.25);
 $primaryUpBoxShadow: 0px -5px 5px -5px rgba(255, 255, 255, 0.25);
 $primaryRightBoxShadow: 5px 0px 5px -5px rgba(255, 255, 255, 0.25);
 $primaryLeftBoxShadow: -5px 0px 5px -5px rgba(255, 255, 255, 0.25);
