@@ -1,0 +1,56 @@
+@use '../../../utils/style.variables' as styles;
+
+* {
+  box-sizing: border-box;
+}
+.modal {
+  box-sizing: border-box;
+
+
+  position: fixed;
+  z-index: 500;
+  background-color: styles.$primaryColor;
+  width: 50%;
+  border: 1px solid #ccc;
+  box-shadow: styles.$primaryBoxShadow;
+  padding: 16px;
+  left: 25%;
+  top: 30%;
+  box-sizing: border-box;
+  transition: all 0.3s ease-out;
+
+  text-align: center;
+
+  .content {
+    margin: 32px 40px;
+  }
+
+  .response {
+    margin: 16px 16px 24px;
+  }
+
+  .x-button {
+    display: block;
+    float: right;
+  }
+
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+  }
+}
+
+@media only screen and (max-width: styles.$smallScreenSize) {
+  .modal {
+    width: 300px;
+    left: calc(50% - 150px);
+  }
+}
+
+// @media (min-width: 600px) {
+//   .modal {
+//       width: 500px;
+//       left: calc(50% - 250px);
+//   }
+// }

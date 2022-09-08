@@ -1,11 +1,10 @@
-import { ComponentProps, useEffect, useState } from 'react';
+import { ComponentProps } from 'react';
 import styles from './CheckBox.module.scss';
 import Input from './Input';
 
 type CheckBoxProps = ComponentProps<'input'> & {
   id: string;
-  baseValue: boolean;
-  getValue: (state: boolean) => void;
+  checked: boolean;
   uncheckedImageClassName?: string;
   checkedImageClassName?: string;
 };
@@ -13,17 +12,11 @@ type CheckBoxProps = ComponentProps<'input'> & {
 const CheckBox = ({
   id,
   children,
-  baseValue,
-  getValue,
+  checked,
   uncheckedImageClassName,
   checkedImageClassName,
   ...otherProps
 }: CheckBoxProps) => {
-  const [checkboxValue, setCheckboxValue] = useState(baseValue);
-  
-    useEffect(() => {
-      getValue(checkboxValue);
-    }, [checkboxValue]);
 
   const uncheckedIconClass = uncheckedImageClassName
     ? `${styles.image} ${styles[uncheckedImageClassName]}`
@@ -33,23 +26,19 @@ const CheckBox = ({
     : '';
   const emptyTextClass = !children ? styles.empty : '';
 
-  const checkHandler = () => {
-    setCheckboxValue((prevState) => !prevState);
-  };
-
   return (
     <div className={styles['container']}>
       <Input
         type="checkbox"
-        checked={checkboxValue}
-        onChange={checkHandler}
+        checked={checked}
         id={id}
+        {...otherProps}
       />
       <label htmlFor={id}>
-        {!checkboxValue && (
+        {!checked && (
           <span className={`${emptyTextClass} ${uncheckedIconClass}`}></span>
         )}
-        {checkboxValue && (
+        {checked && (
           <span className={`${emptyTextClass} ${checkedIconClass}`}></span>
         )}
         <span className={styles.text}>{children}</span>

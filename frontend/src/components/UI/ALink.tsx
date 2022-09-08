@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
-import { ClassNameChildrenProps } from '../../models/basicProps';
+import { ClassNameChildrenProps } from '../../models/basic.props';
 
 import styles from './ALink.module.scss';
 

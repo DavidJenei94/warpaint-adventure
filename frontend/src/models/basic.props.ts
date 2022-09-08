@@ -12,3 +12,9 @@ export type ClassNameChildrenProps = {
   children: React.ReactNode;
   className?: string;
 }
+
+
+export type ResponseProp = {
+  response: string[];
+  setResponse: (response: string[]) => void;
+};

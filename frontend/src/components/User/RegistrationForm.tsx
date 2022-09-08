@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 
 import useInput from '../../hooks/use-input';
-import { FeedbackBarObj } from '../../models/uiModels';
+import { FeedbackBarObj } from '../../models/ui.models';
 import {
   validateEmail,
   validateName,
   validatePassword,
-} from '../../utils/general.utils';
+} from '../../utils/validation.utils';
 
 import ALink from '../UI/ALink';
 import Button from '../UI/Button';
@@ -64,7 +64,6 @@ const RegistrationForm = () => {
 
   useEffect(() => {
     setArePasswordsSame(password === rePassword);
-    
   }, [password, rePassword]);
 
   const formIsValid =
@@ -86,7 +85,8 @@ const RegistrationForm = () => {
       setFeedback({
         shown: true,
         status: 'error',
-        message: "Not all fields are valid! (Hover the fields for more information.)",
+        message:
+          'Not all fields are valid! (Hover the fields for more information.)',
       });
 
       return;
@@ -138,12 +138,15 @@ const RegistrationForm = () => {
     }
   };
 
+  const termsCheckHandler = () => {
+    setTermsAccepted((prevState) => !prevState);
+  };
+
   const emailClass = `${emailHasError ? 'invalid' : ''}`;
   const nameClass = `${nameHasError ? 'invalid' : ''}`;
   const passwordClass = `${passwordHasError ? 'invalid' : ''}`;
   const rePasswordClass = `${rePasswordHasError ? 'invalid' : ''}`;
   const registerButtonClass = `${!formIsValid ? 'disabled' : ''}`;
-  
 
   return (
     <div className={styles['reg-container']}>
@@ -175,7 +178,7 @@ const RegistrationForm = () => {
           className={passwordClass}
           type="password"
           placeholder="Password..."
-          title='Password must be at least 8 characters long and must contain at least one letter and one number.'
+          title="Password must be at least 8 characters long and must contain at least one letter and one number."
           required
           value={password}
           onChange={passwordChangeHandler}
@@ -185,7 +188,7 @@ const RegistrationForm = () => {
           className={rePasswordClass}
           type="password"
           placeholder="Confirm password..."
-          title='Passwords must be the same.'
+          title="Passwords must be the same."
           required
           value={rePassword}
           onChange={rePasswordChangeHandler}
@@ -193,8 +196,8 @@ const RegistrationForm = () => {
         />
         <CheckBox
           id="terms"
-          baseValue={termAccepted}
-          getValue={setTermsAccepted}
+          checked={termAccepted}
+          onChange={termsCheckHandler}
         >
           I read and accept the{' '}
           <ALink to="/registration" type="Link">
@@ -202,8 +205,12 @@ const RegistrationForm = () => {
           </ALink>
           .
         </CheckBox>
-        <Button type="submit" className={registerButtonClass} disabled={registerButtonDisabled}>
-          Register
+        <Button
+          type="submit"
+          className={registerButtonClass}
+          disabled={registerButtonDisabled}
+        >
+          <p>Register</p>
         </Button>
       </form>
     </div>

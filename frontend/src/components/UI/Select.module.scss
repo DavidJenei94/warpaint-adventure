@@ -3,31 +3,14 @@
 .paral-button {
   @include styles.paralElement;
 
-  padding: 4px;
-  
-  p {
-    padding: 4px;
-    margin: 0;
-  }
-  
-  img {
-    height: 20px;
-    width: 20px;
-    margin: 0px;
-    
-    position: relative;
-    top: 1px;
-  }
-
   &:hover {
-    @include styles.paralElementTransformingHover;
+    @include styles.paralElementHover;
   }
 
   &.disabled {
     @include styles.paralElementBorderless;
     color: styles.$disabledColor;
-    padding: 4px;
-
+    
     &:hover {
       cursor: default;
       box-shadow: styles.$primaryBoxShadow;

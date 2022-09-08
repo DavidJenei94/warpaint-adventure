@@ -1,5 +1,5 @@
 import { ComponentProps } from 'react';
-import { isUppercase } from '../../utils/general.utils';
+import { isUppercase } from '../../utils/validation.utils';
 
 import styles from './Input.module.scss';
 

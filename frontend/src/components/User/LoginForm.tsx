@@ -7,9 +7,9 @@ import Input from '../UI/Input';
 import styles from './LoginForm.module.scss';
 import { useAppDispatch } from '../../hooks/redux-hooks';
 import FeedbackBar from '../UI/FeedbackBar';
-import { FeedbackBarObj } from '../../models/uiModels';
+import { FeedbackBarObj } from '../../models/ui.models';
 import useInput from '../../hooks/use-input';
-import { validateEmail, validatePassword } from '../../utils/general.utils';
+import { validateEmail } from '../../utils/validation.utils';
 
 const LoginForm = () => {
   const dispatch = useAppDispatch();
@@ -56,6 +56,7 @@ const LoginForm = () => {
       );
 
       // navigate('/profile', { replace: true });
+      // check if history -1 is wpa page
       navigate(-1);
     }
   };
@@ -131,11 +132,11 @@ const LoginForm = () => {
           onChange={passwordChangeHandler}
           onBlur={passwordBlurHandler}
         />
-        <Button type="submit" className={signInButtonClass} disabled={signInButtonDisabled}>Sign In</Button>
+        <Button type="submit" className={signInButtonClass} disabled={signInButtonDisabled}><p>Sign In</p></Button>
       </form>
       <div className={styles['other-actions']}>
-        <Button onClick={signUpClickHandler}>Register</Button>
-        <Button>Forgot password</Button>
+        <Button onClick={signUpClickHandler}><p>Register</p></Button>
+        <Button><p>Forgot password</p></Button>
       </div>
     </div>
   );

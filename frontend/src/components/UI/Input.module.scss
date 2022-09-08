@@ -13,6 +13,10 @@
     opacity: 0.9;
   }
 
+  &:focus::placeholder {
+    color: transparent;
+  }
+
   &.invalid {
     box-shadow: styles.$errorBoxShadow;
   }

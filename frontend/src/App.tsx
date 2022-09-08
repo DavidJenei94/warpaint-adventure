@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from './hooks/redux-hooks';
 import { refreshToken } from './store/auth-actions';
 
 import './App.scss';
+import FeedbackBar, { FeedbackBar2 } from './components/UI/FeedbackBar';
 
 const Home = React.lazy(() => import('./pages/Home'));
 const Login = React.lazy(() => import('./pages/Login'));
@@ -24,6 +25,7 @@ const Profile = React.lazy(() => import('./pages/Profile'));
 function App() {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth);
+  const feedback = useAppSelector((state) => state.feedback);
 
   // Start timer to log them out if they are over expiresIn period
   useEffect(() => {
@@ -43,8 +45,14 @@ function App() {
     refreshToken(user.token);
   }, [dispatch, user.isAuthenticated]);
 
+  // console.log(feedback.shown);
+  
+
   return (
     <>
+      {feedback.shown && (
+        <FeedbackBar2 status={feedback.status}>{feedback.message}</FeedbackBar2>
+      )}
       <MenuBar />
       <Suspense fallback={<LoadingIcon />}>
         <Main>

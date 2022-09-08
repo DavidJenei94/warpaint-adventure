@@ -18,13 +18,15 @@ const MenuBar = () => {
   return (
     <nav>
       <div className={styles['menu-bar']}>
-        <ALink to="/home" type='Link'>WpA</ALink>
+        <ALink to="/home" type="Link">
+          WpA
+        </ALink>
         <MenuItems />
         <Button
           className={styles['hamburger-menu-icon']}
           onClick={hamburgerMenuHandler}
         >
-          [-]
+          ≡
         </Button>
       </div>
       <div className={styles['hamburger-menu']}>
