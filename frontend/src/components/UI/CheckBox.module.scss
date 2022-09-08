@@ -1,12 +1,31 @@
 @use '../../utils/style.variables' as styles;
 
 @mixin iconImageUrl {
-  &-checkbox-blue {
-    background-image: url('../../assets/logo20blue.png');
+  &-pack {
+    background-image: url('../../assets/icons/pack-selected.png');
+    
+    &-unchecked {
+      background-image: url('../../assets/icons/pack-selected.png');
+      opacity: 0.4;
+    }
   }
 
-  &-checkbox-red {
-    background-image: url('../../assets/logo20red.png');
+  &-unpack {
+    background-image: url('../../assets/icons/unpack-selected.png');
+
+    &-unchecked {
+      background-image: url('../../assets/icons/unpack-selected.png');
+      opacity: 0.4;
+    }
+  }
+
+  &-irrelevant {
+    background-image: url('../../assets/icons/irrelevant-selected.png');
+
+    &-unchecked {
+      background-image: url('../../assets/icons/irrelevant-selected.png');
+      opacity: 0.4;
+    }
   }
 }
 
@@ -44,14 +63,17 @@
           box-shadow: styles.$primaryHoverBoxShadow;
           background-color: styles.$primaryLightColor;
           cursor: pointer;
-        }
 
-        &.image {
-          &:after {
-            content: '';
+          &.image {
+            background-size: 100%;
+            background-repeat: no-repeat;
+  
+            &:after {
+              content: '';
+            }
+  
+            @include iconImageUrl;
           }
-
-          @include iconImageUrl;
         }
       }
     }
@@ -76,6 +98,9 @@
           }
 
           &.image {
+            background-size: 100%;
+            background-repeat: no-repeat;
+
             &:after {
               content: '';
             }

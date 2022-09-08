@@ -1,13 +1,12 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 import useInput from '../../hooks/use-input';
-import { FeedbackBarObj } from '../../models/uiModels';
+import { FeedbackBarObj } from '../../models/ui.models';
 import {
   validateEmail,
   validateName,
   validatePassword,
-} from '../../utils/general.utils';
+} from '../../utils/validation.utils';
 
 import ALink from '../UI/ALink';
 import Button from '../UI/Button';
@@ -18,7 +17,7 @@ import Input from '../UI/Input';
 import styles from './RegistrationForm.module.scss';
 
 const RegistrationForm = () => {
-  const navigate = useNavigate();
+  const [arePasswordsSame, setArePasswordsSame] = useState(true);
 
   const [feedback, setFeedback] = useState<FeedbackBarObj>({
     shown: false,
@@ -61,7 +60,11 @@ const RegistrationForm = () => {
     changeHandler: rePasswordChangeHandler,
     blurHandler: rePasswordBlurHandler,
     reset: rePasswordReset,
-  } = useInput((value) => validatePassword(value));
+  } = useInput((value) => validatePassword(value), password);
+
+  useEffect(() => {
+    setArePasswordsSame(password === rePassword);
+  }, [password, rePassword]);
 
   const formIsValid =
     termAccepted &&
@@ -69,12 +72,23 @@ const RegistrationForm = () => {
     nameIsValid &&
     passwordIsValid &&
     rePasswordIsValid &&
-    password === rePassword;
+    arePasswordsSame;
+
+  let registerButtonDisabled = !formIsValid ? true : false;
 
   const regHandler = async (event: React.FormEvent) => {
     event.preventDefault();
 
+    registerButtonDisabled = true;
+
     if (!formIsValid) {
+      setFeedback({
+        shown: true,
+        status: 'error',
+        message:
+          'Not all fields are valid! (Hover the fields for more information.)',
+      });
+
       return;
     }
 
@@ -124,6 +138,10 @@ const RegistrationForm = () => {
     }
   };
 
+  const termsCheckHandler = () => {
+    setTermsAccepted((prevState) => !prevState);
+  };
+
   const emailClass = `${emailHasError ? 'invalid' : ''}`;
   const nameClass = `${nameHasError ? 'invalid' : ''}`;
   const passwordClass = `${passwordHasError ? 'invalid' : ''}`;
@@ -142,6 +160,7 @@ const RegistrationForm = () => {
           className={emailClass}
           placeholder="Email..."
           type="email"
+          required
           value={email}
           onChange={emailChangeHandler}
           onBlur={emailBlurHandler}
@@ -150,6 +169,7 @@ const RegistrationForm = () => {
           className={nameClass}
           placeholder="Name..."
           title="Firstname Lastname"
+          required
           value={name}
           onChange={nameChangeHandler}
           onBlur={nameBlurHandler}
@@ -158,6 +178,8 @@ const RegistrationForm = () => {
           className={passwordClass}
           type="password"
           placeholder="Password..."
+          title="Password must be at least 8 characters long and must contain at least one letter and one number."
+          required
           value={password}
           onChange={passwordChangeHandler}
           onBlur={passwordBlurHandler}
@@ -166,14 +188,16 @@ const RegistrationForm = () => {
           className={rePasswordClass}
           type="password"
           placeholder="Confirm password..."
+          title="Passwords must be the same."
+          required
           value={rePassword}
           onChange={rePasswordChangeHandler}
           onBlur={rePasswordBlurHandler}
         />
         <CheckBox
           id="terms"
-          baseValue={termAccepted}
-          getValue={setTermsAccepted}
+          checked={termAccepted}
+          onChange={termsCheckHandler}
         >
           I read and accept the{' '}
           <ALink to="/registration" type="Link">
@@ -181,8 +205,12 @@ const RegistrationForm = () => {
           </ALink>
           .
         </CheckBox>
-        <Button type="submit" className={registerButtonClass}>
-          Register
+        <Button
+          type="submit"
+          className={registerButtonClass}
+          disabled={registerButtonDisabled}
+        >
+          <p>Register</p>
         </Button>
       </form>
     </div>

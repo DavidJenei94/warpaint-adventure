@@ -1,4 +1,4 @@
-import { ChildrenProps } from '../../models/basicProps';
+import { ChildrenProps } from '../../models/basic.props';
 
 import styles from './Main.module.scss';
 

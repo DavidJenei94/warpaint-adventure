@@ -1,0 +1,19 @@
+@use '../../../utils/style.variables' as styles;
+
+.card {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  & > * {
+    width: 200px;
+  }
+}
+
+.item-category {
+  margin: 24px auto 8px;
+  padding-bottom: 8px;
+  width: 70%;
+
+  box-shadow: styles.$primaryDownBoxShadow;
+}

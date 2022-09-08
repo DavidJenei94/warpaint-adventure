@@ -1,0 +1,25 @@
+@use '../../../utils/style.variables' as styles;
+
+.packing-selector {
+  margin: 0 auto 32px;
+  padding: 16px 36px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  text-align: center;
+  box-shadow: styles.$primaryBoxShadow;
+
+  .new-packing-list {
+    margin-left: auto;
+  }
+
+  @media only screen and (max-width: styles.$mediumScreenSize) {
+    .new-packing-list {
+      margin-left: 0;
+    }
+  }
+}

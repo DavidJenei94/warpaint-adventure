@@ -5,6 +5,7 @@ import ALink from '../UI/ALink';
 import Button from '../UI/Button';
 
 import styles from './MenuItems.module.scss';
+import logoutIcon from '../../assets/icons/logout.png';
 
 type Props = {
   isHamburgerMenu?: boolean;
@@ -49,7 +50,9 @@ const MenuItems = ({ isHamburgerMenu }: Props) => {
           >
             Profile
           </ALink>
-          <Button onClick={logoutHandler}>Sign out</Button>
+          <Button onClick={logoutHandler}>
+            <img src={logoutIcon} />
+          </Button>
         </>
       )}
     </div>

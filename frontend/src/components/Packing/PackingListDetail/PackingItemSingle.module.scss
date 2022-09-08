@@ -1,0 +1,62 @@
+@use '../../../utils/style.variables' as styles;
+
+.packing-item {
+  margin: 16px 8px;
+  padding: 12px 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  box-shadow: styles.$primaryBoxShadow;
+
+  p {
+    margin: 0;
+  }
+
+  .packing-item-actions {
+    margin-left: auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  @media only screen and (max-width: styles.$smallScreenSize) {
+    .packing-item-actions {
+      margin-left: 0;
+    }
+  }
+}
+
+.packing-item-card {
+  margin: 16px 8px;
+  padding: 12px 24px;
+
+  text-align: center;
+
+  box-shadow: styles.$primaryBoxShadow;
+
+  input {
+    width: 150px;
+    margin: 16px auto;
+  }
+
+  button {
+    margin: 0 8px 16px;
+  }
+
+  .packing-item-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    margin-bottom: 16px;
+  }
+}

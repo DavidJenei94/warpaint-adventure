@@ -39,8 +39,8 @@ const retrieveStoredToken = () => {
 };
 
 const tokenData = retrieveStoredToken();
-console.log('tokenData');
-console.log(tokenData);
+// console.log('tokenData');
+// console.log(tokenData);
 
 type AuthBaseState = {
   token: string;
@@ -102,6 +102,7 @@ const authSlice = createSlice({
   },
 });
 
+// This does not work! check later
 const callLogout = () => {
   return (dispatch: typeof store.dispatch) => {
     console.log('callLogoutcalled');

@@ -7,9 +7,9 @@ import Input from '../UI/Input';
 import styles from './LoginForm.module.scss';
 import { useAppDispatch } from '../../hooks/redux-hooks';
 import FeedbackBar from '../UI/FeedbackBar';
-import { FeedbackBarObj } from '../../models/uiModels';
+import { FeedbackBarObj } from '../../models/ui.models';
 import useInput from '../../hooks/use-input';
-import { validateEmail, validatePassword } from '../../utils/general.utils';
+import { validateEmail } from '../../utils/validation.utils';
 
 const LoginForm = () => {
   const dispatch = useAppDispatch();
@@ -37,7 +37,7 @@ const LoginForm = () => {
     changeHandler: passwordChangeHandler,
     blurHandler: passwordBlurHandler,
     reset: passwordReset,
-  } = useInput((value) => validatePassword(value));
+  } = useInput((value) => value.trim() !== "");
 
   const formIsValid = emailIsValid && passwordIsValid;
 
@@ -56,6 +56,7 @@ const LoginForm = () => {
       );
 
       // navigate('/profile', { replace: true });
+      // check if history -1 is wpa page
       navigate(-1);
     }
   };
@@ -103,6 +104,7 @@ const LoginForm = () => {
   const emailClass = `${emailHasError ? 'invalid' : ''}`;
   const passwordClass = `${passwordHasError ? 'invalid' : ''}`;
   const signInButtonClass = `${!formIsValid ? 'disabled' : ''}`;
+  const signInButtonDisabled = !formIsValid ? true : false;
 
   return (
     <div className={styles['login-container']}>
@@ -114,7 +116,9 @@ const LoginForm = () => {
       <form onSubmit={loginHandler}>
         <Input
           className={emailClass}
+          type="email"
           placeholder="Email..."
+          required
           value={email}
           onChange={emailChangeHandler}
           onBlur={emailBlurHandler}
@@ -123,15 +127,16 @@ const LoginForm = () => {
           className={passwordClass}
           type="password"
           placeholder="Password..."
+          required
           value={password}
           onChange={passwordChangeHandler}
           onBlur={passwordBlurHandler}
         />
-        <Button type="submit" className={signInButtonClass}>Sign In</Button>
+        <Button type="submit" className={signInButtonClass} disabled={signInButtonDisabled}><p>Sign In</p></Button>
       </form>
       <div className={styles['other-actions']}>
-        <Button onClick={signUpClickHandler}>Register</Button>
-        <Button>Forgot password</Button>
+        <Button onClick={signUpClickHandler}><p>Register</p></Button>
+        <Button><p>Forgot password</p></Button>
       </div>
     </div>
   );

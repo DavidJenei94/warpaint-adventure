@@ -1,0 +1,9 @@
+@use '../../../utils/style.variables' as styles;
+
+.packing-list-container {
+  margin: 0 auto 32px;
+  padding: 16px 36px;
+
+  text-align: center;
+  box-shadow: styles.$primaryBoxShadow;
+}

@@ -40,13 +40,16 @@ const inputStateReducer = (state: State, action: StateAction) => {
   return initialInputState;
 };
 
-const useInput = (validateValue: InputValidation) => {
+const useInput = (validateValue: InputValidation, validateEqualToValue?: string) => {
   const [inputState, dispatchInput] = useReducer(
     inputStateReducer,
     initialInputState
   );
 
-  const valueIsValid = validateValue(inputState.value);
+  let valueIsValid = validateValue(inputState.value);
+  if (validateEqualToValue) {
+    valueIsValid = valueIsValid && inputState.value === validateEqualToValue
+  }
   const hasError = !valueIsValid && inputState.isTouched;
 
   const changeHandler = (event: ChangeEvent<HTMLInputElement>) => {

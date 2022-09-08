@@ -1,0 +1,19 @@
+@use '../../utils/style.variables' as styles;
+
+.paral-button {
+  @include styles.paralElement;
+
+  &:hover {
+    @include styles.paralElementHover;
+  }
+
+  &.disabled {
+    @include styles.paralElementBorderless;
+    color: styles.$disabledColor;
+    
+    &:hover {
+      cursor: default;
+      box-shadow: styles.$primaryBoxShadow;
+    }
+  }
+}
