@@ -1,0 +1,111 @@
+@use '../../utils/style.variables' as styles;
+
+@mixin mainTransition {
+  position: absolute;
+  // find a good color here and add to utils
+  background-color: #999;
+  box-shadow: styles.$primaryBoxShadow;
+
+  transition: background-color 2s;
+
+  &:hover {
+    background-color: #11534a;
+    scale: 1.05;
+    transition: background-color 0.2s;
+  }
+}
+
+@mixin mainTransitionCircle {
+  @include mainTransition;
+
+  width: 3%;
+  // this make the the same size of height regardless the aspect ratio:
+  //https://www.w3schools.com/howto/howto_css_aspect_ratio.asp
+  padding-top: 3%;
+  border-radius: 50%;
+  width: 5vh;
+  // this make the the same size of height regardless the aspect ratio:
+  //https://www.w3schools.com/howto/howto_css_aspect_ratio.asp
+  padding-top: 5vh;
+  border-radius: 50%;
+}
+
+@mixin mainTransitionRectangle {
+  @include mainTransition;
+
+  width: 7%;
+  height: 3.5%;
+  border-radius: 5%;
+}
+
+.container {
+  position: relative;
+  width: 100vw;
+  min-height: calc(100vh - styles.$menubarHeight - 50px);
+  text-align: center;
+
+  // to use a separate opacity only for image
+  &:before {
+    content: ' ';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../../assets/images/home-elevation-new2.png');
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    opacity: 0.3;
+  }
+
+  h1 {
+    margin: 8vh auto 6vh;
+    font-size: 6vw;
+  }
+
+  p {
+    margin: 3vh auto;
+    font-size: 2vw;
+    max-width: 40%;
+  }
+
+  .fade-in {
+    opacity: 1;
+    transition: opacity 1.5s ease;
+  }
+
+  .fade-out {
+    opacity: 0;
+    transition: opacity 1.5s ease;
+  }
+
+  .planning {
+    @include mainTransitionCircle;
+    top: 12.5%;
+    left: 7.5%;
+  }
+
+  .packing {
+    @include mainTransitionCircle;
+    top: 86%;
+    left: 20%;
+  }
+
+  .experience {
+    @include mainTransitionCircle;
+    top: 72%;
+    left: 54%;
+  }
+
+  .visualize {
+    @include mainTransitionCircle;
+    top: 18%;
+    left: 88%;
+  }
+
+  .waypoint-auto-hover {
+    background-color: #11534a;
+    scale: 1.03;
+    transition: background-color scale 0.5s;
+  }
+}
