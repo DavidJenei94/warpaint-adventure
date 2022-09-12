@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useAppDispatch } from '../../hooks/redux-hooks';
 
 import useInput from '../../hooks/use-input';
-import { FeedbackBarObj } from '../../models/ui.models';
+import { Status, toggleFeedback } from '../../store/feedback';
+import { errorHandlingFetch } from '../../utils/errorHanling';
 import {
   validateEmail,
   validateName,
@@ -11,19 +13,14 @@ import {
 import ALink from '../UI/ALink';
 import Button from '../UI/Button';
 import CheckBox from '../UI/CheckBox';
-import FeedbackBar from '../UI/FeedbackBar';
 import Input from '../UI/Input';
 
 import styles from './RegistrationForm.module.scss';
 
 const RegistrationForm = () => {
-  const [arePasswordsSame, setArePasswordsSame] = useState(true);
+  const dispatch = useAppDispatch();
 
-  const [feedback, setFeedback] = useState<FeedbackBarObj>({
-    shown: false,
-    status: '',
-    message: '',
-  });
+  const [arePasswordsSame, setArePasswordsSame] = useState(true);
   const [termAccepted, setTermsAccepted] = useState(false);
 
   const {
@@ -82,12 +79,13 @@ const RegistrationForm = () => {
     registerButtonDisabled = true;
 
     if (!formIsValid) {
-      setFeedback({
-        shown: true,
-        status: 'error',
-        message:
-          'Not all fields are valid! (Hover the fields for more information.)',
-      });
+      dispatch(
+        toggleFeedback({
+          status: Status.ERROR,
+          message:
+            'Not all fields are valid! (Hover the fields for more information.)',
+        })
+      );
 
       return;
     }
@@ -121,20 +119,8 @@ const RegistrationForm = () => {
       }
 
       return true;
-    } catch (err) {
-      if (err instanceof Error) {
-        setFeedback({
-          shown: true,
-          status: 'error',
-          message: err.message,
-        });
-      } else {
-        setFeedback({
-          shown: true,
-          status: 'error',
-          message: `Unexpected error: ${err}`,
-        });
-      }
+    } catch (err: any) {
+      errorHandlingFetch(err);
     }
   };
 
@@ -150,11 +136,6 @@ const RegistrationForm = () => {
 
   return (
     <div className={styles['reg-container']}>
-      {feedback.shown && (
-        <FeedbackBar setFeedbackBar={setFeedback} status="error">
-          {feedback.message}
-        </FeedbackBar>
-      )}
       <form onSubmit={regHandler}>
         <Input
           className={emailClass}
