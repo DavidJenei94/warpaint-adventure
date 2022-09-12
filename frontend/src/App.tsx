@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from './hooks/redux-hooks';
 import { refreshToken } from './store/auth-actions';
 
 import './App.scss';
-import FeedbackBar, { FeedbackBar2 } from './components/UI/FeedbackBar';
+import FeedbackBar from './components/UI/FeedbackBar';
 
 const Home = React.lazy(() => import('./pages/Home'));
 const Login = React.lazy(() => import('./pages/Login'));
