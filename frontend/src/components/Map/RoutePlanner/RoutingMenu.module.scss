@@ -1,0 +1,47 @@
+@use '../../../utils/style.variables' as styles;
+
+.route-preactions {
+  text-align: center;
+  display: flex;
+  gap: 16px;
+
+  & > button {
+    flex: 50%;
+  }
+}
+
+.route-name-container {
+  box-shadow: styles.$primaryUpBoxShadow;
+
+  & > p {
+    margin: 12px 0;
+  }
+}
+
+.node-list {
+  min-height: 100px;
+  /* max-height: 500px; */
+  overflow: auto;
+
+  & > p {
+    margin-top: 0px;
+    font-size: 12px;
+  }
+}
+
+.route-actions {
+  /* to make it stick to bottom */
+  margin-top: auto;
+  padding: 12px 8px 8px;
+
+  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  box-shadow: styles.$primaryUpBoxShadow;
+
+  & > button {
+    flex: 40%;
+  }
+}
