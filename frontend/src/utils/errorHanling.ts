@@ -6,7 +6,11 @@ export const errorHandlingFetch = (err: Error | string) => {
     store.dispatch(
       toggleFeedback({
         status: Status.ERROR,
-        message: err.message === "Failed to fetch" ? "Unexpected server error." : err.message,
+        message:
+          err.message === 'Failed to fetch'
+            ? 'Unexpected server error.'
+            : err.message,
+        showTime: 4,
       })
     );
   } else {
@@ -14,6 +18,7 @@ export const errorHandlingFetch = (err: Error | string) => {
       toggleFeedback({
         status: Status.ERROR,
         message: `Unexpected error: ${err}.`,
+        showTime: 4,
       })
     );
   }
