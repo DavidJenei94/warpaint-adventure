@@ -20,8 +20,73 @@ const RoutingPlanner = () => {
   const [indexOfDraggedNode, setIndexOfDraggedNode] = useState<number | null>(
     null
   );
+  const [indexOfClickedRoute, setIndexOfClickedRoute] = useState<number | null>(
+    null
+  );
 
   useEffect(() => {
+    const checkSplit = (indexOfClickedRoute: number) => {
+      let newNode: LatLng;
+
+      setRoutes((prevState) => {
+        let prevStateCopy = [...prevState];
+        // let prevStateCopy = JSON.parse(JSON.stringify(prevState));
+
+        const selectedRoute = prevStateCopy[indexOfClickedRoute];
+        const routeLength =
+          selectedRoute.features[0].geometry.coordinates.length;
+        if (routeLength < 3) return prevState; // if length is short, do not split
+
+        const splitIndex = Math.ceil(routeLength / 2);
+        const splitRouteCoordinates1 =
+          selectedRoute.features[0].geometry.coordinates.slice(0, splitIndex);
+        const splitRouteCoordinates2 =
+          selectedRoute.features[0].geometry.coordinates.slice(splitIndex - 1);
+
+        // deep copy featurecollection
+        // should be replaced to only copy necessary data and add distance eg.
+        let splitRoute1 = JSON.parse(JSON.stringify(selectedRoute));
+        splitRoute1.features[0].geometry.coordinates = splitRouteCoordinates1;
+        let splitRoute2 = JSON.parse(JSON.stringify(selectedRoute));
+        splitRoute2.features[0].geometry.coordinates = splitRouteCoordinates2;
+
+        // add new node
+        const newCoordinate =
+          selectedRoute.features[0].geometry.coordinates[splitIndex - 1];
+        newNode = new LatLng(newCoordinate[1], newCoordinate[0]);
+
+        // add splitted routes
+        let newRoutes: any[] = [];
+
+        if (indexOfClickedRoute !== 0) {
+          const splitRoutes1 = prevStateCopy.slice(0, indexOfClickedRoute);
+          newRoutes = newRoutes.concat(splitRoutes1);
+        }
+
+        newRoutes.push(splitRoute1);
+        newRoutes.push(splitRoute2);
+
+        if (indexOfClickedRoute !== prevState.length - 1) {
+          const splitRoutes2 = prevStateCopy.slice(indexOfClickedRoute + 1);
+          newRoutes = newRoutes.concat(splitRoutes2);
+        }
+
+        return newRoutes;
+      });
+
+      setNodes((prevNodeState) => {
+        let prevNodeStateCopy = [...prevNodeState];
+
+        prevNodeStateCopy.splice(indexOfClickedRoute + 1, 0, newNode);
+
+        return prevNodeStateCopy;
+      });
+
+      setIndexOfClickedRoute(null);
+      setNextPosition(null);
+      return;
+    };
+
     const handleNodeChange = async () => {
       if (!nextPosition) return;
 
@@ -66,8 +131,13 @@ const RoutingPlanner = () => {
       }
     };
 
-    handleNodeChange();
-  }, [nodes, nextPosition, indexOfDraggedNode]);
+    // handle route splitting when route is clicked
+    if ((indexOfClickedRoute || indexOfClickedRoute === 0) && nextPosition) {
+      checkSplit(indexOfClickedRoute);
+    } else {
+      handleNodeChange();
+    }
+  }, [nodes, nextPosition, indexOfDraggedNode, indexOfClickedRoute]);
 
   const fetchRoute = async (startPos: LatLng, endPos: LatLng) => {
     try {
@@ -168,7 +238,10 @@ const RoutingPlanner = () => {
         <Map>
           <CurrentPosition setPosition={setNextPosition} />
           <FeatureGroup>
-            <GeoJSONs geoJSONs={routes} />
+            <GeoJSONs
+              geoJSONs={routes}
+              setClickedRouteIndex={setIndexOfClickedRoute}
+            />
           </FeatureGroup>
           {nodes[0] &&
             nodes.map((node, index) => (
