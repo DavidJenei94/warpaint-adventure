@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react';
 import { LatLng } from 'leaflet';
 import { FeatureGroup, Marker } from 'react-leaflet';
 import { errorHandlingFetch } from '../../../utils/errorHanling';
+import {
+  createBasicGeoJsonFC,
+  getDistanceOfRoute,
+} from '../Utils/geojson.utils';
 
 import MapLayout from '../Layout/MapLayout';
 import RoutingMenu from './RoutingMenu';
@@ -37,25 +41,29 @@ const RoutingPlanner = () => {
           selectedRoute.features[0].geometry.coordinates.length;
         if (routeLength < 3) return prevState; // if length is short, do not split
 
+        // split coordinates into 2 parts
         const splitIndex = Math.ceil(routeLength / 2);
         const splitRouteCoordinates1 =
           selectedRoute.features[0].geometry.coordinates.slice(0, splitIndex);
         const splitRouteCoordinates2 =
           selectedRoute.features[0].geometry.coordinates.slice(splitIndex - 1);
 
-        // deep copy featurecollection
-        // should be replaced to only copy necessary data and add distance eg.
-        let splitRoute1 = JSON.parse(JSON.stringify(selectedRoute));
-        splitRoute1.features[0].geometry.coordinates = splitRouteCoordinates1;
-        let splitRoute2 = JSON.parse(JSON.stringify(selectedRoute));
-        splitRoute2.features[0].geometry.coordinates = splitRouteCoordinates2;
+        // create splitted routes
+        let splitRoute1 = createBasicGeoJsonFC(
+          { coordinates: splitRouteCoordinates1, type: 'LineString' },
+          getDistanceOfRoute(splitRouteCoordinates1)
+        );
+        let splitRoute2 = createBasicGeoJsonFC(
+          { coordinates: splitRouteCoordinates2, type: 'LineString' },
+          getDistanceOfRoute(splitRouteCoordinates2)
+        );
 
         // add new node
         const newCoordinate =
           selectedRoute.features[0].geometry.coordinates[splitIndex - 1];
         newNode = new LatLng(newCoordinate[1], newCoordinate[0]);
 
-        // add splitted routes
+        // add splitted routes to routes
         let newRoutes: any[] = [];
 
         if (indexOfClickedRoute !== 0) {
@@ -183,11 +191,15 @@ const RoutingPlanner = () => {
       setRoutes((prevState) => {
         const prevStateCopy = [...prevState];
 
+        const newFeatureCollection = createBasicGeoJsonFC(
+          data.features[0].geometry,
+          data.features[0].properties.summary.distance
+        );
         if (startNode) {
-          prevStateCopy[nodeIndex] = data;
+          prevStateCopy[nodeIndex] = newFeatureCollection;
         }
         if (!startNode) {
-          prevStateCopy[nodeIndex - 1] = data;
+          prevStateCopy[nodeIndex - 1] = newFeatureCollection;
         }
 
         return prevStateCopy;
@@ -223,12 +235,17 @@ const RoutingPlanner = () => {
     if (coordinatesLength !== 1) {
       setRoutes((prevState) => {
         const prevStateCopy = [...prevState];
-        return [...prevStateCopy].concat(data);
+        // reduce geoJson data by removing unnecessary data
+        const newFeatureCollection = createBasicGeoJsonFC(
+          data.features[0].geometry,
+          data.features[0].properties.summary.distance
+        );
+        return [...prevStateCopy].concat(newFeatureCollection);
       });
     }
   };
 
-  // console.log(routes);
+  console.log(routes);
   // console.log(nodes);
 
   return (
