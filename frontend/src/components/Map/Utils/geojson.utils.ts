@@ -31,11 +31,9 @@ export const getDistanceOfRoute = (coordinates: number[][]) => {
 
   const totalDistance = coordinates.reduce(
     (previousValue, currentCoordinate, index) => {
-      if (index === 0) {
-        previousCoordinate = currentCoordinate;
-      } else {
-        previousCoordinate = coordinates[index - 1];
-      }
+      if (index === 0) return 0;
+
+      previousCoordinate = coordinates[index - 1];
 
       return (
         previousValue +
