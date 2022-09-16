@@ -1,4 +1,5 @@
 import { LatLng } from 'leaflet';
+import { errorHandlingFetch } from '../../../utils/errorHanling';
 import { round } from '../../../utils/general.utils';
 
 type GeometryType = {
@@ -46,4 +47,23 @@ export const getDistanceOfRoute = (coordinates: number[][]) => {
   );
 
   return round(totalDistance, 1);
+};
+
+
+export const fetchGeoJSONRoute = async (startPos: LatLng, endPos: LatLng) => {
+  try {
+    const response = await fetch(
+      `http://localhost:8080/ors/v2/directions/foot-hiking?start=${startPos.lng},${startPos.lat}&end=${endPos.lng},${endPos.lat}`
+    );
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error.message);
+    }
+
+    return data;
+  } catch (err: any) {
+    errorHandlingFetch(err.message);
+    return null;
+  }
 };

@@ -1,0 +1,20 @@
+@use '../../../../utils/style.variables' as styles;
+
+.popup {
+  a,
+  span {
+    display: none;
+  }
+
+  & > div:nth-child(1) {
+    background-color: styles.$primaryColor;
+    text-align: center;
+
+    & > div:nth-child(1) {
+      margin: 13px 13px;
+    }
+  }
+  & > div:nth-child(2) > div {
+    background-color: styles.$primaryColor;
+  }
+}
