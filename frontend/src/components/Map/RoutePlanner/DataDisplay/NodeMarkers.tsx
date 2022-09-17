@@ -56,8 +56,6 @@ const NodeMarkers = ({
       const prevStateCopy = [...prevState];
       const selectedNodeIndex = nodes.lastIndexOf(selectedNode!);
 
-      console.log(selectedNodeIndex);
-
       //handle first node
       if (selectedNodeIndex === 0) {
         prevStateCopy.splice(selectedNodeIndex, 1);

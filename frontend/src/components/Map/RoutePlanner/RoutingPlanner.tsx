@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LatLng } from 'leaflet';
 import { createBasicGeoJsonFC } from '../Utils/geojson.utils';
 import { Status, toggleFeedback } from '../../../store/feedback';
@@ -17,6 +17,22 @@ const RoutingPlanner = () => {
 
   const [nodes, setNodes] = useState<LatLng[]>([]);
   const [routes, setRoutes] = useState<GeoJSON.FeatureCollection<any>[]>([]);
+
+  const [warningMessage, setWarningMessage] = useState('');
+
+  useEffect(() => {
+    if (warningMessage) {
+      dispatch(
+        toggleFeedback({
+          status: Status.WARNING,
+          message: warningMessage,
+          showTime: 3,
+        })
+      );
+    }
+
+    setWarningMessage('');
+  }, [warningMessage]);
 
   const handleFetchedRoutingData = (
     data: any,
@@ -71,31 +87,26 @@ const RoutingPlanner = () => {
     const newLng = coordinates[coordinatesLength - 1][0];
     let nodeAlreadyExists = false; // and if not the 1st node
 
-    if (nodes.some((node) => node.lat === newLat && node.lng === newLng)) {
-      nodeAlreadyExists = nodes.length !== 0;
-    }
-
     // do not create new node at coordinate of a previous one
     // (it would create 1st node twice and do not create more at dead ends)
     setNodes((prevState) => {
-      if (nodeAlreadyExists) return prevState;
+      if (
+        prevState.some((node) => node.lat === newLat && node.lng === newLng)
+      ) {
+        nodeAlreadyExists = nodes.length !== 0;
+      }
+
+      if (nodeAlreadyExists) {
+        setWarningMessage(
+          `Node already exists at coordinate: Lat: ${newLat}, Lng: ${newLng}`
+        );
+        return prevState;
+      }
 
       const prevStateCopy = [...prevState];
       return [...prevStateCopy].concat(new LatLng(newLat, newLng));
     });
 
-    // Gives feedback if new node is not added
-    // must be outside of setNode
-    if (nodeAlreadyExists) {
-      dispatch(
-        toggleFeedback({
-          status: Status.WARNING,
-          message: `Node already exists at coordinate: Lat: ${newLat}, Lng: ${newLng}`,
-          showTime: 2,
-        })
-      );
-    }
-    
     // on first node fetch there is only one coordinate
     // should not set route
     // and if clicked where node already exists
@@ -125,6 +136,7 @@ const RoutingPlanner = () => {
             setRoutes={setRoutes}
             nodes={nodes}
             setNodes={setNodes}
+            setWarningMessage={setWarningMessage}
           />
           <NodeMarkers
             nodes={nodes}

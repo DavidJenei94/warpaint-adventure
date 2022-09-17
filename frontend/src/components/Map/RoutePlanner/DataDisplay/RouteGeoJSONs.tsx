@@ -11,6 +11,7 @@ type RouteGeoJSONsProps = {
   setRoutes: Dispatch<SetStateAction<GeoJSON.FeatureCollection<any>[]>>;
   nodes: LatLng[];
   setNodes: Dispatch<SetStateAction<LatLng[]>>;
+  setWarningMessage: Dispatch<SetStateAction<string>>;
 };
 
 const RouteGeoJSONs = ({
@@ -18,7 +19,9 @@ const RouteGeoJSONs = ({
   setRoutes,
   nodes,
   setNodes,
+  setWarningMessage
 }: RouteGeoJSONsProps) => {
+
   const splitGeoJSONHandler = (event: LeafletMouseEvent) => {
     // Feature array has the same indexing as routes, as all element contains only one feature
     const featuresArray = routes.map((route) => route.features[0]);
@@ -37,7 +40,11 @@ const RouteGeoJSONs = ({
 
       const selectedRoute = prevStateCopy[routeIndex];
       const routeLength = selectedRoute.features[0].geometry.coordinates.length;
-      if (routeLength < 3) return prevState; // if length is short, do not split
+      // if length is short, do not split
+      if (routeLength < 3) {
+        setWarningMessage("Route cannot be splitted further!")
+        return prevState;
+      } 
 
       let lowestDistance: number;
       let splitIndex = 0;
@@ -65,7 +72,8 @@ const RouteGeoJSONs = ({
             selectedNode.lat === node.lat && selectedNode.lng === node.lng
         )
       ) {
-        // should be added a warning message like in routingplanner new node already exists
+        setWarningMessage(`Route is already splitted at this node!`);
+
         return prevState;
       }
 
