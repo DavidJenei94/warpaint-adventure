@@ -1,10 +1,6 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 import { LatLng, Point } from 'leaflet';
-import {
-  Marker,
-  Popup,
-  useMapEvents,
-} from 'react-leaflet';
+import { Marker, Popup, useMapEvents } from 'react-leaflet';
 import {
   createBasicGeoJsonFC,
   fetchGeoJSONRoute,
@@ -134,10 +130,10 @@ const NodeMarkers = ({
   return (
     <>
       {nodes[0] &&
-        nodes.map((node, index) => (
+        nodes.map((node) => (
           <Marker
-            // key={`${Math.random().toString()}-${index}`}
-            key={`${index}`}
+            // This key is enough as there can't be 2 node placed on each other
+            key={`marker-${node.lat}-${node.lng}`}
             position={node}
             icon={nodeIcon}
             draggable={true}

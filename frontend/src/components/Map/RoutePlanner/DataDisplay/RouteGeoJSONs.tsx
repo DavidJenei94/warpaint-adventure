@@ -1,4 +1,4 @@
-import L, { LatLng, LeafletMouseEvent } from 'leaflet';
+import { LatLng, LeafletMouseEvent } from 'leaflet';
 import { Dispatch, SetStateAction } from 'react';
 import { GeoJSON } from 'react-leaflet';
 import {
@@ -64,8 +64,11 @@ const RouteGeoJSONs = ({
           (node) =>
             selectedNode.lat === node.lat && selectedNode.lng === node.lng
         )
-      )
+      ) {
+        // should be added a warning message like in routingplanner new node already exists
         return prevState;
+      }
+
       const newCoordinate =
         selectedRoute.features[0].geometry.coordinates[splitIndex];
       newNode = new LatLng(newCoordinate[1], newCoordinate[0]);
@@ -121,10 +124,17 @@ const RouteGeoJSONs = ({
 
   return (
     <>
-      {routes.map((route, index) => {
+      {routes.map((route) => {
+        const coordinates = route.features[0].geometry.coordinates;
+        // This key is enough as there can't be 2 node placed on each other
+        // Must use end coordinates to recalculate route
+        const key = `route-${coordinates[0][1]}-${coordinates[0][0]}-${
+          coordinates[coordinates.length - 1][1]
+        }-${coordinates[coordinates.length - 1][0]}`;
+
         return (
           <GeoJSON
-            key={`${Math.random().toString()}-${index}`}
+            key={key}
             attribution="&copy; credits due..."
             style={{
               color: '#2222bb',

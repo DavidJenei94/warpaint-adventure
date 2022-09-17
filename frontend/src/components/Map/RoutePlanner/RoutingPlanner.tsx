@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { LatLng } from 'leaflet';
 import { createBasicGeoJsonFC } from '../Utils/geojson.utils';
+import { Status, toggleFeedback } from '../../../store/feedback';
+import { useAppDispatch } from '../../../hooks/redux-hooks';
 
 import MapLayout from '../Layout/MapLayout';
 import RoutingMenu from './RoutingMenu';
@@ -11,6 +13,8 @@ import RouteGeoJSONs from './DataDisplay/RouteGeoJSONs';
 import styles from './RoutingPlanner.module.scss';
 
 const RoutingPlanner = () => {
+  const dispatch = useAppDispatch();
+
   const [nodes, setNodes] = useState<LatLng[]>([]);
   const [routes, setRoutes] = useState<GeoJSON.FeatureCollection<any>[]>([]);
 
@@ -63,30 +67,39 @@ const RoutingPlanner = () => {
     }
 
     // otherwise if new node is placed
+    const newLat = coordinates[coordinatesLength - 1][1];
+    const newLng = coordinates[coordinatesLength - 1][0];
+    let nodeAlreadyExists = false; // and if not the 1st node
+
+    if (nodes.some((node) => node.lat === newLat && node.lng === newLng)) {
+      nodeAlreadyExists = nodes.length !== 0;
+    }
+
+    // do not create new node at coordinate of a previous one
+    // (it would create 1st node twice and do not create more at dead ends)
     setNodes((prevState) => {
-      // On first node placed it would place another one
-      // prevent this with returning prevState
-      if (
-        prevState[0] &&
-        !prevState[1] &&
-        prevState[0].lat === coordinates[coordinatesLength - 1][1] &&
-        prevState[0].lng === coordinates[coordinatesLength - 1][0]
-      ) {
-        return prevState;
-      }
+      if (nodeAlreadyExists) return prevState;
 
       const prevStateCopy = [...prevState];
-      return [...prevStateCopy].concat(
-        new LatLng(
-          coordinates[coordinatesLength - 1][1],
-          coordinates[coordinatesLength - 1][0]
-        )
-      );
+      return [...prevStateCopy].concat(new LatLng(newLat, newLng));
     });
 
-    // on first node there is only one coordinate
-    // should not set routes with it
-    if (coordinatesLength !== 1) {
+    // Gives feedback if new node is not added
+    // must be outside of setNode
+    if (nodeAlreadyExists) {
+      dispatch(
+        toggleFeedback({
+          status: Status.WARNING,
+          message: `Node already exists at coordinate: Lat: ${newLat}, Lng: ${newLng}`,
+          showTime: 2,
+        })
+      );
+    }
+    
+    // on first node fetch there is only one coordinate
+    // should not set route
+    // and if clicked where node already exists
+    if (coordinatesLength !== 1 && !nodeAlreadyExists) {
       setRoutes((prevState) => {
         const prevStateCopy = [...prevState];
         // reduce geoJson data by removing unnecessary data
