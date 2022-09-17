@@ -4,6 +4,10 @@ export type ChildrenProps = {
   children: React.ReactNode;
 }
 
+export type ChildrenConditionalProps = {
+  children?: React.ReactNode;
+}
+
 export type ClassNameProps = {
   className: string;
 }

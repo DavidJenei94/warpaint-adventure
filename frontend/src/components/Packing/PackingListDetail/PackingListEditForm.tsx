@@ -8,7 +8,7 @@ import useModal from '../../../hooks/modal-hook';
 import Button from '../../UI/Button';
 import Input from '../../UI/Input';
 import Modal from '../../UI/Modal/Modal';
-import DeleteConfirmation from '../../UI/ConfirmationModals/DeleteConfirmation';
+import BasicConfirmation from '../../UI/ConfirmationModals/BasicConfirmation';
 
 import styles from './PackingListEditForm.module.scss';
 import deleteIcon from '../../../assets/icons/icons-trash-16.png';
@@ -173,7 +173,7 @@ const PackingListEditForm = ({
     <div className={styles['packing-list-edit']}>
       {deleteModalIsShown && (
         <Modal onClose={toggleDeleteModal} onConfirm={deleteListHandler}>
-          <DeleteConfirmation />
+          <BasicConfirmation>Are you sure you want to delete it?</BasicConfirmation>
         </Modal>
       )}
       {inNameEditMode && (

@@ -7,7 +7,7 @@ import { PackingItem } from '../../../models/packing.models';
 
 import Button from '../../UI/Button';
 import Modal from '../../UI/Modal/Modal';
-import DeleteConfirmation from '../../UI/ConfirmationModals/DeleteConfirmation';
+import BasicConfirmation from '../../UI/ConfirmationModals/BasicConfirmation';
 import Input from '../../UI/Input';
 
 import styles from './PackingItemSingle.module.scss';
@@ -140,7 +140,7 @@ const PackingItemSingle = ({
     <>
       {deleteModalIsShown && (
         <Modal onClose={toggleDeleteModal} onConfirm={deleteItemHandler}>
-          <DeleteConfirmation />
+          <BasicConfirmation>Are you sure you want to delete it?</BasicConfirmation>
         </Modal>
       )}
       <div className={!cardView ? styles['packing-item'] : styles['packing-item-card']}>
