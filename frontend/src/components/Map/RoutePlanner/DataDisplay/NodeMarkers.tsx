@@ -14,7 +14,7 @@ import deleteIcon from '../../../../assets/icons/icons-trash-16.png';
 
 type NodeMarkersProps = {
   nodes: LatLng[];
-  setNodes: (value: LatLng[]) => void;
+  setNodes: Dispatch<SetStateAction<LatLng[]>>;
   routes: GeoJSON.FeatureCollection<any>[];
   setRoutes: Dispatch<SetStateAction<GeoJSON.FeatureCollection<any>[]>>;
   handleFetchedRoutingData: (

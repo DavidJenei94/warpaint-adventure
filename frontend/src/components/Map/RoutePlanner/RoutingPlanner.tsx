@@ -129,7 +129,7 @@ const RoutingPlanner = () => {
   return (
     <>
       <MapLayout>
-        <RoutingMenu nodes={nodes} />
+        <RoutingMenu nodes={nodes} setNodes={setNodes} setRoutes={setRoutes}/>
         <Map>
           <RouteGeoJSONs
             routes={routes}
