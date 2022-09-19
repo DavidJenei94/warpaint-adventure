@@ -6,7 +6,7 @@ const Map = ({ children }: ChildrenProps) => {
     <div>
       <MapContainer
         center={[46.22406960789375, 20.672510248317746]}
-        zoom={13}
+        zoom={9}
         scrollWheelZoom={true}
       >
         <TileLayer
