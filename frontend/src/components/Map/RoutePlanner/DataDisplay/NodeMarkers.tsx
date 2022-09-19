@@ -152,7 +152,12 @@ const NodeMarkers = ({
               className={styles.popup}
               offset={new Point(0, 0)}
               minWidth={30}
+              maxWidth={250}
             >
+              <div>
+                <p>Coordinates:</p>
+                <p>{`${node.lat}, ${node.lng}`}</p>
+              </div>
               <Button
                 onClick={(e) => {
                   deleteMarkerHandler();
