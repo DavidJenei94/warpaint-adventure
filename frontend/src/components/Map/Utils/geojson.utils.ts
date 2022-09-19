@@ -49,6 +49,9 @@ export const getDistanceOfRoute = (coordinates: number[][]) => {
   return round(totalDistance, 1);
 };
 
+export const sameCoordinates = (node1: LatLng, node2: LatLng) => {
+  return node1.lat === node2.lat && node1.lng === node2.lng;
+};
 
 export const fetchGeoJSONRoute = async (startPos: LatLng, endPos: LatLng) => {
   try {

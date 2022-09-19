@@ -11,9 +11,18 @@ import NodeMarkers from './DataDisplay/NodeMarkers';
 import RouteGeoJSONs from './DataDisplay/RouteGeoJSONs';
 
 import styles from './RoutingPlanner.module.scss';
+import Input from '../../UI/Input';
+import SingleInputConfirmation from '../../UI/ConfirmationModals/SingleInputConfirmation';
+import Button from '../../UI/Button';
 
 const RoutingPlanner = () => {
   const dispatch = useAppDispatch();
+
+  const [activeRoute, setActiveRoute] = useState({
+    id: 0,
+    name: '',
+    path: '',
+  });
 
   const [nodes, setNodes] = useState<LatLng[]>([]);
   const [routes, setRoutes] = useState<GeoJSON.FeatureCollection<any>[]>([]);
@@ -129,7 +138,13 @@ const RoutingPlanner = () => {
   return (
     <>
       <MapLayout>
-        <RoutingMenu nodes={nodes} setNodes={setNodes} setRoutes={setRoutes}/>
+        <RoutingMenu
+          nodes={nodes}
+          setNodes={setNodes}
+          routes={routes}
+          setRoutes={setRoutes}
+          setWarningMessage={setWarningMessage}
+        />
         <Map>
           <RouteGeoJSONs
             routes={routes}

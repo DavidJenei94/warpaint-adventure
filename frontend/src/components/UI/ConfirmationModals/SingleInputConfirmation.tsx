@@ -1,15 +1,22 @@
-import { ResponseProp } from '../../../models/basic.props';
+import { ComponentProps } from 'react';
+import {
+  ChildrenConditionalProps,
+  ResponseStringProp,
+} from '../../../models/basic.props';
 
 import Input from '../Input';
 
-const SingleInputConfirmation = ({ response, setResponse }: ResponseProp) => {
+type SingleInputConfirmationProps = ChildrenConditionalProps &
+  ComponentProps<'input'>;
+
+const SingleInputConfirmation = ({
+  children,
+  ...otherProps
+}: SingleInputConfirmationProps) => {
   return (
     <>
-      <p>Please give a value:</p>
-      <Input
-        value={response[0]}
-        onChange={(event) => setResponse([event.target.value])}
-      />
+      <p>{children}</p>
+      <Input {...otherProps} />
     </>
   );
 };
