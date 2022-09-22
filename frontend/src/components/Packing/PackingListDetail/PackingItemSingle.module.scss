@@ -41,13 +41,19 @@
 
   box-shadow: styles.$primaryBoxShadow;
 
-  input {
-    width: 150px;
-    margin: 16px auto;
-  }
+  .packing-name-container {
+    & > p,
+    input {
+      margin: 16px auto;
+    }
 
-  button {
-    margin: 0 8px 16px;
+    & > input {
+      width: 150px;
+    }
+
+    & > button {
+      margin: 0 8px 16px;
+    }
   }
 
   .packing-item-actions {
