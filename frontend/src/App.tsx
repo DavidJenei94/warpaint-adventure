@@ -11,7 +11,8 @@ import { useAppDispatch, useAppSelector } from './hooks/redux-hooks';
 import { refreshToken } from './store/auth-actions';
 
 import './App.scss';
-import FeedbackBar, { FeedbackBar2 } from './components/UI/FeedbackBar';
+import FeedbackBar from './components/UI/FeedbackBar';
+import RoutePlanner from './pages/RoutePlanner';
 
 const Home = React.lazy(() => import('./pages/Home'));
 const Login = React.lazy(() => import('./pages/Login'));
@@ -46,12 +47,11 @@ function App() {
   }, [dispatch, user.isAuthenticated]);
 
   // console.log(feedback.shown);
-  
 
   return (
     <>
       {feedback.shown && (
-        <FeedbackBar2 status={feedback.status}>{feedback.message}</FeedbackBar2>
+        <FeedbackBar status={feedback.status}>{feedback.message}</FeedbackBar>
       )}
       <MenuBar />
       <Suspense fallback={<LoadingIcon />}>
@@ -65,6 +65,7 @@ function App() {
             <Route path="/premium" element={<Premium />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/map">
+              <Route path="routing" element={<RoutePlanner />} />
               <Route path="designer" element={<AdventureDesigner />} />
               <Route path="viewer" element={<AdventureViewer />} />
             </Route>

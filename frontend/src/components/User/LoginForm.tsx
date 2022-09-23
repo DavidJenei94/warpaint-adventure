@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authActions } from '../../store/auth';
 
@@ -6,20 +5,13 @@ import Button from '../UI/Button';
 import Input from '../UI/Input';
 import styles from './LoginForm.module.scss';
 import { useAppDispatch } from '../../hooks/redux-hooks';
-import FeedbackBar from '../UI/FeedbackBar';
-import { FeedbackBarObj } from '../../models/ui.models';
 import useInput from '../../hooks/use-input';
 import { validateEmail } from '../../utils/validation.utils';
+import { errorHandlingFetch } from '../../utils/errorHanling';
 
 const LoginForm = () => {
   const dispatch = useAppDispatch();
   let navigate = useNavigate();
-  
-    const [feedback, setFeedback] = useState<FeedbackBarObj>({
-      shown: false,
-      status: '',
-      message: '',
-    });
 
   const {
     value: email,
@@ -37,7 +29,7 @@ const LoginForm = () => {
     changeHandler: passwordChangeHandler,
     blurHandler: passwordBlurHandler,
     reset: passwordReset,
-  } = useInput((value) => value.trim() !== "");
+  } = useInput((value) => value.trim() !== '');
 
   const formIsValid = emailIsValid && passwordIsValid;
 
@@ -80,20 +72,8 @@ const LoginForm = () => {
       }
 
       return data.user;
-    } catch (err) {
-      if (err instanceof Error) {
-        setFeedback({
-          shown: true,
-          status: 'error',
-          message: err.message,
-        });
-      } else {
-        setFeedback({
-          shown: true,
-          status: 'error',
-          message: `Unexpected error: ${err}`,
-        });
-      }
+    } catch (err: any) {
+      errorHandlingFetch(err);
     }
   };
 
@@ -108,11 +88,6 @@ const LoginForm = () => {
 
   return (
     <div className={styles['login-container']}>
-      {feedback.shown && (
-        <FeedbackBar setFeedbackBar={setFeedback} status="error">
-          {feedback.message}
-        </FeedbackBar>
-      )}
       <form onSubmit={loginHandler}>
         <Input
           className={emailClass}
@@ -132,11 +107,21 @@ const LoginForm = () => {
           onChange={passwordChangeHandler}
           onBlur={passwordBlurHandler}
         />
-        <Button type="submit" className={signInButtonClass} disabled={signInButtonDisabled}><p>Sign In</p></Button>
+        <Button
+          type="submit"
+          className={signInButtonClass}
+          disabled={signInButtonDisabled}
+        >
+          <p>Sign In</p>
+        </Button>
       </form>
       <div className={styles['other-actions']}>
-        <Button onClick={signUpClickHandler}><p>Register</p></Button>
-        <Button><p>Forgot password</p></Button>
+        <Button onClick={signUpClickHandler}>
+          <p>Register</p>
+        </Button>
+        <Button>
+          <p>Forgot password</p>
+        </Button>
       </div>
     </div>
   );

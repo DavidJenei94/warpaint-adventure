@@ -1,0 +1,32 @@
+@use '../../../../utils/style.variables' as styles;
+
+.popup {
+  a,
+  span {
+    display: none;
+  }
+
+  // outer box
+  & > div:nth-child(1) {
+    background-color: styles.$primaryColor;
+    text-align: center;
+
+    // inner box
+    & > div:nth-child(1) {
+      margin: 13px 13px;
+
+      display: flex;
+      gap: 16px;
+
+      p {
+        margin: 0;
+        color: styles.$primaryContrastColor;
+      }
+    }
+  }
+
+  // triangle
+  & > div:nth-child(2) > div {
+    background-color: styles.$primaryColor;
+  }
+}

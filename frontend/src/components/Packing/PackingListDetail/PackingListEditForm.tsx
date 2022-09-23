@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../hooks/redux-hooks';
 import { Status, toggleFeedback } from '../../../store/feedback';
 import { PackingItem, PackingList } from '../../../models/packing.models';
@@ -6,15 +6,13 @@ import { errorHandlingFetch } from '../../../utils/errorHanling';
 import useModal from '../../../hooks/modal-hook';
 
 import Button from '../../UI/Button';
-import Input from '../../UI/Input';
 import Modal from '../../UI/Modal/Modal';
-import DeleteConfirmation from '../../UI/ConfirmationModals/DeleteConfirmation';
+import BasicConfirmation from '../../UI/ConfirmationModals/BasicConfirmation';
 
 import styles from './PackingListEditForm.module.scss';
-import deleteIcon from '../../../assets/icons/icons-trash-16.png';
-import editIcon from '../../../assets/icons/icons-edit-16.png';
 import cardViewIcon from '../../../assets/icons/view-card.png';
 import listViewIcon from '../../../assets/icons/view-list.png';
+import EditDeleteText from '../../UI/Combined/EditDeleteText';
 
 type PackingListProps = {
   packingList: PackingList;
@@ -34,22 +32,11 @@ const PackingListEditForm = ({
   const token = useAppSelector((state) => state.auth.token);
   const dispatch = useAppDispatch();
 
-  const [inNameEditMode, setInNameEditMode] = useState(false);
   const [packingListName, setPackingListName] = useState(packingList.name);
   const { isShown: deleteModalIsShown, toggleModal: toggleDeleteModal } =
     useModal();
 
-  const nameEditButtonHandler = () => {
-    setInNameEditMode((prevState) => !prevState);
-  };
-
-  const editNameHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPackingListName(event.target.value);
-  };
-
-  const editNameBlurHandler = async () => {
-    setInNameEditMode(false);
-
+  const confirmNameChangeHandler = async () => {
     // If name was not changed
     if (packingList.name === packingListName) {
       return;
@@ -87,14 +74,6 @@ const PackingListEditForm = ({
       );
     } catch (err: any) {
       errorHandlingFetch(err);
-    }
-  };
-
-  const editNameEnterHandler = (
-    event: React.KeyboardEvent<HTMLInputElement>
-  ) => {
-    if (event.key === 'Enter') {
-      editNameBlurHandler();
     }
   };
 
@@ -173,29 +152,24 @@ const PackingListEditForm = ({
     <div className={styles['packing-list-edit']}>
       {deleteModalIsShown && (
         <Modal onClose={toggleDeleteModal} onConfirm={deleteListHandler}>
-          <DeleteConfirmation />
+          <BasicConfirmation>
+            Are you sure you want to delete it?
+          </BasicConfirmation>
         </Modal>
       )}
-      {inNameEditMode && (
-        <Input
-          value={packingListName}
-          onChange={editNameHandler}
-          onBlur={editNameBlurHandler}
-          onKeyDown={editNameEnterHandler}
-        />
-      )}
-      {!inNameEditMode && <p>{packingList.name}</p>}
-      <Button onClick={nameEditButtonHandler}>
-        <img src={editIcon} />
-      </Button>
-      <Button onClick={toggleDeleteModal}>
-        <img src={deleteIcon} />
-      </Button>
+      <EditDeleteText
+        text={packingListName}
+        setText={setPackingListName}
+        toggleDeleteModal={toggleDeleteModal}
+        onConfirmChange={confirmNameChangeHandler}
+      />
       <div className={styles['packing-actions']}>
         <Button onClick={viewToggler}>
           {cardView ? <img src={listViewIcon} /> : <img src={cardViewIcon} />}
         </Button>
-        <Button onClick={unpackAllHandler}><p>Unpack all</p></Button>
+        <Button onClick={unpackAllHandler}>
+          <p>Unpack all</p>
+        </Button>
       </div>
     </div>
   );

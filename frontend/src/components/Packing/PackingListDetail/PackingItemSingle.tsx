@@ -4,19 +4,16 @@ import { Status, toggleFeedback } from '../../../store/feedback';
 import { errorHandlingFetch } from '../../../utils/errorHanling';
 import useModal from '../../../hooks/modal-hook';
 import { PackingItem } from '../../../models/packing.models';
-
-import Button from '../../UI/Button';
-import Modal from '../../UI/Modal/Modal';
-import DeleteConfirmation from '../../UI/ConfirmationModals/DeleteConfirmation';
-import Input from '../../UI/Input';
-
-import styles from './PackingItemSingle.module.scss';
-import editIcon from '../../../assets/icons/icons-edit-16.png';
-import deleteIcon from '../../../assets/icons/icons-trash-16.png';
 import PackingItemActions from './PackingItemActions';
 
+import Modal from '../../UI/Modal/Modal';
+import BasicConfirmation from '../../UI/ConfirmationModals/BasicConfirmation';
+import EditDeleteText from '../../UI/Combined/EditDeleteText';
+
+import styles from './PackingItemSingle.module.scss';
+
 type PackingItemProps = PackingItem & {
-  cardView: boolean,
+  cardView: boolean;
   packingListId: number;
   onEditItems: Dispatch<SetStateAction<PackingItem[]>>;
 };
@@ -35,20 +32,9 @@ const PackingItemSingle = ({
   const { isShown: deleteModalIsShown, toggleModal: toggleDeleteModal } =
     useModal();
 
-  const [inNameEditMode, setInNameEditMode] = useState(false);
   const [packingItemName, setPackingItemName] = useState(name);
 
-  const nameEditButtonHandler = () => {
-    setInNameEditMode((prevState) => !prevState);
-  };
-
-  const editNameHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPackingItemName(event.target.value);
-  };
-
-  const editNameBlurHandler = async () => {
-    setInNameEditMode(false);
-
+  const confirmNameChangeHandler = async () => {
     // If name was not changed
     if (name === packingItemName) {
       return;
@@ -95,14 +81,6 @@ const PackingItemSingle = ({
     }
   };
 
-  const editNameEnterHandler = (
-    event: React.KeyboardEvent<HTMLInputElement>
-  ) => {
-    if (event.key === 'Enter') {
-      editNameBlurHandler();
-    }
-  };
-
   const deleteItemHandler = async () => {
     try {
       const response = await fetch(
@@ -140,26 +118,23 @@ const PackingItemSingle = ({
     <>
       {deleteModalIsShown && (
         <Modal onClose={toggleDeleteModal} onConfirm={deleteItemHandler}>
-          <DeleteConfirmation />
+          <BasicConfirmation>
+            Are you sure you want to delete it?
+          </BasicConfirmation>
         </Modal>
       )}
-      <div className={!cardView ? styles['packing-item'] : styles['packing-item-card']}>
-        {inNameEditMode && (
-          <Input
-            value={packingItemName}
-            onChange={editNameHandler}
-            onBlur={editNameBlurHandler}
-            onKeyDown={editNameEnterHandler}
-            autoFocus
-          />
-        )}
-        {!inNameEditMode && <p>{name}</p>}
-        <Button onClick={nameEditButtonHandler}>
-          <img src={editIcon} />
-        </Button>
-        <Button onClick={toggleDeleteModal}>
-          <img src={deleteIcon} />
-        </Button>
+      <div
+        className={
+          !cardView ? styles['packing-item'] : styles['packing-item-card']
+        }
+      >
+        <EditDeleteText
+          text={packingItemName}
+          setText={setPackingItemName}
+          toggleDeleteModal={toggleDeleteModal}
+          onConfirmChange={confirmNameChangeHandler}
+          className={!cardView ? '' : styles['packing-name-container']}
+        />
         <div className={styles['packing-item-actions']}>
           <PackingItemActions
             packingListId={packingListId}

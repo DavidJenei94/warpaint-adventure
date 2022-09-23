@@ -104,67 +104,6 @@ const PackingListDetail = ({
             />
           </>
         )}
-        {/* {packingItems.length > 0 && (
-          <>
-            <p className={styles['item-category']}>Unpacked items</p>
-            <div className={packingItemsClass}>
-              {packingItems
-                .filter((item) => item.status === 0)
-                .map((item: PackingItem) => (
-                  <PackingItemSingle
-                    key={item.id}
-                    id={item.id}
-                    status={item.status}
-                    name={item.name}
-                    packingListId={selectedPackingList.id}
-                    onEditItems={setPackingItems}
-                    cardView={cardView}
-                  />
-                ))}
-            </div>
-          </>
-        )}
-        {packingItems.length > 0 && (
-          <>
-            <p className={styles['item-category']}>Packed items</p>
-            <div className={packingItemsClass}>
-              {packingItems
-
-                .filter((item) => item.status === 1)
-                .map((item: PackingItem) => (
-                  <PackingItemSingle
-                    key={item.id}
-                    id={item.id}
-                    status={item.status}
-                    name={item.name}
-                    packingListId={selectedPackingList.id}
-                    onEditItems={setPackingItems}
-                    cardView={cardView}
-                  />
-                ))}
-            </div>
-          </>
-        )}
-        {packingItems.length > 0 && (
-          <>
-            <p className={styles['item-category']}>Irrelevant items</p>
-            <div className={packingItemsClass}>
-              {packingItems
-                .filter((item) => item.status === -1)
-                .map((item: PackingItem) => (
-                  <PackingItemSingle
-                    key={item.id}
-                    id={item.id}
-                    status={item.status}
-                    name={item.name}
-                    packingListId={selectedPackingList.id}
-                    onEditItems={setPackingItems}
-                    cardView={cardView}
-                  />
-                ))}
-            </div>
-          </>
-        )} */}
       </>
     );
 

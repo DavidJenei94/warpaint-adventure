@@ -26,6 +26,9 @@ const MenuItems = ({ isHamburgerMenu }: Props) => {
       <ALink to="/packing" className={classNames} type="NavLink">
         Packing
       </ALink>
+      <ALink to="/map/routing" className={classNames} type="NavLink">
+        Routing
+      </ALink>
       <ALink to="/map/designer" className={classNames} type="NavLink">
         Adventure
       </ALink>
