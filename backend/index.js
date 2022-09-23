@@ -8,6 +8,7 @@ const userRouter = require('./src/routes/users.route');
 const packinglistRouter = require('./src/routes/packinglist.route');
 const packingitemRouter = require('./src/routes/packingitem.route');
 const gpxGeoJsonRouter = require('./src/routes/gpxGeoJson.route');
+const routeRouter = require('./src/routes/route.route');
 
 const verifyToken = require('./src/middlewares/auth');
 
@@ -21,6 +22,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/packinglist', verifyToken, packinglistRouter);
 app.use('/api/packinglist', verifyToken, packingitemRouter);
 app.use('/api/gpx', gpxGeoJsonRouter);
+app.use('/api/route', verifyToken, routeRouter);
 
 /* Error handler middleware */
 app.use((err, req, res, next) => {
