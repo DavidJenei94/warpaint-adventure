@@ -12,12 +12,7 @@ type SelectProps = ComponentProps<'select'> & {
   optionList: Option[] | null;
 };
 
-const Select = ({
-  children,
-  optionList,
-  className,
-  ...otherProps
-}: SelectProps) => {
+const Select = ({ optionList, className, ...otherProps }: SelectProps) => {
   let adjClassName = '';
   if (className) {
     adjClassName = isUppercase(className) ? className : styles[className];

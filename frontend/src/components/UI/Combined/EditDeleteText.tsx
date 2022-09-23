@@ -13,6 +13,7 @@ type EditDeleteTextProps = {
   toggleDeleteModal: Dispatch<SetStateAction<boolean>>;
   onConfirmChange: () => void;
   className?: string;
+  placeholder?: string;
 };
 
 const EditDeleteText = ({
@@ -21,6 +22,7 @@ const EditDeleteText = ({
   toggleDeleteModal,
   onConfirmChange,
   className = '',
+  placeholder = '',
 }: EditDeleteTextProps) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const editTextHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,10 +55,12 @@ const EditDeleteText = ({
           onChange={editTextHandler}
           onBlur={editTextBlurHandler}
           onKeyDown={editTextKeyHandler}
+          placeholder={placeholder}
           autoFocus
         />
       )}
       {!isEditMode && <p>{text}</p>}
+      {!isEditMode && !text && placeholder && <p>{placeholder}</p>}
       <Button onClick={editButtonHandler}>
         <img src={editIcon} />
       </Button>
