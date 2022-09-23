@@ -13,8 +13,14 @@
 .route-name-container {
   box-shadow: styles.$primaryUpBoxShadow;
 
-  & > p {
+  & > p,
+  input {
     margin: 12px 0;
+    min-width: 90%;
+  }
+
+  & > button {
+    margin: 0 8px;
   }
 }
 

@@ -144,6 +144,8 @@ const RoutingPlanner = () => {
           routes={routes}
           setRoutes={setRoutes}
           setWarningMessage={setWarningMessage}
+          activeRoute={activeRoute}
+          setActiveRoute={setActiveRoute}
         />
         <Map>
           <RouteGeoJSONs

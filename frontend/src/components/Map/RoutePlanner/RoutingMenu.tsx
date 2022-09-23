@@ -1,5 +1,5 @@
-import { Dispatch, SetStateAction, useState } from 'react';
-import { latLng, LatLng } from 'leaflet';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { LatLng } from 'leaflet';
 import Button from '../../UI/Button';
 
 import styles from './RoutingMenu.module.scss';
@@ -13,14 +13,27 @@ import {
   sameCoordinates,
 } from '../Utils/geojson.utils';
 import { errorHandlingFetch } from '../../../utils/errorHanling';
-import { useAppDispatch } from '../../../hooks/redux-hooks';
-import { feedbackActions } from '../../../store/feedback';
+import { useAppDispatch, useAppSelector } from '../../../hooks/redux-hooks';
+import {
+  feedbackActions,
+  Status,
+  toggleFeedback,
+} from '../../../store/feedback';
+import Input from '../../UI/Input';
+import editIcon from '../../../assets/icons/icons-edit-16.png';
+import deleteIcon from '../../../assets/icons/icons-trash-16.png';
+import { round } from '../../../utils/general.utils';
+import EditDeleteText from '../../UI/Combined/EditDeleteText';
+import { Route } from '../../../models/route.model';
+import Select from '../../UI/Select';
 
 type RoutingMenuProps = {
   nodes: LatLng[];
   setNodes: Dispatch<SetStateAction<LatLng[]>>;
   routes: GeoJSON.FeatureCollection<any>[];
   setRoutes: Dispatch<SetStateAction<GeoJSON.FeatureCollection<any>[]>>;
+  activeRoute: Route;
+  setActiveRoute: Dispatch<SetStateAction<Route>>;
   setWarningMessage: Dispatch<SetStateAction<string>>;
 };
 
@@ -29,9 +42,12 @@ const RoutingMenu = ({
   setRoutes,
   routes,
   setNodes,
+  activeRoute,
+  setActiveRoute,
   setWarningMessage,
 }: RoutingMenuProps) => {
   const dispatch = useAppDispatch();
+  const token = useAppSelector((state) => state.auth.token);
 
   const { isShown: deleteModalIsShown, toggleModal: toggleDeleteModal } =
     useModal();
@@ -39,13 +55,28 @@ const RoutingMenu = ({
     useModal();
   const { isShown: importGpxModalIsShown, toggleModal: toggleImportGpxModal } =
     useModal();
+  const {
+    isShown: loadRouteModalIsShown,
+    toggleModal: toggleLoadRouteModalIsShown,
+  } = useModal();
+
+  const [allRoutes, setAllRoutes] = useState([]);
 
   const [importedGpx, setImportedGpx] = useState('');
+
+  const [routeName, setRouteName] = useState('');
+  const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
+
+  useEffect(() => {
+    if (activeRoute) {
+      setRouteName(activeRoute.name);
+    }
+  }, [activeRoute]);
 
   const chooseGpxFileHandler = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // check if coorect input
+    // check if correct input
     // https://stackoverflow.com/questions/750032/reading-file-contents-on-the-client-side-in-javascript-in-various-browsers
 
     const input = event.target;
@@ -67,7 +98,7 @@ const RoutingMenu = ({
     const file = input.files![0];
     const text = await file.text(); // Blob API
     setImportedGpx(text);
-    
+
     // Older version:
     // const fileReader = new FileReader();
     // fileReader.onload = (event) =>
@@ -262,8 +293,205 @@ const RoutingMenu = ({
     setNodes([]);
   };
 
+  // edit this to fetch delete
+  const deleteRouteHandler = async () => {
+    setRoutes([]);
+    setNodes([]);
+
+    const result = await fetch(
+      `http://localhost:4000/api/route/${activeRoute.id}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-access-token': token,
+        },
+        body: JSON.stringify({
+          routePath: activeRoute.path,
+        }),
+      }
+    );
+
+    const data = await result.json();
+    setActiveRoute(data.route);
+
+    dispatch(
+      toggleFeedback({
+        status: Status.SUCCESS,
+        message: data.message,
+      })
+    );
+  };
+
+  const confirmNameChangeHandler = () => {
+    // If name was not changed
+    if (activeRoute.name === routeName) {
+      return;
+    }
+
+    setActiveRoute((prevState) => {
+      return { ...prevState, name: routeName };
+    });
+
+    //Maybe fetch PUT to change name save if route was saved before (it has a path!)
+  };
+
+  const saveRouteHandler = async () => {
+    try {
+      if (!activeRoute.name) {
+        throw new Error('Route has no name!');
+      }
+
+      if (routes.length === 0) {
+        throw new Error('No route on map!');
+      }
+
+      let mergedCoordinates: number[][] = [];
+      let totalDistance = 0;
+      routes.map((route) => {
+        mergedCoordinates = mergedCoordinates.concat(
+          route.features[0].geometry.coordinates
+        );
+        totalDistance += route.features[0].properties
+          ? route.features[0].properties.distance
+          : 0;
+      });
+
+      const mergedGeoJson = createBasicGeoJsonFC(
+        { coordinates: mergedCoordinates, type: 'LineString' },
+        totalDistance
+      );
+
+      const method = activeRoute.id === 0 ? 'POST' : 'PUT';
+      const url =
+        activeRoute.id === 0
+          ? 'http://localhost:4000/api/route'
+          : `http://localhost:4000/api/route/${activeRoute.id}`;
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-access-token': token,
+        },
+        body: JSON.stringify({
+          route: { ...activeRoute },
+          geoJson: mergedGeoJson,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      if (method === 'POST') setActiveRoute(data.route);
+
+      dispatch(
+        toggleFeedback({
+          status: Status.SUCCESS,
+          message: data.message,
+        })
+      );
+    } catch (error: any) {
+      errorHandlingFetch(error);
+    }
+  };
+
+  const loadRoutes = async () => {
+    try {
+      const result = await fetch('http://localhost:4000/api/route', {
+        method: 'GET',
+        headers: { 'x-access-token': token },
+      });
+
+      const data = await result.json();
+      if (!result.ok) {
+        throw new Error(data.message);
+      }
+
+      setAllRoutes(data);
+    } catch (error: any) {
+      errorHandlingFetch(error);
+    }
+  };
+
+  const loadRouteHandler = async () => {
+    try {
+      if (selectedRouteIndex === 0) {
+        throw new Error("Select a valid route!");
+      }
+
+      const result = await fetch(
+        `http://localhost:4000/api/route/${selectedRouteIndex}`,
+        {
+          method: 'GET',
+          headers: { 'x-access-token': token },
+        }
+      );
+
+      const data = await result.json();
+      if (!result.ok) {
+        throw new Error(data.message);
+      }
+
+      setActiveRoute(data.route);
+      setRoutes([data.geoJson]);
+      const coordinates = data.geoJson.features[0].geometry.coordinates;
+      const firstNode = new LatLng(coordinates[0][1], coordinates[0][0]);
+      const lastNode = new LatLng(
+        coordinates[coordinates.length - 1][1],
+        coordinates[coordinates.length - 1][0]
+      );
+      setNodes([firstNode, lastNode]);
+    } catch (error: any) {
+      errorHandlingFetch(error);
+    }
+  };
+
+  const routeSelectionChangeHandler = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const target = event.target;
+
+    setSelectedRouteIndex(Number(target.value));
+  };
+
+  const totalDistance =
+    routes.length > 0
+      ? round(
+          routes.reduce((total, route) => {
+            if (route.features[0].properties) {
+              total += route.features[0].properties!.distance;
+            }
+            return total;
+          }, 0) / 1000,
+          2
+        )
+      : 0;
+
+  const routeOptionList = [{ value: '0', text: '...' }].concat(
+    allRoutes.map((route: Route) => {
+      return {
+        value: route.id.toString(),
+        text: route.name,
+      };
+    })
+  );
+
   return (
     <div>
+      {loadRouteModalIsShown && (
+        <Modal
+          onClose={toggleLoadRouteModalIsShown}
+          onConfirm={loadRouteHandler}
+        >
+          <Select
+            onChange={routeSelectionChangeHandler}
+            value={selectedRouteIndex}
+            optionList={routeOptionList}
+          />
+        </Modal>
+      )}
       {importGpxModalIsShown && (
         <Modal onClose={toggleImportGpxModal} onConfirm={importGpxHandler}>
           <SingleInputConfirmation type="file" onChange={chooseGpxFileHandler}>
@@ -278,25 +506,50 @@ const RoutingMenu = ({
           </BasicConfirmation>
         </Modal>
       )}
+      {deleteModalIsShown && (
+        <Modal onClose={toggleDeleteModal} onConfirm={deleteRouteHandler}>
+          <BasicConfirmation>
+            Are you sure you want to delete the route?
+          </BasicConfirmation>
+        </Modal>
+      )}
       <div className={styles['route-preactions']}>
-        <Button>Load Route</Button>
+        <Button
+          onClick={() => {
+            toggleLoadRouteModalIsShown();
+            loadRoutes();
+          }}
+        >
+          Load Route
+        </Button>
         <Button onClick={toggleImportGpxModal}>Import GPX</Button>
       </div>
-      <div className={styles['route-name-container']}>
-        <p>Name of Route or New Route button</p>
-      </div>
-      <div className={styles['node-list']}>
-        {nodes.map((node, index) => (
-          <p key={index}>
-            Lat: {node.lat}, Long: {node.lng}
-          </p>
-        ))}
+      <EditDeleteText
+        text={routeName}
+        setText={setRouteName}
+        toggleDeleteModal={toggleDeleteModal}
+        onConfirmChange={confirmNameChangeHandler}
+        className={styles['route-name-container']}
+        placeholder={'(Name...)'}
+      />
+      <div className={styles['route-summary']}>
+        <p>{`Distance: ${totalDistance} km`}</p>
+        <p>Elevation Gain: TBD</p>
+        <p>Elevation Loss: TBD</p>
       </div>
       <div className={styles['route-actions']}>
         <Button onClick={toggleClearModal}>Clear route</Button>
-        <Button>Delete</Button>
+        <Button
+          onClick={() => {
+            setActiveRoute({ id: 0, name: '', path: '' });
+            setRoutes([]);
+            setNodes([]);
+          }}
+        >
+          New Route
+        </Button>
         <Button onClick={exportGpxHandler}>Export GPX</Button>
-        <Button>Save</Button>
+        <Button onClick={saveRouteHandler}>Save</Button>
       </div>
     </div>
   );
