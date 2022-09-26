@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { LatLng } from 'leaflet';
+import { FeatureGroup } from 'react-leaflet';
 import { createBasicGeoJsonFC } from '../Utils/geojson.utils';
 import { Status, toggleFeedback } from '../../../store/feedback';
 import { useAppDispatch } from '../../../hooks/redux-hooks';
+import useMapControl from '../../../hooks/map-controls-hook';
 
 import MapLayout from '../Layout/MapLayout';
 import RoutingMenu from './RoutingMenu';
@@ -11,9 +13,6 @@ import NodeMarkers from './DataDisplay/NodeMarkers';
 import RouteGeoJSONs from './DataDisplay/RouteGeoJSONs';
 
 import styles from './RoutingPlanner.module.scss';
-import Input from '../../UI/Input';
-import SingleInputConfirmation from '../../UI/ConfirmationModals/SingleInputConfirmation';
-import Button from '../../UI/Button';
 
 const RoutingPlanner = () => {
   const dispatch = useAppDispatch();
@@ -28,6 +27,9 @@ const RoutingPlanner = () => {
   const [routes, setRoutes] = useState<GeoJSON.FeatureCollection<any>[]>([]);
 
   const [warningMessage, setWarningMessage] = useState('');
+
+  const { isMenuShown, toggleMenu, dataBounds, dataRef } =
+    useMapControl([routes, nodes]);
 
   useEffect(() => {
     if (warningMessage) {
@@ -137,31 +139,39 @@ const RoutingPlanner = () => {
 
   return (
     <>
-      <MapLayout>
-        <RoutingMenu
-          nodes={nodes}
-          setNodes={setNodes}
-          routes={routes}
-          setRoutes={setRoutes}
-          setWarningMessage={setWarningMessage}
-          activeRoute={activeRoute}
-          setActiveRoute={setActiveRoute}
-        />
-        <Map>
-          <RouteGeoJSONs
-            routes={routes}
-            setRoutes={setRoutes}
+      <MapLayout isMenuShown={isMenuShown}>
+        {isMenuShown && (
+          <RoutingMenu
             nodes={nodes}
             setNodes={setNodes}
+            routes={routes}
+            setRoutes={setRoutes}
             setWarningMessage={setWarningMessage}
+            activeRoute={activeRoute}
+            setActiveRoute={setActiveRoute}
           />
-          <NodeMarkers
-            nodes={nodes}
-            setNodes={setNodes}
-            routes={routes}
-            setRoutes={setRoutes}
-            handleFetchedRoutingData={handleFetchedRoutingData}
-          />
+        )}
+        <Map
+          dataBounds={dataBounds}
+          isMenuShown={isMenuShown}
+          toggleMenu={toggleMenu}
+        >
+          <FeatureGroup ref={dataRef}>
+            <RouteGeoJSONs
+              routes={routes}
+              setRoutes={setRoutes}
+              nodes={nodes}
+              setNodes={setNodes}
+              setWarningMessage={setWarningMessage}
+            />
+            <NodeMarkers
+              nodes={nodes}
+              setNodes={setNodes}
+              routes={routes}
+              setRoutes={setRoutes}
+              handleFetchedRoutingData={handleFetchedRoutingData}
+            />
+          </FeatureGroup>
         </Map>
       </MapLayout>
     </>
