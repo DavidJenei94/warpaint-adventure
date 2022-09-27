@@ -1,12 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { LatLng } from 'leaflet';
-import Button from '../../UI/Button';
-
-import styles from './RoutingMenu.module.scss';
 import useModal from '../../../hooks/modal-hook';
-import Modal from '../../UI/Modal/Modal';
-import BasicConfirmation from '../../UI/ConfirmationModals/BasicConfirmation';
-import SingleInputConfirmation from '../../UI/ConfirmationModals/SingleInputConfirmation';
 import {
   createBasicGeoJsonFC,
   getDistanceOfRoute,
@@ -14,18 +8,19 @@ import {
 } from '../Utils/geojson.utils';
 import { errorHandlingFetch } from '../../../utils/errorHanling';
 import { useAppDispatch, useAppSelector } from '../../../hooks/redux-hooks';
-import {
-  feedbackActions,
-  Status,
-  toggleFeedback,
-} from '../../../store/feedback';
-import Input from '../../UI/Input';
-import editIcon from '../../../assets/icons/icons-edit-16.png';
-import deleteIcon from '../../../assets/icons/icons-trash-16.png';
+import { Status, toggleFeedback } from '../../../store/feedback';
 import { round } from '../../../utils/general.utils';
-import EditDeleteText from '../../UI/Combined/EditDeleteText';
 import { Route } from '../../../models/route.model';
+
+import Modal from '../../UI/Modal/Modal';
+import Button from '../../UI/Button';
+import BasicConfirmation from '../../UI/ConfirmationModals/BasicConfirmation';
+import SingleInputConfirmation from '../../UI/ConfirmationModals/SingleInputConfirmation';
 import Select from '../../UI/Select';
+import ColorSelection from '../Utils/ColorSelection';
+import EditDeleteText from '../../UI/Combined/EditDeleteText';
+
+import styles from './RoutingMenu.module.scss';
 
 type RoutingMenuProps = {
   nodes: LatLng[];
@@ -59,19 +54,37 @@ const RoutingMenu = ({
     isShown: loadRouteModalIsShown,
     toggleModal: toggleLoadRouteModalIsShown,
   } = useModal();
+  const {
+    isShown: colorSelectonModalIsShown,
+    toggleModal: toggleColorSelectionModalIsShown,
+  } = useModal();
 
-  const [allRoutes, setAllRoutes] = useState([]);
-
-  const [importedGpx, setImportedGpx] = useState('');
-
+  const [userRoutes, setUserRoutes] = useState([]);
+  const [selectedColor, setSelectedColor] = useState('blue');
+  const [importedGpxText, setImportedGpxText] = useState('');
+  // Separate state to detect changes if name was changed or not in edit mode
   const [routeName, setRouteName] = useState('');
+  // In route selection in Load Route
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
 
+  // Display correct name after activeRoute changes (eg. load route)
   useEffect(() => {
     if (activeRoute) {
       setRouteName(activeRoute.name);
     }
   }, [activeRoute]);
+
+  // Set color after Menu is hidden/shown
+  useEffect(() => {
+    activeRoute.color && setSelectedColor(activeRoute.color);
+  }, []);
+
+  // Update activeRoute with selected color
+  useEffect(() => {
+    setActiveRoute((prevState) => {
+      return { ...prevState, color: selectedColor };
+    });
+  }, [selectedColor]);
 
   const chooseGpxFileHandler = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -97,7 +110,7 @@ const RoutingMenu = ({
 
     const file = input.files![0];
     const text = await file.text(); // Blob API
-    setImportedGpx(text);
+    setImportedGpxText(text);
 
     // Older version:
     // const fileReader = new FileReader();
@@ -113,7 +126,7 @@ const RoutingMenu = ({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ gpxString: importedGpx }),
+        body: JSON.stringify({ gpxString: importedGpxText }),
       });
 
       const data = await response.json();
@@ -409,7 +422,7 @@ const RoutingMenu = ({
         throw new Error(data.message);
       }
 
-      setAllRoutes(data);
+      setUserRoutes(data);
     } catch (error: any) {
       errorHandlingFetch(error);
     }
@@ -418,7 +431,7 @@ const RoutingMenu = ({
   const loadRouteHandler = async () => {
     try {
       if (selectedRouteIndex === 0) {
-        throw new Error("Select a valid route!");
+        throw new Error('Select a valid route!');
       }
 
       const result = await fetch(
@@ -443,6 +456,7 @@ const RoutingMenu = ({
         coordinates[coordinates.length - 1][0]
       );
       setNodes([firstNode, lastNode]);
+      setSelectedColor(data.route.color);
     } catch (error: any) {
       errorHandlingFetch(error);
     }
@@ -470,7 +484,7 @@ const RoutingMenu = ({
       : 0;
 
   const routeOptionList = [{ value: '0', text: '...' }].concat(
-    allRoutes.map((route: Route) => {
+    userRoutes.map((route: Route) => {
       return {
         value: route.id.toString(),
         text: route.name,
@@ -513,6 +527,19 @@ const RoutingMenu = ({
           </BasicConfirmation>
         </Modal>
       )}
+      {colorSelectonModalIsShown && (
+        <Modal
+          onClose={toggleColorSelectionModalIsShown}
+          onConfirm={() => {}}
+          type="simple"
+        >
+          <ColorSelection
+            selectedColor={selectedColor}
+            setSelectedColor={setSelectedColor}
+            onClose={toggleColorSelectionModalIsShown}
+          />
+        </Modal>
+      )}
       <div className={styles['route-preactions']}>
         <Button
           onClick={() => {
@@ -532,6 +559,14 @@ const RoutingMenu = ({
         className={styles['route-name-container']}
         placeholder={'(Name...)'}
       />
+      <div>
+        <Button
+          onClick={toggleColorSelectionModalIsShown}
+          style={{ color: selectedColor }}
+        >
+          ██
+        </Button>
+      </div>
       <div className={styles['route-summary']}>
         <p>{`Distance: ${totalDistance} km`}</p>
         <p>Elevation Gain: TBD</p>
@@ -541,7 +576,7 @@ const RoutingMenu = ({
         <Button onClick={toggleClearModal}>Clear route</Button>
         <Button
           onClick={() => {
-            setActiveRoute({ id: 0, name: '', path: '' });
+            setActiveRoute({ id: 0, name: '', path: '', color: 'blue' });
             setRoutes([]);
             setNodes([]);
           }}
