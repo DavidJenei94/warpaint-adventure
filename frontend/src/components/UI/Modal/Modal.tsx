@@ -9,11 +9,17 @@ import styles from './Modal.module.scss';
 type ModalProps = ChildrenProps & {
   onClose: () => void;
   onConfirm: () => void;
+  type?: string;
 };
 
 const portalElement = document.getElementById('overlays')!;
 
-const Modal = ({ children, onClose, onConfirm }: ModalProps) => {
+const Modal = ({
+  children,
+  onClose,
+  onConfirm,
+  type = 'YesNo',
+}: ModalProps) => {
   const confirmHandler = () => {
     onConfirm();
 
@@ -30,14 +36,16 @@ const Modal = ({ children, onClose, onConfirm }: ModalProps) => {
               <p>X</p>
             </Button>
             <div className={styles.content}>{children} </div>
-            <div className={styles['action-buttons']}>
-              <Button onClick={confirmHandler}>
-                <p>Yes</p>
-              </Button>
-              <Button onClick={onClose}>
-                <p>No</p>
-              </Button>
-            </div>
+            {type === 'YesNo' && (
+              <div className={styles['action-buttons']}>
+                <Button onClick={confirmHandler}>
+                  <p>Yes</p>
+                </Button>
+                <Button onClick={onClose}>
+                  <p>No</p>
+                </Button>
+              </div>
+            )}
           </div>
         </>,
         portalElement
