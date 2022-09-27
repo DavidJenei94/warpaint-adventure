@@ -6,12 +6,12 @@ const Route = require('../models/Route');
 
 const getAll = async (user) => {
   const result = await db.query(
-    `SELECT ID AS id, Name AS name, Path as path FROM Route WHERE UserID = ?`,
+    `SELECT ID AS id, Name AS name, Path as path, Color as color FROM Route WHERE UserID = ?`,
     [user.id]
   );
 
   const routes = result.map(
-    (route) => new Route(route.id, route.name, route.path)
+    (route) => new Route(route.id, route.name, route.path, route.color)
   );
 
   return routes;
@@ -37,8 +37,8 @@ const create = async (user, route, geoJson) => {
   });
 
   const result = await db.query(
-    `INSERT INTO Route (UserID, Name, Path) VALUES (?);`,
-    [[user.id, route.name, path]]
+    `INSERT INTO Route (UserID, Name, Path, Color) VALUES (?);`,
+    [[user.id, route.name, path, route.color]]
   );
 
   if (!result.affectedRows) {
@@ -61,7 +61,7 @@ const get = async (routeId) => {
     throw new HttpError('Route does not exist in the database.', 400);
   }
 
-  const route = new Route(result.ID, result.Name, result.Path);
+  const route = new Route(result.ID, result.Name, result.Path, result.Color);
   const geoJson = JSON.parse(fs.readFileSync(route.path, 'utf-8'));
 
   return { message: 'Route is selected!', route, geoJson };
@@ -71,9 +71,9 @@ const update = async (routeId, route, geoJson) => {
   if (route) {
     const result = await db.query(
       `UPDATE Route
-      SET Name = ?
+      SET Name = ?, Color = ?
       WHERE ID = ?;`,
-      [route.name, routeId]
+      [route.name, route.color, routeId]
     );
   }
 
