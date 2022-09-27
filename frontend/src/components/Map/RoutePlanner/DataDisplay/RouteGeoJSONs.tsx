@@ -11,6 +11,7 @@ type RouteGeoJSONsProps = {
   setRoutes: Dispatch<SetStateAction<GeoJSON.FeatureCollection<any>[]>>;
   nodes: LatLng[];
   setNodes: Dispatch<SetStateAction<LatLng[]>>;
+  color: string;
   setWarningMessage: Dispatch<SetStateAction<string>>;
 };
 
@@ -19,9 +20,9 @@ const RouteGeoJSONs = ({
   setRoutes,
   nodes,
   setNodes,
-  setWarningMessage
+  color,
+  setWarningMessage,
 }: RouteGeoJSONsProps) => {
-
   const splitGeoJSONHandler = (event: LeafletMouseEvent) => {
     // Feature array has the same indexing as routes, as all element contains only one feature
     const featuresArray = routes.map((route) => route.features[0]);
@@ -42,9 +43,9 @@ const RouteGeoJSONs = ({
       const routeLength = selectedRoute.features[0].geometry.coordinates.length;
       // if length is short, do not split
       if (routeLength < 3) {
-        setWarningMessage("Route cannot be splitted further!")
+        setWarningMessage('Route cannot be splitted further!');
         return prevState;
-      } 
+      }
 
       let lowestDistance: number;
       let splitIndex = 0;
@@ -145,7 +146,7 @@ const RouteGeoJSONs = ({
             key={key}
             attribution="&copy; credits due..."
             style={{
-              color: '#2222bb',
+              color: color,
               weight: 3.5,
               fillColor: '#aaaa00',
               fillOpacity: 0,

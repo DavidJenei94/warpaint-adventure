@@ -9,7 +9,7 @@ import {
 import Button from '../../../UI/Button';
 
 import styles from './NodeMarkers.module.scss';
-import { nodeIcon } from '../../Utils/Icons';
+import nodeIcons from '../../Utils/Icons';
 import deleteIcon from '../../../../assets/icons/icons-trash-16.png';
 
 type NodeMarkersProps = {
@@ -17,6 +17,7 @@ type NodeMarkersProps = {
   setNodes: Dispatch<SetStateAction<LatLng[]>>;
   routes: GeoJSON.FeatureCollection<any>[];
   setRoutes: Dispatch<SetStateAction<GeoJSON.FeatureCollection<any>[]>>;
+  color: string;
   handleFetchedRoutingData: (
     data: any,
     nodeIndex?: number,
@@ -29,6 +30,7 @@ const NodeMarkers = ({
   setNodes,
   routes,
   setRoutes,
+  color,
   handleFetchedRoutingData,
 }: NodeMarkersProps) => {
   const [selectedNode, setSelectedNode] = useState<LatLng | null>(null);
@@ -124,6 +126,27 @@ const NodeMarkers = ({
       handleFetchedRoutingData(routingData, selectedNodeIndex, true);
     }
   };
+
+  const selectNodeIcon = () => {
+    switch (color) {
+      case 'blue':
+        return nodeIcons.nodeBlueIcon;
+      case 'red':
+        return nodeIcons.nodeRedIcon;
+      case 'purple':
+        return nodeIcons.nodePurpleIcon;
+      case 'green':
+        return nodeIcons.nodeGreenIcon;
+      case 'yellow':
+        return nodeIcons.nodeYellowIcon;
+      case 'orange':
+        return nodeIcons.nodeOrangeIcon;
+      default:
+        return nodeIcons.nodeBlueIcon;
+    }
+  };
+
+  const nodeIcon = selectNodeIcon();
 
   return (
     <>

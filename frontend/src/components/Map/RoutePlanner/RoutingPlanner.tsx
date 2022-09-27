@@ -21,6 +21,7 @@ const RoutingPlanner = () => {
     id: 0,
     name: '',
     path: '',
+    color: 'blue',
   });
 
   const [nodes, setNodes] = useState<LatLng[]>([]);
@@ -28,8 +29,10 @@ const RoutingPlanner = () => {
 
   const [warningMessage, setWarningMessage] = useState('');
 
-  const { isMenuShown, toggleMenu, dataBounds, dataRef } =
-    useMapControl([routes, nodes]);
+  const { isMenuShown, toggleMenu, dataBounds, dataRef } = useMapControl([
+    routes,
+    nodes,
+  ]);
 
   useEffect(() => {
     if (warningMessage) {
@@ -162,6 +165,7 @@ const RoutingPlanner = () => {
               setRoutes={setRoutes}
               nodes={nodes}
               setNodes={setNodes}
+              color={activeRoute.color}
               setWarningMessage={setWarningMessage}
             />
             <NodeMarkers
@@ -169,6 +173,7 @@ const RoutingPlanner = () => {
               setNodes={setNodes}
               routes={routes}
               setRoutes={setRoutes}
+              color={activeRoute.color}
               handleFetchedRoutingData={handleFetchedRoutingData}
             />
           </FeatureGroup>
