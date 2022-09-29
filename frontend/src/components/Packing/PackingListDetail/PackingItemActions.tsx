@@ -1,9 +1,12 @@
 import React, { Dispatch, SetStateAction, useState } from 'react';
+import useFetchDataEffect from '../../../hooks/fetch-data-effect-hook';
+import useHttp from '../../../hooks/http-hook';
 import { useAppDispatch, useAppSelector } from '../../../hooks/redux-hooks';
+import { updatePackingItem } from '../../../lib/packingitem-api';
 import { PackingItem } from '../../../models/packing.models';
 import { Status, toggleFeedback } from '../../../store/feedback';
-import { errorHandlingFetch } from '../../../utils/errorHanling';
 import { arraysEqual } from '../../../utils/general.utils';
+
 import CheckBox from '../../UI/CheckBox';
 
 type PackingItemActionsProps = {
@@ -28,39 +31,26 @@ const getCheckedValuesFromStatus = (status: number) => {
 const PackingItemActions = ({
   packingListId,
   packingItem,
-  onEditItems
+  onEditItems,
 }: PackingItemActionsProps) => {
   const dispatch = useAppDispatch();
   const token = useAppSelector((state) => state.auth.token);
 
-  const [actionValues, setActionValues] = useState(getCheckedValuesFromStatus(packingItem.status));
+  const [actionValues, setActionValues] = useState(
+    getCheckedValuesFromStatus(packingItem.status)
+  );
 
-  const fetchUpdateItem = async (
-    status: number,
-    currentActionValues: boolean[]
-  ) => {
-    try {
-      const response = await fetch(
-        `http://localhost:4000/api/packinglist/${packingListId}/packingitem/${packingItem.id}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-access-token': token,
-          },
-          body: JSON.stringify({
-            name: packingItem.name,
-            status: status,
-          }),
-        }
-      );
+  const {
+    sendRequest: sendUpdateItemRequest,
+    status: updateItemStatus,
+    error: updateItemError,
+    data: updateItemData,
+  } = useHttp(updatePackingItem);
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
-
-      setActionValues(currentActionValues);
+  useFetchDataEffect(
+    () => {
+      const status = updateItemData.packingItem.status;
+      setActionValues(getCheckedValuesFromStatus(status));
       onEditItems((prevState) => {
         return prevState.map((item) => {
           if (item.id === packingItem.id) {
@@ -69,9 +59,20 @@ const PackingItemActions = ({
           return item;
         });
       });
-    } catch (err: any) {
-      errorHandlingFetch(err);
-    }
+    },
+    updateItemStatus,
+    updateItemError,
+    updateItemData
+  );
+
+  const fetchUpdateItem = async (status: number) => {
+    sendUpdateItemRequest({
+      token,
+      listId: packingListId,
+      id: packingItem.id,
+      name: packingItem.name,
+      status,
+    });
   };
 
   const onChangeHandler = async (event: React.ChangeEvent) => {
@@ -101,30 +102,30 @@ const PackingItemActions = ({
     }
 
     if (!arraysEqual(currentActionValues, actionValues)) {
-      await fetchUpdateItem(status, currentActionValues);
+      await fetchUpdateItem(status);
     }
   };
 
   return (
     <>
       <CheckBox
-        title='Pack'
+        title="Pack"
         id={`${packingItem.id}-pack`}
         checked={actionValues[0]}
         onChange={onChangeHandler}
         checkedImageClassName="image-pack"
         uncheckedImageClassName="image-pack-unchecked"
-        />
+      />
       <CheckBox
-        title='Unpack'
+        title="Unpack"
         id={`${packingItem.id}-unpack`}
         checked={actionValues[1]}
         onChange={onChangeHandler}
         checkedImageClassName="image-unpack"
         uncheckedImageClassName="image-unpack-unchecked"
-        />
+      />
       <CheckBox
-        title='Irrelevant'
+        title="Irrelevant"
         id={`${packingItem.id}-irrelevant`}
         checked={actionValues[2]}
         onChange={onChangeHandler}

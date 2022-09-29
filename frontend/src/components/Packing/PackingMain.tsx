@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../hooks/redux-hooks';
+import useHttp from '../../hooks/http-hook';
+import { useAppSelector } from '../../hooks/redux-hooks';
+import { getAllPackingList } from '../../lib/packinglist-api';
 import { PackingList } from '../../models/packing.models';
-import { Status, toggleFeedback } from '../../store/feedback';
-import { errorHandlingFetch } from '../../utils/errorHanling';
+import useFetchDataEffect from '../../hooks/fetch-data-effect-hook';
 
 import PackingListDetail from './PackingListDetail/PackingListDetail';
 import PackingListSelector from './PackingListSelector/PackingListSelector';
+import LoadingIcon from '../UI/LoadingIcon';
 
 import styles from './PackingMain.module.scss';
 
 const PackingMain = () => {
-  const dispatch = useAppDispatch();
   const token = useAppSelector((state) => state.auth.token);
 
   const [packingLists, setPackingLists] = useState<PackingList[]>([]);
@@ -19,39 +20,47 @@ const PackingMain = () => {
     name: '',
   });
 
+  const {
+    sendRequest: sendGetAllListRequest,
+    status: getAllListStatus,
+    error: getAllListError,
+    data: getAllListsData,
+  } = useHttp(getAllPackingList, false);
+
   useEffect(() => {
-    const getPackingLists = async () => {
-      try {
-        const response = await fetch('http://localhost:4000/api/packinglist/', {
-          method: 'GET',
-          headers: {
-            'x-access-token': token,
-          },
-        });
+    sendGetAllListRequest({ token });
+  }, [sendGetAllListRequest]);
 
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message);
-        }
+  useFetchDataEffect(
+    () => {
+      setPackingLists(
+        [{ id: 0, name: '...' }].concat(getAllListsData.packingLists)
+      );
+    },
+    getAllListStatus,
+    getAllListError,
+    getAllListsData
+  );
 
-        setPackingLists([{ id: 0, name: '...' }].concat(data.packingLists));
-      } catch (err: any) {
-        errorHandlingFetch(err);
-      }
-    };
-
-    getPackingLists();
-  }, [selectedPackingList]);
+  if (getAllListStatus !== 'completed' || packingLists.length === 0) {
+    return (
+      <>
+        <LoadingIcon />
+      </>
+    );
+  }
 
   return (
     <div className={styles['packing-container']}>
       <PackingListSelector
         packingLists={packingLists}
+        setPackingLists={setPackingLists}
         selectedPackingList={selectedPackingList}
         setSelectedPackingList={setSelectedPackingList}
       />
       {selectedPackingList.id !== 0 && (
         <PackingListDetail
+          setPackingLists={setPackingLists}
           selectedPackingList={selectedPackingList}
           setSelectedPackingList={setSelectedPackingList}
         />

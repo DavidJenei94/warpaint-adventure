@@ -1,29 +1,32 @@
+import React, { Dispatch, SetStateAction } from 'react';
+import { PackingList } from '../../../models/packing.models';
+import useModal from '../../../hooks/modal-hook';
+import { useAppSelector } from '../../../hooks/redux-hooks';
+import useHttp from '../../../hooks/http-hook';
+import { createPackingList } from '../../../lib/packinglist-api';
+import useFetchDataEffect from '../../../hooks/fetch-data-effect-hook';
+
 import PackingListNewForm from './PackingListNewForm';
 import Button from '../../UI/Button';
 import Select from '../../UI/Select';
+import Modal from '../../UI/Modal/Modal';
 
 import styles from './PackingListSelector.module.scss';
-import { PackingList } from '../../../models/packing.models';
-import React from 'react';
-import useModal from '../../../hooks/modal-hook';
-import Modal from '../../UI/Modal/Modal';
-import { useAppDispatch, useAppSelector } from '../../../hooks/redux-hooks';
-import { Status, toggleFeedback } from '../../../store/feedback';
-import { errorHandlingFetch } from '../../../utils/errorHanling';
 
 type SelectorProps = {
   packingLists: PackingList[];
+  setPackingLists: Dispatch<SetStateAction<PackingList[]>>;
   selectedPackingList: PackingList;
-  setSelectedPackingList: (packingList: PackingList) => void;
+  setSelectedPackingList: Dispatch<SetStateAction<PackingList>>;
 };
 
 const PackingListSelector = ({
   packingLists,
+  setPackingLists,
   selectedPackingList,
   setSelectedPackingList,
 }: SelectorProps) => {
   const token = useAppSelector((state) => state.auth.token);
-  const dispatch = useAppDispatch();
 
   const {
     isShown: formIsShown,
@@ -39,6 +42,13 @@ const PackingListSelector = ({
     };
   });
 
+  const {
+    sendRequest: sendCreateListRequest,
+    status: createListStatus,
+    error: createListError,
+    data: createListData,
+  } = useHttp(createPackingList);
+
   const selectionChangeHandler = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -50,33 +60,23 @@ const PackingListSelector = ({
   };
 
   const formSubmitHandler = async () => {
-    try {
-      const response = await fetch('http://localhost:4000/api/packinglist/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-access-token': token,
-        },
-        body: JSON.stringify({
-          name: formResponse[0],
-        }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
-
-      dispatch(
-        toggleFeedback({
-          status: Status.SUCCESS,
-          message: data.message,
-        })
-      );
-    } catch (err: any) {
-      errorHandlingFetch(err);
-    }
+    sendCreateListRequest({ token, name: formResponse[0] });
   };
+
+  useFetchDataEffect(
+    () => {
+      const newPackingList = {
+        id: Number(createListData.packingListId),
+        name: formResponse[0],
+      };
+
+      setPackingLists((prevState) => prevState.concat([newPackingList]));
+      setSelectedPackingList(newPackingList);
+    },
+    createListStatus,
+    createListError,
+    createListData
+  );
 
   return (
     <>
