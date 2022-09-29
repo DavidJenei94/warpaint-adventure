@@ -85,7 +85,13 @@ const update = async (packingList, itemId) => {
     throw new HttpError('Packing item does not exists.', 400);
   }
 
-  return { message: 'Packing item updated.' };
+  const packingItem = new PackingItem(
+    itemId,
+    packingList.name,
+    packingList.status
+  );
+
+  return { message: 'Packing item updated.', packingItem };
 };
 
 const remove = async (itemId) => {
