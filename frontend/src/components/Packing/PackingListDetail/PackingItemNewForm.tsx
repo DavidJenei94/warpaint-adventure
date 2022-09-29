@@ -1,9 +1,10 @@
 import React, { Dispatch, SetStateAction } from 'react';
-import { useAppDispatch, useAppSelector } from '../../../hooks/redux-hooks';
+import useFetchDataEffect from '../../../hooks/fetch-data-effect-hook';
+import useHttp from '../../../hooks/http-hook';
+import { useAppSelector } from '../../../hooks/redux-hooks';
 import useInput from '../../../hooks/use-input';
+import { createPackingItem } from '../../../lib/packingitem-api';
 import { PackingItem } from '../../../models/packing.models';
-import { Status, toggleFeedback } from '../../../store/feedback';
-import { errorHandlingFetch } from '../../../utils/errorHanling';
 
 import Button from '../../UI/Button';
 import Input from '../../UI/Input';
@@ -19,7 +20,6 @@ const PackingItemNewForm = ({
   packingListId,
   onAddItem,
 }: NewPackingItemProps) => {
-  const dispatch = useAppDispatch();
   const token = useAppSelector((state) => state.auth.token);
 
   const {
@@ -31,44 +31,40 @@ const PackingItemNewForm = ({
     reset: newItemReset,
   } = useInput((value) => value.trim() !== '');
 
+  const {
+    sendRequest: sendCreateItemRequest,
+    status: createItemStatus,
+    error: createItemError,
+    data: createItemData,
+  } = useHttp(createPackingItem);
+
   const submitFormHandler = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    try {
-      const response = await fetch(
-        `http://localhost:4000/api/packinglist/${packingListId}/packingitem/`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-access-token': token,
-          },
-          body: JSON.stringify({ name: newItemName }),
-        }
-      );
+    if (!newItemIsValid) return;
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
+    sendCreateItemRequest({ token, listId: packingListId, name: newItemName });
+  };
 
+  useFetchDataEffect(
+    () => {
       newItemReset();
 
-      dispatch(
-        toggleFeedback({
-          status: Status.SUCCESS,
-          message: data.message,
-        })
-      );
+      onAddItem((prevState) => {
+        const Items = [...prevState];
+        Items.unshift({
+          id: createItemData.packingItemId,
+          name: newItemName,
+          status: 0,
+        });
 
-      onAddItem((prevState) => [
-        ...prevState,
-        { id: data.packingItemId, name: newItemName, status: 0 },
-      ]);
-    } catch (err: any) {
-      errorHandlingFetch(err);
-    }
-  };
+        return Items;
+      });
+    },
+    createItemStatus,
+    createItemError,
+    createItemData
+  );
 
   return (
     <form className={styles['new-item']} onSubmit={submitFormHandler}>
@@ -77,7 +73,9 @@ const PackingItemNewForm = ({
         value={newItemName}
         onChange={newItemNameChangeHandler}
       />
-      <Button type="submit"><p>Add</p></Button>
+      <Button type="submit">
+        <p>Add</p>
+      </Button>
     </form>
   );
 };

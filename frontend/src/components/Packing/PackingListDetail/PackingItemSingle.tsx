@@ -1,10 +1,14 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../hooks/redux-hooks';
-import { Status, toggleFeedback } from '../../../store/feedback';
-import { errorHandlingFetch } from '../../../utils/errorHanling';
 import useModal from '../../../hooks/modal-hook';
 import { PackingItem } from '../../../models/packing.models';
 import PackingItemActions from './PackingItemActions';
+import useFetchDataEffect from '../../../hooks/fetch-data-effect-hook';
+import useHttp from '../../../hooks/http-hook';
+import {
+  deletePackingItem,
+  updatePackingItem,
+} from '../../../lib/packingitem-api';
 
 import Modal from '../../UI/Modal/Modal';
 import BasicConfirmation from '../../UI/ConfirmationModals/BasicConfirmation';
@@ -26,7 +30,6 @@ const PackingItemSingle = ({
   status,
   onEditItems,
 }: PackingItemProps) => {
-  const dispatch = useAppDispatch();
   const token = useAppSelector((state) => state.auth.token);
 
   const { isShown: deleteModalIsShown, toggleModal: toggleDeleteModal } =
@@ -34,33 +37,36 @@ const PackingItemSingle = ({
 
   const [packingItemName, setPackingItemName] = useState(name);
 
+  const {
+    sendRequest: sendUpdateItemRequest,
+    status: updateItemStatus,
+    error: updateItemError,
+    data: updateItemData,
+  } = useHttp(updatePackingItem);
+  const {
+    sendRequest: sendDeleteItemRequest,
+    status: deleteItemStatus,
+    error: deleteItemError,
+    data: deleteItemData,
+  } = useHttp(deletePackingItem);
+
   const confirmNameChangeHandler = async () => {
     // If name was not changed
     if (name === packingItemName) {
       return;
     }
 
-    try {
-      const response = await fetch(
-        `http://localhost:4000/api/packinglist/${packingListId}/packingitem/${id}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-access-token': token,
-          },
-          body: JSON.stringify({
-            name: packingItemName,
-            status: 0,
-          }),
-        }
-      );
+    sendUpdateItemRequest({
+      token,
+      listId: packingListId,
+      id,
+      name: packingItemName,
+      status: 0,
+    });
+  };
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
-
+  useFetchDataEffect(
+    () => {
       onEditItems((prevState) => {
         return prevState.map((item) => {
           if (item.id === id) {
@@ -69,50 +75,27 @@ const PackingItemSingle = ({
           return item;
         });
       });
-
-      dispatch(
-        toggleFeedback({
-          status: Status.SUCCESS,
-          message: data.message,
-        })
-      );
-    } catch (err: any) {
-      errorHandlingFetch(err);
-    }
-  };
+    },
+    updateItemStatus,
+    updateItemError,
+    updateItemData
+  );
 
   const deleteItemHandler = async () => {
-    try {
-      const response = await fetch(
-        `http://localhost:4000/api/packinglist/${packingListId}/packingitem/${id}`,
-        {
-          method: 'DELETE',
-          headers: {
-            'x-access-token': token,
-          },
-        }
-      );
+    sendDeleteItemRequest({ token, listId: packingListId, id });
+  };
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
-
+  useFetchDataEffect(
+    () => {
       // refresh list items by removing that one element
       onEditItems((prevState) => {
         return prevState.filter((item) => item.id !== id);
       });
-
-      dispatch(
-        toggleFeedback({
-          status: Status.SUCCESS,
-          message: data.message,
-        })
-      );
-    } catch (err: any) {
-      errorHandlingFetch(err);
-    }
-  };
+    },
+    deleteItemStatus,
+    deleteItemError,
+    deleteItemData
+  );
 
   return (
     <>
