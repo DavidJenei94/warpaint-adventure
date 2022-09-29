@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 
-// To handle data changes in component that used http-hook sendRequest
-// useEffect needed to handle the values get in useHttp
+// To handle data changes in components that use http-hook sendRequest.
+// useEffect is needed to handle the values get back in useHttp sendRequest.
 // (this is why an executable callback in useHttp does not work 
-// as there are not available all necessary fields, eg. from useHttp)
+// as the states are not available (return empty value) in the function)
 const useFetchDataEffect = (
   executableFunction: () => void,
   status: string | null,

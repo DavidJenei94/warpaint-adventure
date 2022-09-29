@@ -8,9 +8,17 @@ import {
 } from '../Utils/geojson.utils';
 import { errorHandlingFetch } from '../../../utils/errorHanling';
 import { useAppDispatch, useAppSelector } from '../../../hooks/redux-hooks';
-import { Status, toggleFeedback } from '../../../store/feedback';
 import { round } from '../../../utils/general.utils';
 import { Route } from '../../../models/route.model';
+import useHttp from '../../../hooks/http-hook';
+import {
+  createRoute,
+  deleteRoute,
+  getAllRoutes,
+  getRoute,
+  updateRoute,
+} from '../../../lib/route-api';
+import useFetchDataEffect from '../../../hooks/fetch-data-effect-hook';
 
 import Modal from '../../UI/Modal/Modal';
 import Button from '../../UI/Button';
@@ -41,7 +49,6 @@ const RoutingMenu = ({
   setActiveRoute,
   setWarningMessage,
 }: RoutingMenuProps) => {
-  const dispatch = useAppDispatch();
   const token = useAppSelector((state) => state.auth.token);
 
   const { isShown: deleteModalIsShown, toggleModal: toggleDeleteModal } =
@@ -66,6 +73,36 @@ const RoutingMenu = ({
   const [routeName, setRouteName] = useState('');
   // In route selection in Load Route
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
+
+  const {
+    sendRequest: sendGetAllRoutesRequest,
+    status: getAllRoutesStatus,
+    error: getAllRoutesError,
+    data: getAllRoutesData,
+  } = useHttp(getAllRoutes, false);
+
+  const {
+    sendRequest: sendCreateRouteRequest,
+    status: createRouteStatus,
+    error: createRouteError,
+    data: createRouteData,
+  } = useHttp(createRoute);
+
+  const {
+    sendRequest: sendGetRouteRequest,
+    status: getRouteStatus,
+    error: getRouteError,
+    data: getRouteData,
+  } = useHttp(getRoute);
+
+  const { sendRequest: sendUpdateRouteRequest } = useHttp(updateRoute);
+
+  const {
+    sendRequest: sendDeleteRouteRequest,
+    status: deleteRouteStatus,
+    error: deleteRouteError,
+    data: deleteRouteData,
+  } = useHttp(deleteRoute);
 
   // Display correct name after activeRoute changes (eg. load route)
   useEffect(() => {
@@ -306,35 +343,30 @@ const RoutingMenu = ({
     setNodes([]);
   };
 
-  // edit this to fetch delete
   const deleteRouteHandler = async () => {
     setRoutes([]);
     setNodes([]);
 
-    const result = await fetch(
-      `http://localhost:4000/api/route/${activeRoute.id}`,
-      {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-access-token': token,
-        },
-        body: JSON.stringify({
-          routePath: activeRoute.path,
-        }),
-      }
-    );
-
-    const data = await result.json();
-    setActiveRoute(data.route);
-
-    dispatch(
-      toggleFeedback({
-        status: Status.SUCCESS,
-        message: data.message,
-      })
-    );
+    sendDeleteRouteRequest({
+      token,
+      id: activeRoute.id,
+      path: activeRoute.path,
+    });
   };
+
+  useFetchDataEffect(
+    () => {
+      setActiveRoute({
+        id: 0,
+        name: '',
+        path: '',
+        color: 'blue',
+      });
+    },
+    deleteRouteStatus,
+    deleteRouteError,
+    deleteRouteData
+  );
 
   const confirmNameChangeHandler = () => {
     // If name was not changed
@@ -350,117 +382,94 @@ const RoutingMenu = ({
   };
 
   const saveRouteHandler = async () => {
-    try {
-      if (!activeRoute.name) {
-        throw new Error('Route has no name!');
-      }
+    if (!activeRoute.name) {
+      errorHandlingFetch('Route has no name!');
+      return;
+    }
 
-      if (routes.length === 0) {
-        throw new Error('No route on map!');
-      }
+    if (routes.length === 0) {
+      errorHandlingFetch('No route on map!');
+      return;
+    }
 
-      let mergedCoordinates: number[][] = [];
-      let totalDistance = 0;
-      routes.map((route) => {
-        mergedCoordinates = mergedCoordinates.concat(
-          route.features[0].geometry.coordinates
-        );
-        totalDistance += route.features[0].properties
-          ? route.features[0].properties.distance
-          : 0;
-      });
-
-      const mergedGeoJson = createBasicGeoJsonFC(
-        { coordinates: mergedCoordinates, type: 'LineString' },
-        totalDistance
+    let mergedCoordinates: number[][] = [];
+    let totalDistance = 0;
+    routes.map((route) => {
+      mergedCoordinates = mergedCoordinates.concat(
+        route.features[0].geometry.coordinates
       );
+      totalDistance += route.features[0].properties
+        ? route.features[0].properties.distance
+        : 0;
+    });
 
-      const method = activeRoute.id === 0 ? 'POST' : 'PUT';
-      const url =
-        activeRoute.id === 0
-          ? 'http://localhost:4000/api/route'
-          : `http://localhost:4000/api/route/${activeRoute.id}`;
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          'Content-Type': 'application/json',
-          'x-access-token': token,
-        },
-        body: JSON.stringify({
-          route: { ...activeRoute },
-          geoJson: mergedGeoJson,
-        }),
+    const mergedGeoJson = createBasicGeoJsonFC(
+      { coordinates: mergedCoordinates, type: 'LineString' },
+      totalDistance
+    );
+
+    if (activeRoute.id === 0) {
+      sendCreateRouteRequest({ token, activeRoute, mergedGeoJson });
+    } else {
+      sendUpdateRouteRequest({
+        token,
+        id: activeRoute.id,
+        activeRoute,
+        mergedGeoJson,
       });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
-
-      if (method === 'POST') setActiveRoute(data.route);
-
-      dispatch(
-        toggleFeedback({
-          status: Status.SUCCESS,
-          message: data.message,
-        })
-      );
-    } catch (error: any) {
-      errorHandlingFetch(error);
     }
   };
+
+  useFetchDataEffect(
+    () => {
+      // update active route with the created route's name and color
+      setActiveRoute(createRouteData.route);
+    },
+    createRouteStatus,
+    createRouteError,
+    createRouteData
+  );
 
   const loadRoutes = async () => {
-    try {
-      const result = await fetch('http://localhost:4000/api/route', {
-        method: 'GET',
-        headers: { 'x-access-token': token },
-      });
-
-      const data = await result.json();
-      if (!result.ok) {
-        throw new Error(data.message);
-      }
-
-      setUserRoutes(data);
-    } catch (error: any) {
-      errorHandlingFetch(error);
-    }
+    sendGetAllRoutesRequest({ token });
   };
 
+  useFetchDataEffect(
+    () => {
+      setUserRoutes(getAllRoutesData);
+    },
+    getAllRoutesStatus,
+    getAllRoutesError,
+    getAllRoutesData
+  );
+
   const loadRouteHandler = async () => {
-    try {
-      if (selectedRouteIndex === 0) {
-        throw new Error('Select a valid route!');
-      }
+    if (selectedRouteIndex === 0) {
+      errorHandlingFetch('Select a valid route!');
+      return;
+    }
 
-      const result = await fetch(
-        `http://localhost:4000/api/route/${selectedRouteIndex}`,
-        {
-          method: 'GET',
-          headers: { 'x-access-token': token },
-        }
-      );
+    sendGetRouteRequest({ token, id: selectedRouteIndex });
+  };
 
-      const data = await result.json();
-      if (!result.ok) {
-        throw new Error(data.message);
-      }
+  useFetchDataEffect(
+    () => {
+      setActiveRoute(getRouteData.route);
+      setRoutes([getRouteData.geoJson]);
 
-      setActiveRoute(data.route);
-      setRoutes([data.geoJson]);
-      const coordinates = data.geoJson.features[0].geometry.coordinates;
+      const coordinates = getRouteData.geoJson.features[0].geometry.coordinates;
       const firstNode = new LatLng(coordinates[0][1], coordinates[0][0]);
       const lastNode = new LatLng(
         coordinates[coordinates.length - 1][1],
         coordinates[coordinates.length - 1][0]
       );
       setNodes([firstNode, lastNode]);
-      setSelectedColor(data.route.color);
-    } catch (error: any) {
-      errorHandlingFetch(error);
-    }
-  };
+      setSelectedColor(getRouteData.route.color);
+    },
+    getRouteStatus,
+    getRouteError,
+    getRouteData
+  );
 
   const routeSelectionChangeHandler = (
     event: React.ChangeEvent<HTMLSelectElement>
