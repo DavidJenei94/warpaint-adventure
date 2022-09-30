@@ -47,23 +47,18 @@ const PackingItemActions = ({
     data: updateItemData,
   } = useHttp(updatePackingItem);
 
-  useFetchDataEffect(
-    () => {
-      const status = updateItemData.packingItem.status;
-      setActionValues(getCheckedValuesFromStatus(status));
-      onEditItems((prevState) => {
-        return prevState.map((item) => {
-          if (item.id === packingItem.id) {
-            return { id: packingItem.id, name: packingItem.name, status };
-          }
-          return item;
-        });
+  useFetchDataEffect(() => {
+    const status = updateItemData.packingItem.status;
+    setActionValues(getCheckedValuesFromStatus(status));
+    onEditItems((prevState) => {
+      return prevState.map((item) => {
+        if (item.id === packingItem.id) {
+          return { id: packingItem.id, name: packingItem.name, status };
+        }
+        return item;
       });
-    },
-    updateItemStatus,
-    updateItemError,
-    updateItemData
-  );
+    });
+  }, [updateItemStatus, updateItemError, updateItemData]);
 
   const fetchUpdateItem = async (status: number) => {
     sendUpdateItemRequest({

@@ -174,128 +174,123 @@ const RoutingMenu = ({
     sendImportGpxRequest({ gpxString: importedGpxText });
   };
 
-  useFetchDataEffect(
-    () => {
-      const coordinates = importGpxData.features[0].geometry.coordinates;
-      const firstNode = new LatLng(coordinates[0][1], coordinates[0][0]);
-      const lastNode = new LatLng(
-        coordinates[coordinates.length - 1][1],
-        coordinates[coordinates.length - 1][0]
+  useFetchDataEffect(() => {
+    const coordinates = importGpxData.features[0].geometry.coordinates;
+    const firstNode = new LatLng(coordinates[0][1], coordinates[0][0]);
+    const lastNode = new LatLng(
+      coordinates[coordinates.length - 1][1],
+      coordinates[coordinates.length - 1][0]
+    );
+
+    setRoutes((prevState) => {
+      if (prevState.length === 0) {
+        setNodes([firstNode, lastNode]);
+        return [importGpxData];
+      }
+
+      const prevFirstCoordinates =
+        prevState[0].features[0].geometry.coordinates;
+      const prevFirstNode = new LatLng(
+        prevFirstCoordinates[0][1],
+        prevFirstCoordinates[0][0]
+      );
+      const prevLastCoordinates =
+        prevState[prevState.length - 1].features[0].geometry.coordinates;
+      const prevLastNode = new LatLng(
+        prevLastCoordinates[prevLastCoordinates.length - 1][1],
+        prevLastCoordinates[prevLastCoordinates.length - 1][0]
       );
 
-      setRoutes((prevState) => {
-        if (prevState.length === 0) {
-          setNodes([firstNode, lastNode]);
-          return [importGpxData];
-        }
-
-        const prevFirstCoordinates =
-          prevState[0].features[0].geometry.coordinates;
-        const prevFirstNode = new LatLng(
-          prevFirstCoordinates[0][1],
-          prevFirstCoordinates[0][0]
-        );
-        const prevLastCoordinates =
-          prevState[prevState.length - 1].features[0].geometry.coordinates;
-        const prevLastNode = new LatLng(
-          prevLastCoordinates[prevLastCoordinates.length - 1][1],
-          prevLastCoordinates[prevLastCoordinates.length - 1][0]
-        );
-
-        // If newly added route's last node is the same as the first node of current route
-        if (sameCoordinates(prevFirstNode, lastNode)) {
-          setNodes((prevState) => {
-            return [lastNode].concat(prevState);
-          });
-          return [importGpxData].concat(prevState);
-        }
-
-        // If newly added route's first node is the same as the last node of current route
-        if (sameCoordinates(prevLastNode, firstNode)) {
-          setNodes((prevState) => {
-            return prevState.concat([lastNode]);
-          });
-          return prevState.concat([importGpxData]);
-        }
-
-        // check if it matches a current middle node, then throw warning message
-        prevState.map((route, index) => {
-          if (index === 0 || index === prevState.length) {
-            return;
-          }
-
-          const routeCoordinates = route.features[0].geometry.coordinates;
-          const routeFirstNode = new LatLng(
-            routeCoordinates[0][1],
-            routeCoordinates[0][0]
-          );
-          const routeLastNode = new LatLng(
-            routeCoordinates[routeCoordinates.length - 1][1],
-            routeCoordinates[routeCoordinates.length - 1][0]
-          );
-
-          if (
-            sameCoordinates(firstNode, routeFirstNode) ||
-            sameCoordinates(firstNode, routeLastNode) ||
-            sameCoordinates(lastNode, routeFirstNode) ||
-            sameCoordinates(lastNode, routeLastNode)
-          ) {
-            setWarningMessage(
-              'Route cannot be connected as it starts or ends at the middle of the current route!'
-            );
-
-            return prevState;
-          }
-        });
-
-        // otherwise draw a connecting route with 1 extra node at the middle
-        const smallerLng =
-          prevLastNode.lng < firstNode.lng ? prevLastNode.lng : firstNode.lng;
-        const smallerLat =
-          prevLastNode.lat < firstNode.lat ? prevLastNode.lat : firstNode.lat;
-        const middleRouteCoordinate = [
-          smallerLng + Math.abs(prevLastNode.lng - firstNode.lng) / 2,
-          smallerLat + Math.abs(prevLastNode.lat - firstNode.lat) / 2,
-        ];
-        const middleNode = new LatLng(
-          middleRouteCoordinate[1],
-          middleRouteCoordinate[0]
-        );
-
-        const connectingCoordinates1 = [
-          [prevLastNode.lng, prevLastNode.lat],
-          middleRouteCoordinate,
-        ];
-        const connectingRoute1 = createBasicGeoJsonFC(
-          { coordinates: connectingCoordinates1, type: 'LineString' },
-          getDistanceOfRoute(connectingCoordinates1)
-        );
-        const connectingCoordinates2 = [
-          middleRouteCoordinate,
-          [firstNode.lng, firstNode.lat],
-        ];
-        const connectingRoute2 = createBasicGeoJsonFC(
-          { coordinates: connectingCoordinates2, type: 'LineString' },
-          getDistanceOfRoute(connectingCoordinates2)
-        );
-
+      // If newly added route's last node is the same as the first node of current route
+      if (sameCoordinates(prevFirstNode, lastNode)) {
         setNodes((prevState) => {
-          return [...prevState]
-            .concat([middleNode])
-            .concat([firstNode])
-            .concat([lastNode]);
+          return [lastNode].concat(prevState);
         });
+        return [importGpxData].concat(prevState);
+      }
 
-        return [...prevState]
-          .concat(connectingRoute1)
-          .concat(connectingRoute2)
-          .concat(importGpxData);
+      // If newly added route's first node is the same as the last node of current route
+      if (sameCoordinates(prevLastNode, firstNode)) {
+        setNodes((prevState) => {
+          return prevState.concat([lastNode]);
+        });
+        return prevState.concat([importGpxData]);
+      }
+
+      // check if it matches a current middle node, then throw warning message
+      prevState.map((route, index) => {
+        if (index === 0 || index === prevState.length) {
+          return;
+        }
+
+        const routeCoordinates = route.features[0].geometry.coordinates;
+        const routeFirstNode = new LatLng(
+          routeCoordinates[0][1],
+          routeCoordinates[0][0]
+        );
+        const routeLastNode = new LatLng(
+          routeCoordinates[routeCoordinates.length - 1][1],
+          routeCoordinates[routeCoordinates.length - 1][0]
+        );
+
+        if (
+          sameCoordinates(firstNode, routeFirstNode) ||
+          sameCoordinates(firstNode, routeLastNode) ||
+          sameCoordinates(lastNode, routeFirstNode) ||
+          sameCoordinates(lastNode, routeLastNode)
+        ) {
+          setWarningMessage(
+            'Route cannot be connected as it starts or ends at the middle of the current route!'
+          );
+
+          return prevState;
+        }
       });
-    },
-    importGpxStatus,
-    importGpxError,
-    importGpxData
-  );
+
+      // otherwise draw a connecting route with 1 extra node at the middle
+      const smallerLng =
+        prevLastNode.lng < firstNode.lng ? prevLastNode.lng : firstNode.lng;
+      const smallerLat =
+        prevLastNode.lat < firstNode.lat ? prevLastNode.lat : firstNode.lat;
+      const middleRouteCoordinate = [
+        smallerLng + Math.abs(prevLastNode.lng - firstNode.lng) / 2,
+        smallerLat + Math.abs(prevLastNode.lat - firstNode.lat) / 2,
+      ];
+      const middleNode = new LatLng(
+        middleRouteCoordinate[1],
+        middleRouteCoordinate[0]
+      );
+
+      const connectingCoordinates1 = [
+        [prevLastNode.lng, prevLastNode.lat],
+        middleRouteCoordinate,
+      ];
+      const connectingRoute1 = createBasicGeoJsonFC(
+        { coordinates: connectingCoordinates1, type: 'LineString' },
+        getDistanceOfRoute(connectingCoordinates1)
+      );
+      const connectingCoordinates2 = [
+        middleRouteCoordinate,
+        [firstNode.lng, firstNode.lat],
+      ];
+      const connectingRoute2 = createBasicGeoJsonFC(
+        { coordinates: connectingCoordinates2, type: 'LineString' },
+        getDistanceOfRoute(connectingCoordinates2)
+      );
+
+      setNodes((prevState) => {
+        return [...prevState]
+          .concat([middleNode])
+          .concat([firstNode])
+          .concat([lastNode]);
+      });
+
+      return [...prevState]
+        .concat(connectingRoute1)
+        .concat(connectingRoute2)
+        .concat(importGpxData);
+    });
+  }, [importGpxStatus, importGpxError, importGpxData]);
 
   const exportGpxHandler = async () => {
     if (routes.length === 0) {
@@ -322,20 +317,15 @@ const RoutingMenu = ({
     sendExportGpxRequest({ geoJson: mergedGeoJson });
   };
 
-  useFetchDataEffect(
-    () => {
-      // export gpx as a file
-      const element = document.createElement('a');
-      const file = new Blob([exportGpxData], { type: 'application/gpx+xml' });
-      element.href = URL.createObjectURL(file);
-      element.download = 'route.gpx';
-      document.body.appendChild(element); // Required for this to work in FireFox
-      element.click();
-    },
-    exportGpxStatus,
-    exportGpxError,
-    exportGpxData
-  );
+  useFetchDataEffect(() => {
+    // export gpx as a file
+    const element = document.createElement('a');
+    const file = new Blob([exportGpxData], { type: 'application/gpx+xml' });
+    element.href = URL.createObjectURL(file);
+    element.download = 'route.gpx';
+    document.body.appendChild(element); // Required for this to work in FireFox
+    element.click();
+  }, [exportGpxStatus, exportGpxError, exportGpxData]);
 
   const clearRoutesHandler = () => {
     setRoutes([]);
@@ -353,19 +343,14 @@ const RoutingMenu = ({
     });
   };
 
-  useFetchDataEffect(
-    () => {
-      setActiveRoute({
-        id: 0,
-        name: '',
-        path: '',
-        color: 'blue',
-      });
-    },
-    deleteRouteStatus,
-    deleteRouteError,
-    deleteRouteData
-  );
+  useFetchDataEffect(() => {
+    setActiveRoute({
+      id: 0,
+      name: '',
+      path: '',
+      color: 'blue',
+    });
+  }, [deleteRouteStatus, deleteRouteError, deleteRouteData]);
 
   const confirmNameChangeHandler = () => {
     // If name was not changed
@@ -419,28 +404,18 @@ const RoutingMenu = ({
     }
   };
 
-  useFetchDataEffect(
-    () => {
-      // update active route with the created route's name and color
-      setActiveRoute(createRouteData.route);
-    },
-    createRouteStatus,
-    createRouteError,
-    createRouteData
-  );
+  useFetchDataEffect(() => {
+    // update active route with the created route's name and color
+    setActiveRoute(createRouteData.route);
+  }, [createRouteStatus, createRouteError, createRouteData]);
 
   const loadRoutes = async () => {
     sendGetAllRoutesRequest({ token });
   };
 
-  useFetchDataEffect(
-    () => {
-      setUserRoutes(getAllRoutesData);
-    },
-    getAllRoutesStatus,
-    getAllRoutesError,
-    getAllRoutesData
-  );
+  useFetchDataEffect(() => {
+    setUserRoutes(getAllRoutesData);
+  }, [getAllRoutesStatus, getAllRoutesError, getAllRoutesData]);
 
   const loadRouteHandler = async () => {
     if (selectedRouteIndex === 0) {
@@ -451,24 +426,19 @@ const RoutingMenu = ({
     sendGetRouteRequest({ token, id: selectedRouteIndex });
   };
 
-  useFetchDataEffect(
-    () => {
-      setActiveRoute(getRouteData.route);
-      setRoutes([getRouteData.geoJson]);
+  useFetchDataEffect(() => {
+    setActiveRoute(getRouteData.route);
+    setRoutes([getRouteData.geoJson]);
 
-      const coordinates = getRouteData.geoJson.features[0].geometry.coordinates;
-      const firstNode = new LatLng(coordinates[0][1], coordinates[0][0]);
-      const lastNode = new LatLng(
-        coordinates[coordinates.length - 1][1],
-        coordinates[coordinates.length - 1][0]
-      );
-      setNodes([firstNode, lastNode]);
-      setSelectedColor(getRouteData.route.color);
-    },
-    getRouteStatus,
-    getRouteError,
-    getRouteData
-  );
+    const coordinates = getRouteData.geoJson.features[0].geometry.coordinates;
+    const firstNode = new LatLng(coordinates[0][1], coordinates[0][0]);
+    const lastNode = new LatLng(
+      coordinates[coordinates.length - 1][1],
+      coordinates[coordinates.length - 1][0]
+    );
+    setNodes([firstNode, lastNode]);
+    setSelectedColor(getRouteData.route.color);
+  }, [getRouteStatus, getRouteError, getRouteData]);
 
   const routeSelectionChangeHandler = (
     event: React.ChangeEvent<HTMLSelectElement>

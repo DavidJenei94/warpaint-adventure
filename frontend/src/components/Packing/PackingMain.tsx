@@ -31,16 +31,11 @@ const PackingMain = () => {
     sendGetAllListRequest({ token });
   }, [sendGetAllListRequest]);
 
-  useFetchDataEffect(
-    () => {
-      setPackingLists(
-        [{ id: 0, name: '...' }].concat(getAllListsData.packingLists)
-      );
-    },
-    getAllListStatus,
-    getAllListError,
-    getAllListsData
-  );
+  useFetchDataEffect(() => {
+    setPackingLists(
+      [{ id: 0, name: '...' }].concat(getAllListsData.packingLists)
+    );
+  }, [getAllListStatus, getAllListError, getAllListsData]);
 
   if (getAllListStatus !== 'completed' || packingLists.length === 0) {
     return (

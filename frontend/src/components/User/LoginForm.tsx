@@ -53,24 +53,19 @@ const LoginForm = () => {
     sendLoginRequest({ email, password });
   };
 
-  useFetchDataEffect(
-    () => {
-      const user = loginData.user;
+  useFetchDataEffect(() => {
+    const user = loginData.user;
 
-      if (user) {
-        dispatch(
-          authActions.login({ token: user.token, expiresIn: user.expiresIn })
-        );
+    if (user) {
+      dispatch(
+        authActions.login({ token: user.token, expiresIn: user.expiresIn })
+      );
 
-        // navigate('/profile', { replace: true });
-        // check if history -1 is wpa page
-        navigate(-1);
-      }
-    },
-    loginStatus,
-    loginError,
-    loginData
-  );
+      // navigate('/profile', { replace: true });
+      // check if history -1 is wpa page
+      navigate(-1);
+    }
+  }, [loginStatus, loginError, loginData]);
 
   const signUpClickHandler = () => {
     navigate('/registration', { replace: true });

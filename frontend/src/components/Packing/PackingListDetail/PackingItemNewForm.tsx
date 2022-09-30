@@ -46,25 +46,20 @@ const PackingItemNewForm = ({
     sendCreateItemRequest({ token, listId: packingListId, name: newItemName });
   };
 
-  useFetchDataEffect(
-    () => {
-      newItemReset();
+  useFetchDataEffect(() => {
+    newItemReset();
 
-      onAddItem((prevState) => {
-        const Items = [...prevState];
-        Items.unshift({
-          id: createItemData.packingItemId,
-          name: newItemName,
-          status: 0,
-        });
-
-        return Items;
+    onAddItem((prevState) => {
+      const Items = [...prevState];
+      Items.unshift({
+        id: createItemData.packingItemId,
+        name: newItemName,
+        status: 0,
       });
-    },
-    createItemStatus,
-    createItemError,
-    createItemData
-  );
+
+      return Items;
+    });
+  }, [createItemStatus, createItemError, createItemData]);
 
   return (
     <form className={styles['new-item']} onSubmit={submitFormHandler}>

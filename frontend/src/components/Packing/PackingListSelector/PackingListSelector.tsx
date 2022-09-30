@@ -63,20 +63,15 @@ const PackingListSelector = ({
     sendCreateListRequest({ token, name: formResponse[0] });
   };
 
-  useFetchDataEffect(
-    () => {
-      const newPackingList = {
-        id: Number(createListData.packingListId),
-        name: formResponse[0],
-      };
+  useFetchDataEffect(() => {
+    const newPackingList = {
+      id: Number(createListData.packingListId),
+      name: formResponse[0],
+    };
 
-      setPackingLists((prevState) => prevState.concat([newPackingList]));
-      setSelectedPackingList(newPackingList);
-    },
-    createListStatus,
-    createListError,
-    createListData
-  );
+    setPackingLists((prevState) => prevState.concat([newPackingList]));
+    setSelectedPackingList(newPackingList);
+  }, [createListStatus, createListError, createListData]);
 
   return (
     <>

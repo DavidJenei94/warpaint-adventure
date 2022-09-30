@@ -103,18 +103,13 @@ const RegistrationForm = () => {
     sendSignupRequest({ email, password, name });
   };
 
-  useFetchDataEffect(
-    () => {
-      emailReset();
-      nameReset();
-      passwordReset();
-      rePasswordReset();
-      setTermsAccepted(false);
-    },
-    signupStatus,
-    signupError,
-    signupData
-  );
+  useFetchDataEffect(() => {
+    emailReset();
+    nameReset();
+    passwordReset();
+    rePasswordReset();
+    setTermsAccepted(false);
+  }, [signupStatus, signupError, signupData]);
 
   const termsCheckHandler = () => {
     setTermsAccepted((prevState) => !prevState);

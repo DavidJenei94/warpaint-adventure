@@ -65,37 +65,27 @@ const PackingItemSingle = ({
     });
   };
 
-  useFetchDataEffect(
-    () => {
-      onEditItems((prevState) => {
-        return prevState.map((item) => {
-          if (item.id === id) {
-            return { id, name: packingItemName, status };
-          }
-          return item;
-        });
+  useFetchDataEffect(() => {
+    onEditItems((prevState) => {
+      return prevState.map((item) => {
+        if (item.id === id) {
+          return { id, name: packingItemName, status };
+        }
+        return item;
       });
-    },
-    updateItemStatus,
-    updateItemError,
-    updateItemData
-  );
+    });
+  }, [updateItemStatus, updateItemError, updateItemData]);
 
   const deleteItemHandler = async () => {
     sendDeleteItemRequest({ token, listId: packingListId, id });
   };
 
-  useFetchDataEffect(
-    () => {
-      // refresh list items by removing that one element
-      onEditItems((prevState) => {
-        return prevState.filter((item) => item.id !== id);
-      });
-    },
-    deleteItemStatus,
-    deleteItemError,
-    deleteItemData
-  );
+  useFetchDataEffect(() => {
+    // refresh list items by removing that one element
+    onEditItems((prevState) => {
+      return prevState.filter((item) => item.id !== id);
+    });
+  }, [deleteItemStatus, deleteItemError, deleteItemData]);
 
   return (
     <>
