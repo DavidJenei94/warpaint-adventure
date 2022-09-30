@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
+import useFetchDataEffect from '../../hooks/fetch-data-effect-hook';
+import useHttp from '../../hooks/http-hook';
 import { useAppDispatch } from '../../hooks/redux-hooks';
 
 import useInput from '../../hooks/use-input';
+import { signupUser } from '../../lib/user-api';
 import { Status, toggleFeedback } from '../../store/feedback';
 import { errorHandlingFetch } from '../../utils/errorHanling';
 import {
@@ -19,6 +22,13 @@ import styles from './RegistrationForm.module.scss';
 
 const RegistrationForm = () => {
   const dispatch = useAppDispatch();
+
+  const {
+    sendRequest: sendSignupRequest,
+    status: signupStatus,
+    error: signupError,
+    data: signupData,
+  } = useHttp(signupUser);
 
   const [arePasswordsSame, setArePasswordsSame] = useState(true);
   const [termAccepted, setTermsAccepted] = useState(false);
@@ -90,39 +100,16 @@ const RegistrationForm = () => {
       return;
     }
 
-    if (await sendRegData()) {
-      emailReset();
-      nameReset();
-      passwordReset();
-      rePasswordReset();
-      setTermsAccepted(false);
-    }
+    sendSignupRequest({ email, password, name });
   };
 
-  const sendRegData = async () => {
-    try {
-      const response = await fetch('http://localhost:4000/api/auth/signup', {
-        method: 'POST',
-        headers: {
-          'content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          name,
-        }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
-
-      return true;
-    } catch (err: any) {
-      errorHandlingFetch(err);
-    }
-  };
+  useFetchDataEffect(() => {
+    emailReset();
+    nameReset();
+    passwordReset();
+    rePasswordReset();
+    setTermsAccepted(false);
+  }, [signupStatus, signupError, signupData]);
 
   const termsCheckHandler = () => {
     setTermsAccepted((prevState) => !prevState);

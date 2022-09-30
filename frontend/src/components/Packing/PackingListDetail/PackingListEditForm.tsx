@@ -85,30 +85,25 @@ const PackingListEditForm = ({
     });
   };
 
-  useFetchDataEffect(
-    () => {
-      setSelectedPackingList((prevState: PackingList) => {
-        return { ...prevState, name: packingListName };
-      });
-      // Update selection in Packing Main
-      setPackingLists((prevState) =>
-        prevState.map((list) => {
-          if (list.id === selectedPackingList.id) {
-            return { id: list.id, name: packingListName };
-          }
-          return list;
-        })
-      );
+  useFetchDataEffect(() => {
+    setSelectedPackingList((prevState: PackingList) => {
+      return { ...prevState, name: packingListName };
+    });
+    // Update selection in Packing Main
+    setPackingLists((prevState) =>
+      prevState.map((list) => {
+        if (list.id === selectedPackingList.id) {
+          return { id: list.id, name: packingListName };
+        }
+        return list;
+      })
+    );
 
-      // change back the packing list name field to original
-      if (updateListError) {
-        setPackingListName(selectedPackingList.name);
-      }
-    },
-    updateListStatus,
-    updateListError,
-    updateListData
-  );
+    // change back the packing list name field to original
+    if (updateListError) {
+      setPackingListName(selectedPackingList.name);
+    }
+  }, [updateListStatus, updateListError, updateListData]);
 
   const deleteListHandler = async () => {
     await deleteListSendRequest({
@@ -117,18 +112,13 @@ const PackingListEditForm = ({
     });
   };
 
-  useFetchDataEffect(
-    () => {
-      // trigger useEffect in PackingMain to refresh the selection list
-      setSelectedPackingList({ id: 0, name: '...' });
-      setPackingLists((prevState) =>
-        prevState.filter((list) => list.id !== selectedPackingList.id)
-      );
-    },
-    deleteListStatus,
-    deleteListError,
-    deleteListData
-  );
+  useFetchDataEffect(() => {
+    // trigger useEffect in PackingMain to refresh the selection list
+    setSelectedPackingList({ id: 0, name: '...' });
+    setPackingLists((prevState) =>
+      prevState.filter((list) => list.id !== selectedPackingList.id)
+    );
+  }, [deleteListStatus, deleteListError, deleteListData]);
   const unpackAllHandler = async () => {
     await updateAllItemSendRequest({
       token: token,
@@ -137,18 +127,13 @@ const PackingListEditForm = ({
     });
   };
 
-  useFetchDataEffect(
-    () => {
-      onEditItems((prevState) =>
-        prevState.map((item) => {
-          return { ...item, status: 0 };
-        })
-      );
-    },
-    updateAllItemStatus,
-    updateAllItemError,
-    updateAllItemData
-  );
+  useFetchDataEffect(() => {
+    onEditItems((prevState) =>
+      prevState.map((item) => {
+        return { ...item, status: 0 };
+      })
+    );
+  }, [updateAllItemStatus, updateAllItemError, updateAllItemData]);
 
   const viewToggler = () => {
     onViewToggle((prevState) => !prevState);

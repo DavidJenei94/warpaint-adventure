@@ -8,9 +8,17 @@ import {
 } from '../Utils/geojson.utils';
 import { errorHandlingFetch } from '../../../utils/errorHanling';
 import { useAppDispatch, useAppSelector } from '../../../hooks/redux-hooks';
-import { Status, toggleFeedback } from '../../../store/feedback';
 import { round } from '../../../utils/general.utils';
 import { Route } from '../../../models/route.model';
+import useHttp from '../../../hooks/http-hook';
+import {
+  createRoute,
+  deleteRoute,
+  getAllRoutes,
+  getRoute,
+  updateRoute,
+} from '../../../lib/route-api';
+import useFetchDataEffect from '../../../hooks/fetch-data-effect-hook';
 
 import Modal from '../../UI/Modal/Modal';
 import Button from '../../UI/Button';
@@ -21,6 +29,7 @@ import ColorSelection from '../Utils/ColorSelection';
 import EditDeleteText from '../../UI/Combined/EditDeleteText';
 
 import styles from './RoutingMenu.module.scss';
+import { exportGpx, importGpx } from '../../../lib/gpx-api';
 
 type RoutingMenuProps = {
   nodes: LatLng[];
@@ -41,7 +50,6 @@ const RoutingMenu = ({
   setActiveRoute,
   setWarningMessage,
 }: RoutingMenuProps) => {
-  const dispatch = useAppDispatch();
   const token = useAppSelector((state) => state.auth.token);
 
   const { isShown: deleteModalIsShown, toggleModal: toggleDeleteModal } =
@@ -66,6 +74,49 @@ const RoutingMenu = ({
   const [routeName, setRouteName] = useState('');
   // In route selection in Load Route
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
+
+  const {
+    sendRequest: sendGetAllRoutesRequest,
+    status: getAllRoutesStatus,
+    error: getAllRoutesError,
+    data: getAllRoutesData,
+  } = useHttp(getAllRoutes, false);
+
+  const {
+    sendRequest: sendCreateRouteRequest,
+    status: createRouteStatus,
+    error: createRouteError,
+    data: createRouteData,
+  } = useHttp(createRoute);
+
+  const {
+    sendRequest: sendGetRouteRequest,
+    status: getRouteStatus,
+    error: getRouteError,
+    data: getRouteData,
+  } = useHttp(getRoute);
+
+  const { sendRequest: sendUpdateRouteRequest } = useHttp(updateRoute);
+
+  const {
+    sendRequest: sendDeleteRouteRequest,
+    status: deleteRouteStatus,
+    error: deleteRouteError,
+    data: deleteRouteData,
+  } = useHttp(deleteRoute);
+
+  const {
+    sendRequest: sendImportGpxRequest,
+    status: importGpxStatus,
+    error: importGpxError,
+    data: importGpxData,
+  } = useHttp(importGpx, false);
+  const {
+    sendRequest: sendExportGpxRequest,
+    status: exportGpxStatus,
+    error: exportGpxError,
+    data: exportGpxData,
+  } = useHttp(exportGpx, false);
 
   // Display correct name after activeRoute changes (eg. load route)
   useEffect(() => {
@@ -120,221 +171,186 @@ const RoutingMenu = ({
   };
 
   const importGpxHandler = async () => {
-    try {
-      const response = await fetch('http://localhost:4000/api/gpx/import/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ gpxString: importedGpxText }),
-      });
+    sendImportGpxRequest({ gpxString: importedGpxText });
+  };
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message);
+  useFetchDataEffect(() => {
+    const coordinates = importGpxData.features[0].geometry.coordinates;
+    const firstNode = new LatLng(coordinates[0][1], coordinates[0][0]);
+    const lastNode = new LatLng(
+      coordinates[coordinates.length - 1][1],
+      coordinates[coordinates.length - 1][0]
+    );
+
+    setRoutes((prevState) => {
+      if (prevState.length === 0) {
+        setNodes([firstNode, lastNode]);
+        return [importGpxData];
       }
 
-      const coordinates = data.features[0].geometry.coordinates;
-      const firstNode = new LatLng(coordinates[0][1], coordinates[0][0]);
-      const lastNode = new LatLng(
-        coordinates[coordinates.length - 1][1],
-        coordinates[coordinates.length - 1][0]
+      const prevFirstCoordinates =
+        prevState[0].features[0].geometry.coordinates;
+      const prevFirstNode = new LatLng(
+        prevFirstCoordinates[0][1],
+        prevFirstCoordinates[0][0]
+      );
+      const prevLastCoordinates =
+        prevState[prevState.length - 1].features[0].geometry.coordinates;
+      const prevLastNode = new LatLng(
+        prevLastCoordinates[prevLastCoordinates.length - 1][1],
+        prevLastCoordinates[prevLastCoordinates.length - 1][0]
       );
 
-      setRoutes((prevState) => {
-        if (prevState.length === 0) {
-          setNodes([firstNode, lastNode]);
-          return [data];
-        }
-
-        const prevFirstCoordinates =
-          prevState[0].features[0].geometry.coordinates;
-        const prevFirstNode = new LatLng(
-          prevFirstCoordinates[0][1],
-          prevFirstCoordinates[0][0]
-        );
-        const prevLastCoordinates =
-          prevState[prevState.length - 1].features[0].geometry.coordinates;
-        const prevLastNode = new LatLng(
-          prevLastCoordinates[prevLastCoordinates.length - 1][1],
-          prevLastCoordinates[prevLastCoordinates.length - 1][0]
-        );
-
-        // If newly added route's last node is the same as the first node of current route
-        if (sameCoordinates(prevFirstNode, lastNode)) {
-          setNodes((prevState) => {
-            return [lastNode].concat(prevState);
-          });
-          return [data].concat(prevState);
-        }
-
-        // If newly added route's first node is the same as the last node of current route
-        if (sameCoordinates(prevLastNode, firstNode)) {
-          setNodes((prevState) => {
-            return prevState.concat([lastNode]);
-          });
-          return prevState.concat([data]);
-        }
-
-        // check if it matches a current middle node, then throw warning message
-        prevState.map((route, index) => {
-          if (index === 0 || index === prevState.length) {
-            return;
-          }
-
-          const routeCoordinates = route.features[0].geometry.coordinates;
-          const routeFirstNode = new LatLng(
-            routeCoordinates[0][1],
-            routeCoordinates[0][0]
-          );
-          const routeLastNode = new LatLng(
-            routeCoordinates[routeCoordinates.length - 1][1],
-            routeCoordinates[routeCoordinates.length - 1][0]
-          );
-
-          if (
-            sameCoordinates(firstNode, routeFirstNode) ||
-            sameCoordinates(firstNode, routeLastNode) ||
-            sameCoordinates(lastNode, routeFirstNode) ||
-            sameCoordinates(lastNode, routeLastNode)
-          ) {
-            setWarningMessage(
-              'Route cannot be connected as it starts or ends at the middle of the current route!'
-            );
-
-            return prevState;
-          }
-        });
-
-        // otherwise draw a connecting route with 1 extra node at the middle
-        const smallerLng =
-          prevLastNode.lng < firstNode.lng ? prevLastNode.lng : firstNode.lng;
-        const smallerLat =
-          prevLastNode.lat < firstNode.lat ? prevLastNode.lat : firstNode.lat;
-        const middleRouteCoordinate = [
-          smallerLng + Math.abs(prevLastNode.lng - firstNode.lng) / 2,
-          smallerLat + Math.abs(prevLastNode.lat - firstNode.lat) / 2,
-        ];
-        const middleNode = new LatLng(
-          middleRouteCoordinate[1],
-          middleRouteCoordinate[0]
-        );
-
-        const connectingCoordinates1 = [
-          [prevLastNode.lng, prevLastNode.lat],
-          middleRouteCoordinate,
-        ];
-        const connectingRoute1 = createBasicGeoJsonFC(
-          { coordinates: connectingCoordinates1, type: 'LineString' },
-          getDistanceOfRoute(connectingCoordinates1)
-        );
-        const connectingCoordinates2 = [
-          middleRouteCoordinate,
-          [firstNode.lng, firstNode.lat],
-        ];
-        const connectingRoute2 = createBasicGeoJsonFC(
-          { coordinates: connectingCoordinates2, type: 'LineString' },
-          getDistanceOfRoute(connectingCoordinates2)
-        );
-
+      // If newly added route's last node is the same as the first node of current route
+      if (sameCoordinates(prevFirstNode, lastNode)) {
         setNodes((prevState) => {
-          return [...prevState]
-            .concat([middleNode])
-            .concat([firstNode])
-            .concat([lastNode]);
+          return [lastNode].concat(prevState);
         });
+        return [importGpxData].concat(prevState);
+      }
 
-        return [...prevState]
-          .concat(connectingRoute1)
-          .concat(connectingRoute2)
-          .concat(data);
+      // If newly added route's first node is the same as the last node of current route
+      if (sameCoordinates(prevLastNode, firstNode)) {
+        setNodes((prevState) => {
+          return prevState.concat([lastNode]);
+        });
+        return prevState.concat([importGpxData]);
+      }
+
+      // check if it matches a current middle node, then throw warning message
+      prevState.map((route, index) => {
+        if (index === 0 || index === prevState.length) {
+          return;
+        }
+
+        const routeCoordinates = route.features[0].geometry.coordinates;
+        const routeFirstNode = new LatLng(
+          routeCoordinates[0][1],
+          routeCoordinates[0][0]
+        );
+        const routeLastNode = new LatLng(
+          routeCoordinates[routeCoordinates.length - 1][1],
+          routeCoordinates[routeCoordinates.length - 1][0]
+        );
+
+        if (
+          sameCoordinates(firstNode, routeFirstNode) ||
+          sameCoordinates(firstNode, routeLastNode) ||
+          sameCoordinates(lastNode, routeFirstNode) ||
+          sameCoordinates(lastNode, routeLastNode)
+        ) {
+          setWarningMessage(
+            'Route cannot be connected as it starts or ends at the middle of the current route!'
+          );
+
+          return prevState;
+        }
       });
-    } catch (err: any) {
-      errorHandlingFetch(err.message);
-    }
-  };
+
+      // otherwise draw a connecting route with 1 extra node at the middle
+      const smallerLng =
+        prevLastNode.lng < firstNode.lng ? prevLastNode.lng : firstNode.lng;
+      const smallerLat =
+        prevLastNode.lat < firstNode.lat ? prevLastNode.lat : firstNode.lat;
+      const middleRouteCoordinate = [
+        smallerLng + Math.abs(prevLastNode.lng - firstNode.lng) / 2,
+        smallerLat + Math.abs(prevLastNode.lat - firstNode.lat) / 2,
+      ];
+      const middleNode = new LatLng(
+        middleRouteCoordinate[1],
+        middleRouteCoordinate[0]
+      );
+
+      const connectingCoordinates1 = [
+        [prevLastNode.lng, prevLastNode.lat],
+        middleRouteCoordinate,
+      ];
+      const connectingRoute1 = createBasicGeoJsonFC(
+        { coordinates: connectingCoordinates1, type: 'LineString' },
+        getDistanceOfRoute(connectingCoordinates1)
+      );
+      const connectingCoordinates2 = [
+        middleRouteCoordinate,
+        [firstNode.lng, firstNode.lat],
+      ];
+      const connectingRoute2 = createBasicGeoJsonFC(
+        { coordinates: connectingCoordinates2, type: 'LineString' },
+        getDistanceOfRoute(connectingCoordinates2)
+      );
+
+      setNodes((prevState) => {
+        return [...prevState]
+          .concat([middleNode])
+          .concat([firstNode])
+          .concat([lastNode]);
+      });
+
+      return [...prevState]
+        .concat(connectingRoute1)
+        .concat(connectingRoute2)
+        .concat(importGpxData);
+    });
+  }, [importGpxStatus, importGpxError, importGpxData]);
 
   const exportGpxHandler = async () => {
     if (routes.length === 0) {
       setWarningMessage('No route to export!');
+      return;
     }
 
-    try {
-      let mergedCoordinates: number[][] = [];
-      let totalDistance = 0;
-      routes.map((route) => {
-        mergedCoordinates = mergedCoordinates.concat(
-          route.features[0].geometry.coordinates
-        );
-        totalDistance += route.features[0].properties
-          ? route.features[0].properties.distance
-          : 0;
-      });
-
-      const mergedGeoJson = createBasicGeoJsonFC(
-        { coordinates: mergedCoordinates, type: 'LineString' },
-        totalDistance
+    let mergedCoordinates: number[][] = [];
+    let totalDistance = 0;
+    routes.map((route) => {
+      mergedCoordinates = mergedCoordinates.concat(
+        route.features[0].geometry.coordinates
       );
+      totalDistance += route.features[0].properties
+        ? route.features[0].properties.distance
+        : 0;
+    });
 
-      const response = await fetch('http://localhost:4000/api/gpx/export/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ geoJson: mergedGeoJson }),
-      });
+    const mergedGeoJson = createBasicGeoJsonFC(
+      { coordinates: mergedCoordinates, type: 'LineString' },
+      totalDistance
+    );
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
-
-      // export gpx as a file
-      const element = document.createElement('a');
-      const file = new Blob([data], { type: 'application/gpx+xml' });
-      element.href = URL.createObjectURL(file);
-      element.download = 'route.gpx';
-      document.body.appendChild(element); // Required for this to work in FireFox
-      element.click();
-    } catch (err: any) {
-      errorHandlingFetch(err.message);
-    }
+    sendExportGpxRequest({ geoJson: mergedGeoJson });
   };
+
+  useFetchDataEffect(() => {
+    // export gpx as a file
+    const element = document.createElement('a');
+    const file = new Blob([exportGpxData], { type: 'application/gpx+xml' });
+    element.href = URL.createObjectURL(file);
+    element.download = 'route.gpx';
+    document.body.appendChild(element); // Required for this to work in FireFox
+    element.click();
+  }, [exportGpxStatus, exportGpxError, exportGpxData]);
 
   const clearRoutesHandler = () => {
     setRoutes([]);
     setNodes([]);
   };
 
-  // edit this to fetch delete
   const deleteRouteHandler = async () => {
     setRoutes([]);
     setNodes([]);
 
-    const result = await fetch(
-      `http://localhost:4000/api/route/${activeRoute.id}`,
-      {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-access-token': token,
-        },
-        body: JSON.stringify({
-          routePath: activeRoute.path,
-        }),
-      }
-    );
-
-    const data = await result.json();
-    setActiveRoute(data.route);
-
-    dispatch(
-      toggleFeedback({
-        status: Status.SUCCESS,
-        message: data.message,
-      })
-    );
+    sendDeleteRouteRequest({
+      token,
+      id: activeRoute.id,
+      path: activeRoute.path,
+    });
   };
+
+  useFetchDataEffect(() => {
+    setActiveRoute({
+      id: 0,
+      name: '',
+      path: '',
+      color: 'blue',
+    });
+  }, [deleteRouteStatus, deleteRouteError, deleteRouteData]);
 
   const confirmNameChangeHandler = () => {
     // If name was not changed
@@ -350,117 +366,79 @@ const RoutingMenu = ({
   };
 
   const saveRouteHandler = async () => {
-    try {
-      if (!activeRoute.name) {
-        throw new Error('Route has no name!');
-      }
+    if (!activeRoute.name) {
+      errorHandlingFetch('Route has no name!');
+      return;
+    }
 
-      if (routes.length === 0) {
-        throw new Error('No route on map!');
-      }
+    if (routes.length === 0) {
+      errorHandlingFetch('No route on map!');
+      return;
+    }
 
-      let mergedCoordinates: number[][] = [];
-      let totalDistance = 0;
-      routes.map((route) => {
-        mergedCoordinates = mergedCoordinates.concat(
-          route.features[0].geometry.coordinates
-        );
-        totalDistance += route.features[0].properties
-          ? route.features[0].properties.distance
-          : 0;
-      });
-
-      const mergedGeoJson = createBasicGeoJsonFC(
-        { coordinates: mergedCoordinates, type: 'LineString' },
-        totalDistance
+    let mergedCoordinates: number[][] = [];
+    let totalDistance = 0;
+    routes.map((route) => {
+      mergedCoordinates = mergedCoordinates.concat(
+        route.features[0].geometry.coordinates
       );
+      totalDistance += route.features[0].properties
+        ? route.features[0].properties.distance
+        : 0;
+    });
 
-      const method = activeRoute.id === 0 ? 'POST' : 'PUT';
-      const url =
-        activeRoute.id === 0
-          ? 'http://localhost:4000/api/route'
-          : `http://localhost:4000/api/route/${activeRoute.id}`;
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          'Content-Type': 'application/json',
-          'x-access-token': token,
-        },
-        body: JSON.stringify({
-          route: { ...activeRoute },
-          geoJson: mergedGeoJson,
-        }),
+    const mergedGeoJson = createBasicGeoJsonFC(
+      { coordinates: mergedCoordinates, type: 'LineString' },
+      totalDistance
+    );
+
+    if (activeRoute.id === 0) {
+      sendCreateRouteRequest({ token, activeRoute, mergedGeoJson });
+    } else {
+      sendUpdateRouteRequest({
+        token,
+        id: activeRoute.id,
+        activeRoute,
+        mergedGeoJson,
       });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
-
-      if (method === 'POST') setActiveRoute(data.route);
-
-      dispatch(
-        toggleFeedback({
-          status: Status.SUCCESS,
-          message: data.message,
-        })
-      );
-    } catch (error: any) {
-      errorHandlingFetch(error);
     }
   };
+
+  useFetchDataEffect(() => {
+    // update active route with the created route's name and color
+    setActiveRoute(createRouteData.route);
+  }, [createRouteStatus, createRouteError, createRouteData]);
 
   const loadRoutes = async () => {
-    try {
-      const result = await fetch('http://localhost:4000/api/route', {
-        method: 'GET',
-        headers: { 'x-access-token': token },
-      });
-
-      const data = await result.json();
-      if (!result.ok) {
-        throw new Error(data.message);
-      }
-
-      setUserRoutes(data);
-    } catch (error: any) {
-      errorHandlingFetch(error);
-    }
+    sendGetAllRoutesRequest({ token });
   };
+
+  useFetchDataEffect(() => {
+    setUserRoutes(getAllRoutesData);
+  }, [getAllRoutesStatus, getAllRoutesError, getAllRoutesData]);
 
   const loadRouteHandler = async () => {
-    try {
-      if (selectedRouteIndex === 0) {
-        throw new Error('Select a valid route!');
-      }
-
-      const result = await fetch(
-        `http://localhost:4000/api/route/${selectedRouteIndex}`,
-        {
-          method: 'GET',
-          headers: { 'x-access-token': token },
-        }
-      );
-
-      const data = await result.json();
-      if (!result.ok) {
-        throw new Error(data.message);
-      }
-
-      setActiveRoute(data.route);
-      setRoutes([data.geoJson]);
-      const coordinates = data.geoJson.features[0].geometry.coordinates;
-      const firstNode = new LatLng(coordinates[0][1], coordinates[0][0]);
-      const lastNode = new LatLng(
-        coordinates[coordinates.length - 1][1],
-        coordinates[coordinates.length - 1][0]
-      );
-      setNodes([firstNode, lastNode]);
-      setSelectedColor(data.route.color);
-    } catch (error: any) {
-      errorHandlingFetch(error);
+    if (selectedRouteIndex === 0) {
+      errorHandlingFetch('Select a valid route!');
+      return;
     }
+
+    sendGetRouteRequest({ token, id: selectedRouteIndex });
   };
+
+  useFetchDataEffect(() => {
+    setActiveRoute(getRouteData.route);
+    setRoutes([getRouteData.geoJson]);
+
+    const coordinates = getRouteData.geoJson.features[0].geometry.coordinates;
+    const firstNode = new LatLng(coordinates[0][1], coordinates[0][0]);
+    const lastNode = new LatLng(
+      coordinates[coordinates.length - 1][1],
+      coordinates[coordinates.length - 1][0]
+    );
+    setNodes([firstNode, lastNode]);
+    setSelectedColor(getRouteData.route.color);
+  }, [getRouteStatus, getRouteError, getRouteData]);
 
   const routeSelectionChangeHandler = (
     event: React.ChangeEvent<HTMLSelectElement>

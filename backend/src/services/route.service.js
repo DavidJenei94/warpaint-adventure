@@ -46,9 +46,10 @@ const create = async (user, route, geoJson) => {
   }
 
   const routeId = result.insertId.toString();
+  const newRoute = new Route(routeId, route.name, path, route.color);
   return {
     message: 'New route is created!',
-    route: { id: routeId, name: route.name, path },
+    route: { ...newRoute },
   };
 };
 

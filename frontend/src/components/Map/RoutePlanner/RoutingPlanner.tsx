@@ -5,6 +5,7 @@ import { createBasicGeoJsonFC } from '../Utils/geojson.utils';
 import { Status, toggleFeedback } from '../../../store/feedback';
 import { useAppDispatch } from '../../../hooks/redux-hooks';
 import useMapControl from '../../../hooks/map-controls-hook';
+import { Route } from '../../../models/route.model';
 
 import MapLayout from '../Layout/MapLayout';
 import RoutingMenu from './RoutingMenu';
@@ -17,7 +18,7 @@ import styles from './RoutingPlanner.module.scss';
 const RoutingPlanner = () => {
   const dispatch = useAppDispatch();
 
-  const [activeRoute, setActiveRoute] = useState({
+  const [activeRoute, setActiveRoute] = useState<Route>({
     id: 0,
     name: '',
     path: '',

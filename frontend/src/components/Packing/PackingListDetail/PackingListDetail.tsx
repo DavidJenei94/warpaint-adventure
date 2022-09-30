@@ -44,14 +44,9 @@ const PackingListDetail = ({
     }
   }, [sendGetAllItemRequest, selectedPackingList.id]);
 
-  useFetchDataEffect(
-    () => {
-      setPackingItems(getAllItemData.packingItems);
-    },
-    getAllItemStatus,
-    getAllItemError,
-    getAllItemData
-  );
+  useFetchDataEffect(() => {
+    setPackingItems(getAllItemData.packingItems);
+  }, [getAllItemStatus, getAllItemError, getAllItemData]);
 
   if (loadDelay && (getAllItemStatus !== 'completed' || !getAllItemData)) {
     return (
