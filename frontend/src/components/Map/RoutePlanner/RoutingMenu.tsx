@@ -29,6 +29,7 @@ import ColorSelection from '../Utils/ColorSelection';
 import EditDeleteText from '../../UI/Combined/EditDeleteText';
 
 import styles from './RoutingMenu.module.scss';
+import { exportGpx, importGpx } from '../../../lib/gpx-api';
 
 type RoutingMenuProps = {
   nodes: LatLng[];
@@ -104,6 +105,19 @@ const RoutingMenu = ({
     data: deleteRouteData,
   } = useHttp(deleteRoute);
 
+  const {
+    sendRequest: sendImportGpxRequest,
+    status: importGpxStatus,
+    error: importGpxError,
+    data: importGpxData,
+  } = useHttp(importGpx, false);
+  const {
+    sendRequest: sendExportGpxRequest,
+    status: exportGpxStatus,
+    error: exportGpxError,
+    data: exportGpxData,
+  } = useHttp(exportGpx, false);
+
   // Display correct name after activeRoute changes (eg. load route)
   useEffect(() => {
     if (activeRoute) {
@@ -157,21 +171,12 @@ const RoutingMenu = ({
   };
 
   const importGpxHandler = async () => {
-    try {
-      const response = await fetch('http://localhost:4000/api/gpx/import/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ gpxString: importedGpxText }),
-      });
+    sendImportGpxRequest({ gpxString: importedGpxText });
+  };
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
-
-      const coordinates = data.features[0].geometry.coordinates;
+  useFetchDataEffect(
+    () => {
+      const coordinates = importGpxData.features[0].geometry.coordinates;
       const firstNode = new LatLng(coordinates[0][1], coordinates[0][0]);
       const lastNode = new LatLng(
         coordinates[coordinates.length - 1][1],
@@ -181,7 +186,7 @@ const RoutingMenu = ({
       setRoutes((prevState) => {
         if (prevState.length === 0) {
           setNodes([firstNode, lastNode]);
-          return [data];
+          return [importGpxData];
         }
 
         const prevFirstCoordinates =
@@ -202,7 +207,7 @@ const RoutingMenu = ({
           setNodes((prevState) => {
             return [lastNode].concat(prevState);
           });
-          return [data].concat(prevState);
+          return [importGpxData].concat(prevState);
         }
 
         // If newly added route's first node is the same as the last node of current route
@@ -210,7 +215,7 @@ const RoutingMenu = ({
           setNodes((prevState) => {
             return prevState.concat([lastNode]);
           });
-          return prevState.concat([data]);
+          return prevState.concat([importGpxData]);
         }
 
         // check if it matches a current middle node, then throw warning message
@@ -284,59 +289,53 @@ const RoutingMenu = ({
         return [...prevState]
           .concat(connectingRoute1)
           .concat(connectingRoute2)
-          .concat(data);
+          .concat(importGpxData);
       });
-    } catch (err: any) {
-      errorHandlingFetch(err.message);
-    }
-  };
+    },
+    importGpxStatus,
+    importGpxError,
+    importGpxData
+  );
 
   const exportGpxHandler = async () => {
     if (routes.length === 0) {
       setWarningMessage('No route to export!');
+      return;
     }
 
-    try {
-      let mergedCoordinates: number[][] = [];
-      let totalDistance = 0;
-      routes.map((route) => {
-        mergedCoordinates = mergedCoordinates.concat(
-          route.features[0].geometry.coordinates
-        );
-        totalDistance += route.features[0].properties
-          ? route.features[0].properties.distance
-          : 0;
-      });
-
-      const mergedGeoJson = createBasicGeoJsonFC(
-        { coordinates: mergedCoordinates, type: 'LineString' },
-        totalDistance
+    let mergedCoordinates: number[][] = [];
+    let totalDistance = 0;
+    routes.map((route) => {
+      mergedCoordinates = mergedCoordinates.concat(
+        route.features[0].geometry.coordinates
       );
+      totalDistance += route.features[0].properties
+        ? route.features[0].properties.distance
+        : 0;
+    });
 
-      const response = await fetch('http://localhost:4000/api/gpx/export/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ geoJson: mergedGeoJson }),
-      });
+    const mergedGeoJson = createBasicGeoJsonFC(
+      { coordinates: mergedCoordinates, type: 'LineString' },
+      totalDistance
+    );
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
+    sendExportGpxRequest({ geoJson: mergedGeoJson });
+  };
 
+  useFetchDataEffect(
+    () => {
       // export gpx as a file
       const element = document.createElement('a');
-      const file = new Blob([data], { type: 'application/gpx+xml' });
+      const file = new Blob([exportGpxData], { type: 'application/gpx+xml' });
       element.href = URL.createObjectURL(file);
       element.download = 'route.gpx';
       document.body.appendChild(element); // Required for this to work in FireFox
       element.click();
-    } catch (err: any) {
-      errorHandlingFetch(err.message);
-    }
-  };
+    },
+    exportGpxStatus,
+    exportGpxError,
+    exportGpxData
+  );
 
   const clearRoutesHandler = () => {
     setRoutes([]);
