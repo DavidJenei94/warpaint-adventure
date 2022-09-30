@@ -75,14 +75,14 @@ export const getRoute = async ({ token, id }: RouteBaseArgs) => {
 type UpdateRouteArgs = {
   token: string;
   id: number;
-  activeRoute: Route;
+  route: Route;
   mergedGeoJson: string;
 };
 
 export const updateRoute = async ({
   token,
   id,
-  activeRoute,
+  route,
   mergedGeoJson,
 }: UpdateRouteArgs) => {
   const response = await fetch(`${BACKEND_DOMAIN}/route/${id}`, {
@@ -92,10 +92,10 @@ export const updateRoute = async ({
       'x-access-token': token,
     },
     body: JSON.stringify({
-      route: { ...activeRoute },
+      route: { ...route },
       geoJson: mergedGeoJson,
     }),
-  });  
+  });
 
   const data = await response.json();
   if (!response.ok) {

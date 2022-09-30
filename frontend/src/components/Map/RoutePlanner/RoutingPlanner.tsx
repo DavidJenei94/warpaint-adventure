@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { LatLng } from 'leaflet';
 import { FeatureGroup } from 'react-leaflet';
 import { createBasicGeoJsonFC } from '../Utils/geojson.utils';
-import { Status, toggleFeedback } from '../../../store/feedback';
-import { useAppDispatch } from '../../../hooks/redux-hooks';
+import { useAppDispatch, useAppSelector } from '../../../hooks/redux-hooks';
 import useMapControl from '../../../hooks/map-controls-hook';
-import { Route } from '../../../models/route.model';
+import { routeActions } from '../../../store/route';
+import { toggleWarningFeedback } from '../../../store/feedback-toggler-actions';
 
 import MapLayout from '../Layout/MapLayout';
 import RoutingMenu from './RoutingMenu';
@@ -17,33 +17,19 @@ import styles from './RoutingPlanner.module.scss';
 
 const RoutingPlanner = () => {
   const dispatch = useAppDispatch();
-
-  const [activeRoute, setActiveRoute] = useState<Route>({
-    id: 0,
-    name: '',
-    path: '',
-    color: 'blue',
-  });
-
-  const [nodes, setNodes] = useState<LatLng[]>([]);
-  const [routes, setRoutes] = useState<GeoJSON.FeatureCollection<any>[]>([]);
+  const routeSections = useAppSelector((state) => state.route.routeSections);
+  const nodes = useAppSelector((state) => state.route.nodes);
 
   const [warningMessage, setWarningMessage] = useState('');
 
   const { isMenuShown, toggleMenu, dataBounds, dataRef } = useMapControl([
-    routes,
+    routeSections,
     nodes,
   ]);
 
   useEffect(() => {
     if (warningMessage) {
-      dispatch(
-        toggleFeedback({
-          status: Status.WARNING,
-          message: warningMessage,
-          showTime: 3,
-        })
-      );
+      toggleWarningFeedback(warningMessage);
     }
 
     setWarningMessage('');
@@ -59,40 +45,45 @@ const RoutingPlanner = () => {
 
     // if node is dragged
     if (nodeIndex !== -1) {
-      setNodes((prevState) => {
-        const prevStateCopy = [...prevState];
+      const updatedNode = !startNode
+        ? new LatLng(
+            coordinates[coordinatesLength - 1][1],
+            coordinates[coordinatesLength - 1][0]
+          )
+        : new LatLng(coordinates[0][1], coordinates[0][0]);
 
-        prevStateCopy[nodeIndex] = !startNode
-          ? new LatLng(
-              coordinates[coordinatesLength - 1][1],
-              coordinates[coordinatesLength - 1][0]
-            )
-          : new LatLng(coordinates[0][1], coordinates[0][0]);
-
-        return prevStateCopy;
-      });
+      dispatch(
+        routeActions.updateNode({
+          index: nodeIndex,
+          coordinates: [updatedNode.lat, updatedNode.lng],
+        })
+      );
 
       // return if only 1 node is there
       if (nodes.length === 1) {
         return;
       }
 
-      setRoutes((prevState) => {
-        const prevStateCopy = [...prevState];
-
-        const newFeatureCollection = createBasicGeoJsonFC(
-          data.features[0].geometry,
-          data.features[0].properties.summary.distance
+      const newFeatureCollection = createBasicGeoJsonFC(
+        data.features[0].geometry,
+        data.features[0].properties.summary.distance
+      );
+      if (startNode) {
+        dispatch(
+          routeActions.updateRouteSection({
+            index: nodeIndex,
+            routeSection: newFeatureCollection,
+          })
         );
-        if (startNode) {
-          prevStateCopy[nodeIndex] = newFeatureCollection;
-        }
-        if (!startNode) {
-          prevStateCopy[nodeIndex - 1] = newFeatureCollection;
-        }
-
-        return prevStateCopy;
-      });
+      }
+      if (!startNode) {
+        dispatch(
+          routeActions.updateRouteSection({
+            index: nodeIndex - 1,
+            routeSection: newFeatureCollection,
+          })
+        );
+      }
 
       return;
     }
@@ -100,83 +91,50 @@ const RoutingPlanner = () => {
     // otherwise if new node is placed
     const newLat = coordinates[coordinatesLength - 1][1];
     const newLng = coordinates[coordinatesLength - 1][0];
-    let nodeAlreadyExists = false; // and if not the 1st node
 
     // do not create new node at coordinate of a previous one
     // (it would create 1st node twice and do not create more at dead ends)
-    setNodes((prevState) => {
-      if (
-        prevState.some((node) => node.lat === newLat && node.lng === newLng)
-      ) {
-        nodeAlreadyExists = nodes.length !== 0;
-      }
-
-      if (nodeAlreadyExists) {
-        setWarningMessage(
-          `Node already exists at coordinate: Lat: ${newLat}, Lng: ${newLng}`
-        );
-        return prevState;
-      }
-
-      const prevStateCopy = [...prevState];
-      return [...prevStateCopy].concat(new LatLng(newLat, newLng));
-    });
+    if (
+      nodes.some((node) => node[0] === newLat && node[1] === newLng) &&
+      nodes.length !== 0
+    ) {
+      setWarningMessage(
+        `Node already exists at coordinate: Lat: ${newLat}, Lng: ${newLng}`
+      );
+      return;
+    } else {
+      dispatch(routeActions.addNode([newLat, newLng]));
+    }
 
     // on first node fetch there is only one coordinate
     // should not set route
-    // and if clicked where node already exists
-    if (coordinatesLength !== 1 && !nodeAlreadyExists) {
-      setRoutes((prevState) => {
-        const prevStateCopy = [...prevState];
-        // reduce geoJson data by removing unnecessary data
-        const newFeatureCollection = createBasicGeoJsonFC(
-          data.features[0].geometry,
-          data.features[0].properties.summary.distance
-        );
-        return [...prevStateCopy].concat(newFeatureCollection);
-      });
+    if (coordinatesLength !== 1) {
+      // reduce geoJson data by removing unnecessary data
+      const newFeatureCollection = createBasicGeoJsonFC(
+        data.features[0].geometry,
+        data.features[0].properties.summary.distance
+      );
+      dispatch(routeActions.addRouteSection(newFeatureCollection));
     }
   };
 
-  // console.log(routes);
+  // console.log(routeSections);
   // console.log(nodes);
+
+  // const nodesLatLng = nodes.map((node) => new LatLng(node[0], node[1]));
 
   return (
     <>
       <MapLayout isMenuShown={isMenuShown}>
-        {isMenuShown && (
-          <RoutingMenu
-            nodes={nodes}
-            setNodes={setNodes}
-            routes={routes}
-            setRoutes={setRoutes}
-            setWarningMessage={setWarningMessage}
-            activeRoute={activeRoute}
-            setActiveRoute={setActiveRoute}
-          />
-        )}
+        {isMenuShown && <RoutingMenu />}
         <Map
           dataBounds={dataBounds}
           isMenuShown={isMenuShown}
           toggleMenu={toggleMenu}
         >
           <FeatureGroup ref={dataRef}>
-            <RouteGeoJSONs
-              routes={routes}
-              setRoutes={setRoutes}
-              nodes={nodes}
-              setNodes={setNodes}
-              color={activeRoute.color}
-              setWarningMessage={setWarningMessage}
-            />
-            <NodeMarkers
-              nodes={nodes}
-              setNodes={setNodes}
-              routes={routes}
-              setRoutes={setRoutes}
-              color={activeRoute.color}
-              handleFetchedRoutingData={handleFetchedRoutingData}
-            />
+            <RouteGeoJSONs />
+            <NodeMarkers handleFetchedRoutingData={handleFetchedRoutingData} />
           </FeatureGroup>
         </Map>
       </MapLayout>
