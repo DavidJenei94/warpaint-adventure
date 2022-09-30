@@ -46,7 +46,7 @@ export const exportGpx = async ({
 
   const data = await response.json();
   if (!response.ok) {
-    throw new Error(data.message || 'Could not import GPX file!');
+    throw new Error(data.message || 'Could not export GPX file!');
   }
 
   return data;

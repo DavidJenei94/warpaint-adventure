@@ -8,10 +8,20 @@ import { useAppDispatch } from '../../hooks/redux-hooks';
 import useInput from '../../hooks/use-input';
 import { validateEmail } from '../../utils/validation.utils';
 import { errorHandlingFetch } from '../../utils/errorHanling';
+import useHttp from '../../hooks/http-hook';
+import { loginUser } from '../../lib/user-api';
+import useFetchDataEffect from '../../hooks/fetch-data-effect-hook';
 
 const LoginForm = () => {
   const dispatch = useAppDispatch();
   let navigate = useNavigate();
+
+  const {
+    sendRequest: sendLoginRequest,
+    status: loginStatus,
+    error: loginError,
+    data: loginData,
+  } = useHttp(loginUser, false);
 
   const {
     value: email,
@@ -40,42 +50,27 @@ const LoginForm = () => {
       return;
     }
 
-    const user = await sendLoginData();
-
-    if (user) {
-      dispatch(
-        authActions.login({ token: user.token, expiresIn: user.expiresIn })
-      );
-
-      // navigate('/profile', { replace: true });
-      // check if history -1 is wpa page
-      navigate(-1);
-    }
+    sendLoginRequest({ email, password });
   };
 
-  const sendLoginData = async () => {
-    try {
-      const response = await fetch('http://localhost:4000/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
-      });
+  useFetchDataEffect(
+    () => {
+      const user = loginData.user;
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message);
+      if (user) {
+        dispatch(
+          authActions.login({ token: user.token, expiresIn: user.expiresIn })
+        );
+
+        // navigate('/profile', { replace: true });
+        // check if history -1 is wpa page
+        navigate(-1);
       }
-
-      return data.user;
-    } catch (err: any) {
-      errorHandlingFetch(err);
-    }
-  };
+    },
+    loginStatus,
+    loginError,
+    loginData
+  );
 
   const signUpClickHandler = () => {
     navigate('/registration', { replace: true });
