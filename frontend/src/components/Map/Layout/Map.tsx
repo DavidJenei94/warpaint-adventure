@@ -41,6 +41,7 @@ const Map = ({ children, dataBounds, isMenuShown, toggleMenu }: MapProps) => {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='Data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               maxZoom={19}
+              keepBuffer={50}
             />
           </LayersControl.BaseLayer>
           <LayersControl.BaseLayer name="Open Topo Map">
