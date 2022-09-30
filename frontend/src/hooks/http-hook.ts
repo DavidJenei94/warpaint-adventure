@@ -1,5 +1,8 @@
 import { useCallback, useReducer } from 'react';
-import { Status, toggleFeedback } from '../store/feedback';
+import {
+  toggleErrorFeedback,
+  toggleSuccessFeedback,
+} from '../store/feedback-toggler-actions';
 import { useAppDispatch } from './redux-hooks';
 
 enum FetchActionKind {
@@ -51,7 +54,7 @@ const httpReducer = (state: FetchState, action: FetchAction) => {
 
 const useHttp = (
   requestFunction: (value: any) => Promise<any>,
-  successFeedback = true,
+  successFeedback = true
 ) => {
   const dispatch = useAppDispatch();
 
@@ -78,39 +81,10 @@ const useHttp = (
         });
 
         if (successFeedback) {
-          dispatch(
-            toggleFeedback({
-              status: Status.SUCCESS,
-              message: responseData.message,
-            })
-          );
+          toggleSuccessFeedback(responseData.message);
         }
       } catch (error: any) {
-        dispatchHttpState({
-          type: FetchActionKind.ERROR,
-          payload: { errorMessage: error },
-        });
-
-        if (error instanceof Error) {
-          dispatch(
-            toggleFeedback({
-              status: Status.ERROR,
-              message:
-                error.message === 'Failed to fetch'
-                  ? 'Unexpected server error.'
-                  : error.message,
-              showTime: 4,
-            })
-          );
-        } else {
-          dispatch(
-            toggleFeedback({
-              status: Status.ERROR,
-              message: `Unexpected error: ${error}.`,
-              showTime: 4,
-            })
-          );
-        }
+        toggleErrorFeedback(error);
       }
     },
     [requestFunction]

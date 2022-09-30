@@ -6,8 +6,7 @@ import {
   getDistanceOfRoute,
   sameCoordinates,
 } from '../Utils/geojson.utils';
-import { errorHandlingFetch } from '../../../utils/errorHanling';
-import { useAppDispatch, useAppSelector } from '../../../hooks/redux-hooks';
+import { useAppSelector } from '../../../hooks/redux-hooks';
 import { round } from '../../../utils/general.utils';
 import { Route } from '../../../models/route.model';
 import useHttp from '../../../hooks/http-hook';
@@ -19,6 +18,8 @@ import {
   updateRoute,
 } from '../../../lib/route-api';
 import useFetchDataEffect from '../../../hooks/fetch-data-effect-hook';
+import { exportGpx, importGpx } from '../../../lib/gpx-api';
+import { toggleWarningFeedback } from '../../../store/feedback-toggler-actions';
 
 import Modal from '../../UI/Modal/Modal';
 import Button from '../../UI/Button';
@@ -29,7 +30,6 @@ import ColorSelection from '../Utils/ColorSelection';
 import EditDeleteText from '../../UI/Combined/EditDeleteText';
 
 import styles from './RoutingMenu.module.scss';
-import { exportGpx, importGpx } from '../../../lib/gpx-api';
 
 type RoutingMenuProps = {
   nodes: LatLng[];
@@ -367,12 +367,12 @@ const RoutingMenu = ({
 
   const saveRouteHandler = async () => {
     if (!activeRoute.name) {
-      errorHandlingFetch('Route has no name!');
+      toggleWarningFeedback('Route has no name!');
       return;
     }
 
     if (routes.length === 0) {
-      errorHandlingFetch('No route on map!');
+      toggleWarningFeedback('No route on map!');
       return;
     }
 
@@ -419,7 +419,7 @@ const RoutingMenu = ({
 
   const loadRouteHandler = async () => {
     if (selectedRouteIndex === 0) {
-      errorHandlingFetch('Select a valid route!');
+      toggleWarningFeedback('Select a valid route!');
       return;
     }
 
