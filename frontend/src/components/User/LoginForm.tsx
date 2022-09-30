@@ -7,7 +7,6 @@ import styles from './LoginForm.module.scss';
 import { useAppDispatch } from '../../hooks/redux-hooks';
 import useInput from '../../hooks/use-input';
 import { validateEmail } from '../../utils/validation.utils';
-import { errorHandlingFetch } from '../../utils/errorHanling';
 import useHttp from '../../hooks/http-hook';
 import { loginUser } from '../../lib/user-api';
 import useFetchDataEffect from '../../hooks/fetch-data-effect-hook';

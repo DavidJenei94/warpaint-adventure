@@ -1,6 +1,6 @@
 import { LatLng } from 'leaflet';
-import { errorHandlingFetch } from '../../../utils/errorHanling';
 import { round } from '../../../utils/general.utils';
+import { toggleErrorFeedback } from '../../../store/feedback-toggler-actions';
 
 type GeometryType = {
   coordinates: number[][];
@@ -66,7 +66,7 @@ export const fetchGeoJSONRoute = async (startPos: LatLng, endPos: LatLng) => {
 
     return data;
   } catch (err: any) {
-    errorHandlingFetch(err.message);
+    toggleErrorFeedback(err.message);
     return null;
   }
 };

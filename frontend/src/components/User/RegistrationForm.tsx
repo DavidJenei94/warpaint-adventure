@@ -6,7 +6,6 @@ import { useAppDispatch } from '../../hooks/redux-hooks';
 import useInput from '../../hooks/use-input';
 import { signupUser } from '../../lib/user-api';
 import { Status, toggleFeedback } from '../../store/feedback';
-import { errorHandlingFetch } from '../../utils/errorHanling';
 import {
   validateEmail,
   validateName,
