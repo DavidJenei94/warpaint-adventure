@@ -1,0 +1,11 @@
+@use '../../../../utils/style.variables' as styles;
+
+.route-preactions {
+  text-align: center;
+  display: flex;
+  gap: 16px;
+
+  & > button {
+    flex: 50%;
+  }
+}

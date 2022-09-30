@@ -1,0 +1,16 @@
+@use '../../../../utils/style.variables' as styles;
+
+.route-name-container {
+  min-width: 95%;
+  box-shadow: styles.$primaryUpBoxShadow;
+
+  & > p,
+  input {
+    margin: 12px 0;
+    min-width: 90%;
+  }
+
+  & > button {
+    margin: 0 8px;
+  }
+}

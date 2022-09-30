@@ -1,0 +1,18 @@
+@use '../../../../utils/style.variables' as styles;
+
+.route-actions {
+  /* to make it stick to bottom */
+  margin-top: auto;
+  padding: 12px 8px 8px;
+
+  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  box-shadow: styles.$primaryUpBoxShadow;
+
+  & > button {
+    flex: 40%;
+  }
+}
