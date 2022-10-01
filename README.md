@@ -1,46 +1,29 @@
-# Getting Started with Create React App
+# Warpaint Adventure
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Warpaint Adventure is a web application with a goal to help adventurers to prepare for their hiking trips even if it is a one-day or a multi-day adventure.
+The other goal of it is to save and share their adventures with others in an unforgettable visual style.
 
-## Available Scripts
+## Features:
 
-In the project directory, you can run:
+### `Packing feature`
 
-### `npm start`
+Users can create different packings list for different purposes like Wild camping, normal camping, one-day trip, Obstacle Course Race, etc.
+Then they can keep track of the packed/unpacked/irrelevant items for each list separately before a trip.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### `Route planner feature`
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+Users can plan adventure on different maps to find the best routes and save it for later.
+Import existing routes and export created routes as GPX are also possible.
 
-### `npm test`
+### `Adventure visualization`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Users can upload their adventures' tracks and attach pictures and descriptions with pins to it. It can be viewed and shared for others to experience the journey as well.
+TO BE IMPLEMENTED
 
-### `npm run build`
+## Techincal information:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+### `User management`
+### `Main Page`
+### `Packing feature`
+### `Route planner feature`
+### `Adventure visualization`
