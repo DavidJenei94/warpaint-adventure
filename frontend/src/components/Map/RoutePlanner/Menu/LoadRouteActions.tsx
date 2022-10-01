@@ -87,8 +87,11 @@ const LoadRouteActions = ({ setSelectedColor }: LoadRouteActionsProps) => {
       coordinates[coordinates.length - 1][1],
       coordinates[coordinates.length - 1][0],
     ];
+
     dispatch(routeActions.setNodes([firstNode, lastNode]));
     setSelectedColor(getRouteData.route.color);
+    // Route is not changed if it is freshly loaded
+    dispatch(routeActions.setIsChanged(false));
   }, [getRouteStatus, getRouteError, getRouteData]);
 
   const routeOptionList = [{ value: '0', text: '...' }].concat(
