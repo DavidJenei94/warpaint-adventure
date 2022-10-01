@@ -148,6 +148,8 @@ const FinalRouteActions = () => {
         mergedGeoJson,
       });
     }
+
+    dispatch(routeActions.setIsChanged(false));
   };
 
   return (

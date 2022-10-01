@@ -15,7 +15,9 @@ const RoutingMenu = () => {
 
   // Update route with selected color
   useEffect(() => {
-    dispatch(routeActions.setRoute({ ...route, color: selectedColor }));
+    if (selectedColor !== route.color) {
+      dispatch(routeActions.setRoute({ ...route, color: selectedColor }));
+    }
   }, [selectedColor]);
 
   return (
