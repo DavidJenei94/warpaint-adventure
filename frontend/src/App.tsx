@@ -4,6 +4,7 @@ import { authActions, AuthState } from './store/auth';
 import { useAppDispatch, useAppSelector } from './hooks/redux-hooks';
 import { refreshToken } from './store/auth-actions';
 import { FeedbackState } from './store/feedback';
+import { toggleSuccessFeedback } from './store/feedback-toggler-actions';
 
 import Main from './components/Layout/Main';
 import MenuBar from './components/Layout/MenuBar';
@@ -25,27 +26,31 @@ const Profile = React.lazy(() => import('./pages/Profile'));
 
 function App() {
   const dispatch = useAppDispatch();
-  
+
   const user: AuthState = useAppSelector((state) => state.auth);
   const feedback: FeedbackState = useAppSelector((state) => state.feedback);
 
   // Start timer to log them out if they are over expiresIn period
   useEffect(() => {
     let logoutTimeout: NodeJS.Timeout;
+
     if (user.isAuthenticated) {
       logoutTimeout = setTimeout(() => {
         dispatch(authActions.logout());
+        toggleSuccessFeedback('User is logged out! Have a nice day!');
       }, user.expiresIn * 1000);
-
-      // clear Timeout if app is left
-      // It will be checked in auth store
-      return clearTimeout(logoutTimeout);
     }
-  }, [dispatch, user.isAuthenticated]);
+
+    return () => {
+      // clear Timeout if app is left
+      // Expire time will be checked and refreshed next webpage visit
+      logoutTimeout && clearTimeout(logoutTimeout);
+    };
+  }, [dispatch, user]);
 
   useEffect(() => {
     refreshToken(user.token);
-  }, [dispatch, user.isAuthenticated]);
+  }, [user]);
 
   return (
     <>

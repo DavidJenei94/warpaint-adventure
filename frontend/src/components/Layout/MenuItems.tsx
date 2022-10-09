@@ -1,5 +1,6 @@
 import { useAppDispatch, useAppSelector } from '../../hooks/redux-hooks';
 import { authActions } from '../../store/auth';
+import { toggleSuccessFeedback } from '../../store/feedback-toggler-actions';
 
 import ALink from '../UI/ALink';
 import Button from '../UI/Button';
@@ -23,6 +24,7 @@ const MenuItems = ({ isHamburgerMenu }: MenuProps) => {
 
   const logoutHandler = () => {
     dispatch(authActions.logout());
+    toggleSuccessFeedback('User is logged out! Have a nice day!');
   };
 
   return (
