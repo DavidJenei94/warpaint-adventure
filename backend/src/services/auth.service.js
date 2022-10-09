@@ -36,10 +36,6 @@ const login = async (user) => {
     })
     .catch((err) => {
       throw err;
-      // if (err.statusCode === 401) {
-      // } else {
-      //   throw new HttpError('Error while trying to login.', 400);
-      // }
     });
 
   if (dbUser && (await bcrypt.compare(user.password, dbUser.password))) {

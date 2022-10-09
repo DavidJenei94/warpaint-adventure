@@ -1,7 +1,4 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import store from './store';
-
-let logOutTimer: NodeJS.Timeout;
 
 const calculateExpirationTime = (expiresIn: number) => {
   const currentTime = new Date().getTime();
@@ -43,11 +40,11 @@ const tokenData = retrieveStoredToken();
 interface AuthBaseState {
   token: string;
   expiresIn: number;
-};
+}
 
 export interface AuthState extends AuthBaseState {
   isAuthenticated: boolean;
-};
+}
 
 const initialAuthState: AuthState = tokenData
   ? { isAuthenticated: true, ...tokenData }
@@ -70,7 +67,6 @@ const authSlice = createSlice({
         'expirationTime',
         calculateExpirationTime(action.payload.expiresIn)
       );
-      logOutTimer = setTimeout(callLogout, action.payload.expiresIn);
     },
     logout: (state) => {
       state.isAuthenticated = false;
@@ -78,9 +74,6 @@ const authSlice = createSlice({
       state.expiresIn = 0;
       localStorage.removeItem('token');
       localStorage.removeItem('expirationTime');
-      if (logOutTimer) {
-        clearTimeout(logOutTimer);
-      }
     },
   },
   extraReducers: (builder) => {
@@ -95,19 +88,9 @@ const authSlice = createSlice({
         'expirationTime',
         calculateExpirationTime(action.payload.expiresIn)
       );
-      logOutTimer = setTimeout(callLogout, action.payload.expiresIn);
     });
   },
 });
-
-// This does not work! check later
-const callLogout = () => {
-  return (dispatch: typeof store.dispatch) => {
-    console.log('callLogoutcalled');
-
-    dispatch(authSlice.actions.logout);
-  };
-};
 
 export const fetchToken = createAsyncThunk(
   'auth/fetchToken',
