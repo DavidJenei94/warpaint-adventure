@@ -1,4 +1,4 @@
-export const validateEmail = (email: string | number) => {
+export const validateEmail = (email: string | number): boolean => {
   return String(email)
     .toLowerCase()
     .match(
@@ -9,21 +9,15 @@ export const validateEmail = (email: string | number) => {
     : false;
 };
 
-export const validatePassword = (password: string) => {
+export const validatePassword = (password: string): boolean => {
   const regex = new RegExp('^(?=.*?[a-zA-Z])(?=.*?[0-9]).{8,}$');
   return regex.test(password);
 };
 
-export const validateName = (name: string) => {
+export const validateName = (name: string): boolean => {
   return name.trim() !== '';
-
-  // fix this later
-  const regex = new RegExp(
-    "^[w'-,.][^0-9_!¡?÷?¿/\\+=@#$%^&*(){}|~<>;:[]]{2,}$"
-  );
-  return regex.test(name);
 };
 
-export const isUppercase = (word: string) => {
+export const isUppercase = (word: string): boolean => {
   return /^\p{Lu}/u.test(word);
 };
