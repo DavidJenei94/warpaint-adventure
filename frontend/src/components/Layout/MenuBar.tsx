@@ -1,15 +1,14 @@
-import { NavLink, Link } from 'react-router-dom';
+import { useState } from 'react';
 
 import ALink from '../UI/ALink';
 import MenuItems from './MenuItems';
-
-import styles from './MenuBar.module.scss';
-import { useState } from 'react';
 import Button from '../UI/Button';
 
+import styles from './MenuBar.module.scss';
+
 const MenuBar = () => {
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
-  const [isHamburgerMenuVisisble, setIsHamburgerMenuVisisble] = useState(false);
+  const [isHamburgerMenuVisisble, setIsHamburgerMenuVisisble] =
+    useState<boolean>(false);
 
   const hamburgerMenuHandler = () => {
     setIsHamburgerMenuVisisble((prevState) => !prevState);

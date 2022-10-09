@@ -3,9 +3,9 @@ import { ChildrenProps } from '../../../models/basic.props';
 import styles from './MapLayout.module.scss';
 import 'leaflet/dist/leaflet.css';
 
-type MapLayoutProps = ChildrenProps & {
+interface MapLayoutProps extends ChildrenProps {
   isMenuShown: boolean;
-};
+}
 
 const MapLayout = ({ children, isMenuShown }: MapLayoutProps) => {
   return (

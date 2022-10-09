@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../hooks/redux-hooks';
 import { routeActions } from '../../../store/route';
+import { Route } from '../../../models/route.model';
 
 import LoadRouteActions from './Menu/LoadRouteActions';
 import FinalRouteActions from './Menu/FinalRouteActions';
@@ -9,9 +10,9 @@ import MainRouteActions from './Menu/MainRouteActions';
 const RoutingMenu = () => {
   const dispatch = useAppDispatch();
 
-  const route = useAppSelector((state) => state.route.route);
+  const route: Route = useAppSelector((state) => state.route.route);
 
-  const [selectedColor, setSelectedColor] = useState(route.color || 'blue');
+  const [selectedColor, setSelectedColor] = useState<string>(route.color || 'blue');
 
   // Update route with selected color
   useEffect(() => {

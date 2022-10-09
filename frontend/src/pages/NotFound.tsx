@@ -5,7 +5,7 @@ import Button from '../components/UI/Button';
 import styles from './NotFound.module.scss';
 
 const NotFound = () => {
-  let navigate = useNavigate();
+  const navigate = useNavigate();
 
   const navigateToHome = () => {
     navigate('../home', { replace: true });

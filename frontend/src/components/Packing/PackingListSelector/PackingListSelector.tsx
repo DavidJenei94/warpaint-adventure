@@ -5,6 +5,7 @@ import { useAppSelector } from '../../../hooks/redux-hooks';
 import useHttp from '../../../hooks/http-hook';
 import { createPackingList } from '../../../lib/packinglist-api';
 import useFetchDataEffect from '../../../hooks/fetch-data-effect-hook';
+import { OptionList } from '../../../models/basic.props';
 
 import PackingListNewForm from './PackingListNewForm';
 import Button from '../../UI/Button';
@@ -13,7 +14,7 @@ import Modal from '../../UI/Modal/Modal';
 
 import styles from './PackingListSelector.module.scss';
 
-type SelectorProps = {
+interface SelectorProps {
   packingLists: PackingList[];
   setPackingLists: Dispatch<SetStateAction<PackingList[]>>;
   selectedPackingList: PackingList;
@@ -26,7 +27,7 @@ const PackingListSelector = ({
   selectedPackingList,
   setSelectedPackingList,
 }: SelectorProps) => {
-  const token = useAppSelector((state) => state.auth.token);
+  const token: string = useAppSelector((state) => state.auth.token);
 
   const {
     isShown: formIsShown,
@@ -35,7 +36,7 @@ const PackingListSelector = ({
     setResponse: setFormResponse,
   } = useModal();
 
-  const optionList = packingLists.map((packingList) => {
+  const optionList: OptionList = packingLists.map((packingList) => {
     return {
       value: packingList.id.toString(),
       text: packingList.name,

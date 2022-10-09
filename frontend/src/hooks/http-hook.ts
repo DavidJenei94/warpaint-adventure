@@ -3,7 +3,6 @@ import {
   toggleErrorFeedback,
   toggleSuccessFeedback,
 } from '../store/feedback-toggler-actions';
-import { useAppDispatch } from './redux-hooks';
 
 enum FetchActionKind {
   SEND = 'SEND',
@@ -56,8 +55,6 @@ const useHttp = (
   requestFunction: (value: any) => Promise<any>,
   successFeedback = true
 ) => {
-  const dispatch = useAppDispatch();
-
   const [httpState, dispatchHttpState] = useReducer(httpReducer, {
     status: null,
     data: null,
@@ -72,6 +69,7 @@ const useHttp = (
         type: FetchActionKind.SEND,
         payload: {},
       });
+      
       try {
         const responseData = await requestFunction(requestData);
 

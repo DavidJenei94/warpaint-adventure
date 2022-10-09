@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import useFetchDataEffect from '../../hooks/fetch-data-effect-hook';
 import useHttp from '../../hooks/http-hook';
-import { useAppDispatch } from '../../hooks/redux-hooks';
 
 import useInput from '../../hooks/use-input';
 import { signupUser } from '../../lib/user-api';
-import { Status, toggleFeedback } from '../../store/feedback';
+import { toggleErrorFeedback } from '../../store/feedback-toggler-actions';
 import {
   validateEmail,
   validateName,
@@ -20,8 +19,6 @@ import Input from '../UI/Input';
 import styles from './RegistrationForm.module.scss';
 
 const RegistrationForm = () => {
-  const dispatch = useAppDispatch();
-
   const {
     sendRequest: sendSignupRequest,
     status: signupStatus,
@@ -29,8 +26,8 @@ const RegistrationForm = () => {
     data: signupData,
   } = useHttp(signupUser);
 
-  const [arePasswordsSame, setArePasswordsSame] = useState(true);
-  const [termAccepted, setTermsAccepted] = useState(false);
+  const [arePasswordsSame, setArePasswordsSame] = useState<boolean>(true);
+  const [termAccepted, setTermsAccepted] = useState<boolean>(false);
 
   const {
     value: email,
@@ -72,7 +69,7 @@ const RegistrationForm = () => {
     setArePasswordsSame(password === rePassword);
   }, [password, rePassword]);
 
-  const formIsValid =
+  const formIsValid: boolean =
     termAccepted &&
     emailIsValid &&
     nameIsValid &&
@@ -80,7 +77,7 @@ const RegistrationForm = () => {
     rePasswordIsValid &&
     arePasswordsSame;
 
-  let registerButtonDisabled = !formIsValid ? true : false;
+  let registerButtonDisabled: boolean = !formIsValid ? true : false;
 
   const regHandler = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -88,12 +85,8 @@ const RegistrationForm = () => {
     registerButtonDisabled = true;
 
     if (!formIsValid) {
-      dispatch(
-        toggleFeedback({
-          status: Status.ERROR,
-          message:
-            'Not all fields are valid! (Hover the fields for more information.)',
-        })
+      toggleErrorFeedback(
+        'Not all fields are valid! (Hover the fields for more information.)'
       );
 
       return;

@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import store from './store';
 
-let logOutTimer: ReturnType<typeof setTimeout>;
+let logOutTimer: NodeJS.Timeout;
 
 const calculateExpirationTime = (expiresIn: number) => {
   const currentTime = new Date().getTime();
@@ -39,15 +39,13 @@ const retrieveStoredToken = () => {
 };
 
 const tokenData = retrieveStoredToken();
-// console.log('tokenData');
-// console.log(tokenData);
 
-type AuthBaseState = {
+interface AuthBaseState {
   token: string;
   expiresIn: number;
 };
 
-type AuthState = AuthBaseState & {
+export interface AuthState extends AuthBaseState {
   isAuthenticated: boolean;
 };
 

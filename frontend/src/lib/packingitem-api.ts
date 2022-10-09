@@ -1,9 +1,9 @@
 const BACKEND_DOMAIN = 'http://localhost:4000/api';
 
-type PackingItemBaseArgs = {
+interface PackingItemBaseArgs {
   token: string;
   listId: number;
-};
+}
 
 export const getAllPackingItem = async ({
   token,
@@ -28,9 +28,9 @@ export const getAllPackingItem = async ({
   return data;
 };
 
-type CreatePackingItemArgs = PackingItemBaseArgs & {
+interface CreatePackingItemArgs extends PackingItemBaseArgs {
   name: string;
-};
+}
 
 export const createPackingItem = async ({
   token,
@@ -57,9 +57,9 @@ export const createPackingItem = async ({
   return data;
 };
 
-type UpdateAllPackingItemArgs = PackingItemBaseArgs & {
+interface UpdateAllPackingItemArgs extends PackingItemBaseArgs {
   status: number;
-};
+}
 
 export const updateAllPackingItemStatus = async ({
   token,
@@ -86,9 +86,9 @@ export const updateAllPackingItemStatus = async ({
   return data;
 };
 
-type GetPackingItemArgs = PackingItemBaseArgs & {
+interface GetPackingItemArgs extends PackingItemBaseArgs {
   id: number;
-};
+}
 
 export const getPackingItem = async ({
   token,
@@ -114,11 +114,11 @@ export const getPackingItem = async ({
   return data;
 };
 
-type UpdatePackingItemArgs = PackingItemBaseArgs & {
+interface UpdatePackingItemArgs extends PackingItemBaseArgs {
   id: number;
   name: string;
   status: number;
-};
+}
 
 export const updatePackingItem = async ({
   token,
@@ -150,9 +150,9 @@ export const updatePackingItem = async ({
   return data;
 };
 
-type DeletePackingItemArgs = PackingItemBaseArgs & {
+interface DeletePackingItemArgs extends PackingItemBaseArgs {
   id: number;
-};
+}
 
 export const deletePackingItem = async ({
   token,

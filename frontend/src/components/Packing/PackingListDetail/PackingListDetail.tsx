@@ -13,21 +13,21 @@ import PackingItemList from './PackingItemList';
 
 import styles from './PackingListDetail.module.scss';
 
-type PackingListProps = {
+interface PackingListProps {
   setPackingLists: Dispatch<SetStateAction<PackingList[]>>;
   selectedPackingList: PackingList;
   setSelectedPackingList: Dispatch<SetStateAction<PackingList>>;
-};
+}
 
 const PackingListDetail = ({
   setPackingLists,
   selectedPackingList,
   setSelectedPackingList,
 }: PackingListProps) => {
-  const token = useAppSelector((state) => state.auth.token);
+  const token: string = useAppSelector((state) => state.auth.token);
 
   const [packingItems, setPackingItems] = useState<PackingItem[]>([]);
-  const [cardView, setCardView] = useState(false);
+  const [cardView, setCardView] = useState<boolean>(false);
 
   const {
     sendRequest: sendGetAllItemRequest,
@@ -36,7 +36,7 @@ const PackingListDetail = ({
     data: getAllItemData,
   } = useHttp(getAllPackingItem, false);
 
-  const loadDelay = useDelayLoading([getAllItemStatus]);
+  const loadDelay: boolean = useDelayLoading([getAllItemStatus]);
 
   useEffect(() => {
     if (selectedPackingList.id !== 0 && !isNaN(selectedPackingList.id)) {
@@ -56,9 +56,15 @@ const PackingListDetail = ({
     );
   }
 
-  const packedItems = packingItems.filter((item) => item.status === 1);
-  const unPackedItems = packingItems.filter((item) => item.status === 0);
-  const irrelevantItems = packingItems.filter((item) => item.status === -1);
+  const packedItems: PackingItem[] = packingItems.filter(
+    (item) => item.status === 1
+  );
+  const unPackedItems: PackingItem[] = packingItems.filter(
+    (item) => item.status === 0
+  );
+  const irrelevantItems: PackingItem[] = packingItems.filter(
+    (item) => item.status === -1
+  );
 
   return (
     <div className={styles['packing-list-container']}>

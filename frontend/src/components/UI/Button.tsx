@@ -3,10 +3,12 @@ import { isUppercase } from '../../utils/validation.utils';
 
 import styles from './Button.module.scss';
 
-type ButtonProps = ComponentProps<'button'>;
-
-const Button = ({ children, className, ...otherProps }: ButtonProps) => {
-  let adjClassName = '';
+const Button = ({
+  children,
+  className,
+  ...otherProps
+}: ComponentProps<'button'>) => {
+  let adjClassName: string = '';
   if (className) {
     adjClassName = isUppercase(className) ? className : styles[className];
   }

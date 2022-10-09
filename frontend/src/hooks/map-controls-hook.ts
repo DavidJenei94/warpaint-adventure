@@ -2,7 +2,7 @@ import { LatLng, LatLngBounds } from 'leaflet';
 import { useEffect, useRef, useState } from 'react';
 
 const useMapControl = (dependencies: any[]) => {
-  const [isMenuShown, toggleMenu] = useState(true);
+  const [isMenuShown, toggleMenu] = useState<boolean>(true);
 
   const dataRef = useRef<any>(null);
   const [dataBounds, setDataBounds] = useState<LatLngBounds>(

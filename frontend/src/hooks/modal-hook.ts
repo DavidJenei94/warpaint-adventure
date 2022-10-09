@@ -1,13 +1,11 @@
 import { useState } from 'react';
 
 const useModal = () => {
-  const [isShown, setIsShown] = useState(false);
-  const [response, setResponse] = useState<string[]>([""]);
+  const [isShown, setIsShown] = useState<boolean>(false);
+  const [response, setResponse] = useState<string[]>(['']);
 
   const toggleModal = () => {
-    setIsShown((prevState) => {
-      return !prevState;
-    });
+    setIsShown((prevState) => !prevState);
   };
 
   return {

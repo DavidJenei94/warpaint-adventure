@@ -1,28 +1,34 @@
 import React, { Dispatch, SetStateAction } from 'react';
 
-export type ChildrenProps = {
+export interface ChildrenProps {
   children: React.ReactNode;
-};
+}
 
-export type ChildrenConditionalProps = {
+export interface ChildrenConditionalProps {
   children?: React.ReactNode;
-};
+}
 
-export type ClassNameProps = {
+export interface ClassNameProps {
   className: string;
-};
+}
 
-export type ClassNameChildrenProps = {
+export interface ClassNameChildrenProps {
   children: React.ReactNode;
   className?: string;
-};
+}
 
-export type ResponseProp = {
+export interface ResponseProp {
   response: string[];
   setResponse: Dispatch<SetStateAction<string[]>>;
-};
+}
 
-export type ResponseStringProp = {
+export interface ResponseStringProp {
   response?: string;
   setResponse?: Dispatch<SetStateAction<string>>;
-};
+}
+
+export interface OptionList
+  extends Array<{
+    value: string;
+    text: string;
+  }> {}

@@ -4,10 +4,10 @@ import { ChildrenProps } from '../../../models/basic.props';
 
 import styles from './ControlButton.module.scss';
 
-type ControlButtonProps = ChildrenProps & {
+interface ControlButtonProps extends ChildrenProps {
   position: ControlPosition;
   title: string;
-};
+}
 
 const ControlButton = ({ children, position, title }: ControlButtonProps) => {
   return (

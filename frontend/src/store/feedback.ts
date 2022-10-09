@@ -1,19 +1,19 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AppDispatch } from './store';
 
-export enum Status {
+export enum FeedbackStatus {
   SUCCESS = 'success',
   WARNING = 'warning',
   ERROR = 'error',
   PENDING = 'pending',
 }
 
-type FeedbackBaseState = {
+interface FeedbackBaseState {
   message: string;
-  status: Status;
+  status: FeedbackStatus;
 };
 
-type FeedbackState = FeedbackBaseState & {
+export interface FeedbackState extends FeedbackBaseState {
   shown?: boolean;
   showTime?: number;
 };
@@ -21,7 +21,7 @@ type FeedbackState = FeedbackBaseState & {
 const initialFeedbackState: FeedbackState = {
   message: '',
   shown: false,
-  status: Status.SUCCESS,
+  status: FeedbackStatus.SUCCESS,
   showTime: 2,
 };
 
@@ -43,11 +43,11 @@ const feedbackSlice = createSlice({
       }
     },
     pendingFeedback: (state) => {
-      state.status = Status.PENDING
+      state.status = FeedbackStatus.PENDING;
     },
     resetFeedback: (state) => {
-      state.status = Status.SUCCESS;
-    }
+      state.status = FeedbackStatus.SUCCESS;
+    },
   },
 });
 

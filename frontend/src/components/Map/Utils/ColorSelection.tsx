@@ -1,9 +1,9 @@
 import React, { Dispatch, SetStateAction } from 'react';
 import Button from '../../UI/Button';
 
-const colors = ['blue', 'red', 'purple', 'green', 'yellow', 'orange'];
+const colors: string[] = ['blue', 'red', 'purple', 'green', 'yellow', 'orange'];
 
-type ColorSelectionProps = {
+interface ColorSelectionProps {
   selectedColor: string;
   setSelectedColor: Dispatch<SetStateAction<string>>;
   onClose?: () => void;

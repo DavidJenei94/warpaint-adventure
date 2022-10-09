@@ -1,11 +1,7 @@
-import { ChildrenProps } from "../../../models/basic.props";
+import { ChildrenProps } from '../../../models/basic.props';
 
-const BasicConfirmation = ({children}: ChildrenProps) => {
-  return (
-    <>
-      <p>{children}</p>
-    </>
-  );
+const BasicConfirmation = ({ children }: ChildrenProps) => {
+  return <p>{children}</p>;
 };
 
 export default BasicConfirmation;

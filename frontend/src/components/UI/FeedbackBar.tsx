@@ -1,13 +1,14 @@
 import ReactDOM from 'react-dom';
 import { ChildrenProps } from '../../models/basic.props';
+
 import styles from './FeedbackBar.module.scss';
 
-type FeedbackBarProps = ChildrenProps & {
+interface FeedbackBarProps extends ChildrenProps {
   status: string;
 };
 
 const FeedbackBar = ({ children, status }: FeedbackBarProps) => {
-  let classes = `${styles.container} `;
+  let classes: string = `${styles.container} `;
   switch (status) {
     case 'success':
       classes += styles.success;

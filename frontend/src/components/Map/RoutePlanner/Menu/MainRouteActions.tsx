@@ -4,6 +4,7 @@ import useHttp from '../../../../hooks/http-hook';
 import useModal from '../../../../hooks/modal-hook';
 import { useAppDispatch, useAppSelector } from '../../../../hooks/redux-hooks';
 import { deleteRoute } from '../../../../lib/route-api';
+import { Route } from '../../../../models/route.model';
 import { routeActions } from '../../../../store/route';
 import { round } from '../../../../utils/general.utils';
 
@@ -26,13 +27,15 @@ const MainRouteActions = ({
 }: LoadRouteActionsProps) => {
   const dispatch = useAppDispatch();
 
-  const token = useAppSelector((state) => state.auth.token);
+  const token: string = useAppSelector((state) => state.auth.token);
 
-  const route = useAppSelector((state) => state.route.route);
-  const routeSections = useAppSelector((state) => state.route.routeSections);
+  const route: Route = useAppSelector((state) => state.route.route);
+  const routeSections: GeoJSON.FeatureCollection<any>[] = useAppSelector(
+    (state) => state.route.routeSections
+  );
 
   // Separate state to detect changes if name was changed or not in edit mode
-  const [routeName, setRouteName] = useState(route.name || '');
+  const [routeName, setRouteName] = useState<string>(route.name || '');
 
   const { isShown: deleteModalIsShown, toggleModal: toggleDeleteModal } =
     useModal();

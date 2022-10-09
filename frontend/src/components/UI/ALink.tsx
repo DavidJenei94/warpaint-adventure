@@ -1,17 +1,15 @@
-import { FC } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-
 import { ClassNameChildrenProps } from '../../models/basic.props';
 
 import styles from './ALink.module.scss';
 
-type ALinkProps = ClassNameChildrenProps & {
+interface ALinkProps extends ClassNameChildrenProps {
   to: string;
   type: string;
 };
 
 const ALink = ({ children, className = '', to, type }: ALinkProps) => {
-  const baseClasses = `${styles.link} ${className}`;
+  const baseClasses: string = `${styles.link} ${className}`;
 
   let jsxLink: JSX.Element;
 
