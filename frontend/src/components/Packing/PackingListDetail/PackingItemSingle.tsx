@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../../hooks/redux-hooks';
+import { useAppSelector } from '../../../hooks/redux-hooks';
 import useModal from '../../../hooks/modal-hook';
 import { PackingItem } from '../../../models/packing.models';
 import PackingItemActions from './PackingItemActions';
@@ -16,11 +16,11 @@ import EditDeleteText from '../../UI/Combined/EditDeleteText';
 
 import styles from './PackingItemSingle.module.scss';
 
-type PackingItemProps = PackingItem & {
+interface PackingItemProps extends PackingItem {
   cardView: boolean;
   packingListId: number;
   onEditItems: Dispatch<SetStateAction<PackingItem[]>>;
-};
+}
 
 const PackingItemSingle = ({
   cardView,
@@ -30,12 +30,12 @@ const PackingItemSingle = ({
   status,
   onEditItems,
 }: PackingItemProps) => {
-  const token = useAppSelector((state) => state.auth.token);
+  const token: string = useAppSelector((state) => state.auth.token);
 
   const { isShown: deleteModalIsShown, toggleModal: toggleDeleteModal } =
     useModal();
 
-  const [packingItemName, setPackingItemName] = useState(name);
+  const [packingItemName, setPackingItemName] = useState<string>(name);
 
   const {
     sendRequest: sendUpdateItemRequest,

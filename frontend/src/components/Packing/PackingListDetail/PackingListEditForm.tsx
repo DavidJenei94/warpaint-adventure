@@ -21,14 +21,14 @@ import styles from './PackingListEditForm.module.scss';
 import cardViewIcon from '../../../assets/icons/view-card.png';
 import listViewIcon from '../../../assets/icons/view-list.png';
 
-type PackingListProps = {
+interface PackingListProps {
   setPackingLists: Dispatch<SetStateAction<PackingList[]>>;
   selectedPackingList: PackingList;
   setSelectedPackingList: Dispatch<SetStateAction<PackingList>>;
   onEditItems: Dispatch<SetStateAction<PackingItem[]>>;
   cardView: boolean;
   onViewToggle: Dispatch<SetStateAction<boolean>>;
-};
+}
 
 const PackingListEditForm = ({
   setPackingLists,
@@ -38,9 +38,9 @@ const PackingListEditForm = ({
   cardView,
   onViewToggle,
 }: PackingListProps) => {
-  const token = useAppSelector((state) => state.auth.token);
+  const token: string = useAppSelector((state) => state.auth.token);
 
-  const [packingListName, setPackingListName] = useState('');
+  const [packingListName, setPackingListName] = useState<string>('');
   const { isShown: deleteModalIsShown, toggleModal: toggleDeleteModal } =
     useModal();
 
@@ -73,7 +73,7 @@ const PackingListEditForm = ({
   }, [selectedPackingList.name]);
 
   const confirmNameChangeHandler = async () => {
-    // If name was not changed
+    // If name was not changed do not send request
     if (selectedPackingList.name === packingListName) {
       return;
     }

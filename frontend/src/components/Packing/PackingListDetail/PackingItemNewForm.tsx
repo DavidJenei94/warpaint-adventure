@@ -11,16 +11,16 @@ import Input from '../../UI/Input';
 
 import styles from './PackingItemNewForm.module.scss';
 
-type NewPackingItemProps = {
+interface NewPackingItemProps {
   packingListId: number;
   onAddItem: Dispatch<SetStateAction<PackingItem[]>>;
-};
+}
 
 const PackingItemNewForm = ({
   packingListId,
   onAddItem,
 }: NewPackingItemProps) => {
-  const token = useAppSelector((state) => state.auth.token);
+  const token: string = useAppSelector((state) => state.auth.token);
 
   const {
     value: newItemName,

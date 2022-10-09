@@ -20,9 +20,11 @@ import Modal from '../../../UI/Modal/Modal';
 const ImportGpx = () => {
   const dispatch = useAppDispatch();
 
-  const routeSections = useAppSelector((state) => state.route.routeSections);
+  const routeSections: GeoJSON.FeatureCollection<any>[] = useAppSelector(
+    (state) => state.route.routeSections
+  );
 
-  const [importedGpxText, setImportedGpxText] = useState('');
+  const [importedGpxText, setImportedGpxText] = useState<string>('');
 
   const { isShown: importGpxModalIsShown, toggleModal: toggleImportGpxModal } =
     useModal();
@@ -74,14 +76,15 @@ const ImportGpx = () => {
   };
 
   useFetchDataEffect(() => {
-    const coordinates = importGpxData.features[0].geometry.coordinates;
-    const firstNode = [coordinates[0][1], coordinates[0][0]];
-    const lastNode = [
+    const coordinates: number[][] =
+      importGpxData.features[0].geometry.coordinates;
+    const firstNode: number[] = [coordinates[0][1], coordinates[0][0]];
+    const lastNode: number[] = [
       coordinates[coordinates.length - 1][1],
       coordinates[coordinates.length - 1][0],
     ];
-    const firstNodeLatLng = new LatLng(firstNode[0], firstNode[1]);
-    const lastNodeLatLng = new LatLng(lastNode[0], lastNode[1]);
+    const firstNodeLatLng: LatLng = new LatLng(firstNode[0], firstNode[1]);
+    const lastNodeLatLng: LatLng = new LatLng(lastNode[0], lastNode[1]);
 
     // If no route is on the map (or only one node)
     if (routeSections.length === 0) {
@@ -91,15 +94,15 @@ const ImportGpx = () => {
     }
 
     // Otherwise connect to current route sections on map
-    const prevFirstCoordinates =
+    const prevFirstCoordinates: number[][] =
       routeSections[0].features[0].geometry.coordinates;
-    const prevFirstNode = new LatLng(
+    const prevFirstNode: LatLng = new LatLng(
       prevFirstCoordinates[0][1],
       prevFirstCoordinates[0][0]
     );
-    const prevLastCoordinates =
+    const prevLastCoordinates: number[][] =
       routeSections[routeSections.length - 1].features[0].geometry.coordinates;
-    const prevLastNode = new LatLng(
+    const prevLastNode: LatLng = new LatLng(
       prevLastCoordinates[prevLastCoordinates.length - 1][1],
       prevLastCoordinates[prevLastCoordinates.length - 1][0]
     );
@@ -134,12 +137,13 @@ const ImportGpx = () => {
       if (index === 0 || index === routeSections.length) {
         return;
       }
-      const routeCoordinates = routeSection.features[0].geometry.coordinates;
-      const routeFirstNode = new LatLng(
+      const routeCoordinates: number[][] =
+        routeSection.features[0].geometry.coordinates;
+      const routeFirstNode: LatLng = new LatLng(
         routeCoordinates[0][1],
         routeCoordinates[0][0]
       );
-      const routeLastNode = new LatLng(
+      const routeLastNode: LatLng = new LatLng(
         routeCoordinates[routeCoordinates.length - 1][1],
         routeCoordinates[routeCoordinates.length - 1][0]
       );

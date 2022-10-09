@@ -7,20 +7,21 @@ import {
   TileLayer,
 } from 'react-leaflet';
 import { ChildrenProps } from '../../../models/basic.props';
+
 import FitBoundsControl from '../Controls/FitBoundsControl';
 import ToggleMenuControl from '../Controls/ToggleMenuControl';
 
-type MapProps = ChildrenProps & {
+interface MapProps extends ChildrenProps {
   dataBounds: LatLngBounds;
   isMenuShown: boolean;
   toggleMenu: Dispatch<SetStateAction<boolean>>;
-};
+}
 
 const Map = ({ children, dataBounds, isMenuShown, toggleMenu }: MapProps) => {
   const mapRef = useRef<any>(null);
 
-  // invalidate to make bound data
-  // and load right side of the map after switching on/off menu
+  // invalidate to make bound data and draw whole map
+  // (and load right side of the map after switching on/off menu)
   useEffect(() => {
     if (mapRef.current) mapRef.current.invalidateSize();
   }, [isMenuShown]);
@@ -72,7 +73,7 @@ const Map = ({ children, dataBounds, isMenuShown, toggleMenu }: MapProps) => {
               subdomains={['mt0', 'mt1', 'mt2', 'mt3']}
             />
           </LayersControl.BaseLayer>
-          <LayersControl.Overlay name="Trails">
+          <LayersControl.Overlay name="Waymarked Trails">
             <TileLayer
               url="https://tile.waymarkedtrails.org/hiking/{z}/{x}/{y}.png"
               attribution='| Map style: &copy;
@@ -84,8 +85,8 @@ const Map = ({ children, dataBounds, isMenuShown, toggleMenu }: MapProps) => {
               opacity={0.6}
             />
           </LayersControl.Overlay>
-          <LayersControl.Overlay name="My Trails">
-            <TileLayer url="http://localhost:8001/{z}/{x}/{y}" />
+          <LayersControl.Overlay name="WpA Trails">
+            <TileLayer url="http://localhost:8001/{z}/{x}/{y}" opacity={0.75} />
           </LayersControl.Overlay>
         </LayersControl>
         <ScaleControl position="bottomleft" />

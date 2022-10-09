@@ -4,16 +4,14 @@ import { useEffect, useState } from 'react';
 // To give a little delay before the LoadingIcon is displayed
 // Preventing these shorts flashes grants greater user experience
 const useDelayLoading = (statuses: (string | null)[]) => {
-  const [loadDelay, setLoadDelay] = useState(false);
+  const [loadDelay, setLoadDelay] = useState<boolean>(false);
 
   useEffect(() => {
-    // dispatch(feedbackActions.resetFeedback());
     setLoadDelay(false);
-    let loadingIconDelay: ReturnType<typeof setTimeout>;
+    let loadingIconDelay: NodeJS.Timeout;
 
     if (statuses.some((status) => status === 'pending')) {
       loadingIconDelay = setTimeout(() => {
-        // dispatch(feedbackActions.pendingFeedback());
         setLoadDelay(true);
       }, 100);
     }

@@ -7,14 +7,14 @@ import styles from './EditDeleteText.module.scss';
 import editIcon from '../../../assets/icons/icons-edit-16.png';
 import deleteIcon from '../../../assets/icons/icons-trash-16.png';
 
-type EditDeleteTextProps = {
+interface EditDeleteTextProps {
   text: string;
   setText: Dispatch<SetStateAction<string>>;
   toggleDeleteModal: Dispatch<SetStateAction<boolean>>;
   onConfirmChange: () => void;
   className?: string;
   placeholder?: string;
-};
+}
 
 const EditDeleteText = ({
   text,
@@ -24,7 +24,7 @@ const EditDeleteText = ({
   className = '',
   placeholder = '',
 }: EditDeleteTextProps) => {
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const editTextHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     setText(event.target.value);
   };

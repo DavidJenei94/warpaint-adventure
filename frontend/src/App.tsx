@@ -1,18 +1,18 @@
 import React, { Suspense, useEffect } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
+import { authActions, AuthState } from './store/auth';
+import { useAppDispatch, useAppSelector } from './hooks/redux-hooks';
+import { refreshToken } from './store/auth-actions';
+import { FeedbackState } from './store/feedback';
 
 import Main from './components/Layout/Main';
 import MenuBar from './components/Layout/MenuBar';
 import LoadingIcon from './components/UI/LoadingIcon';
 import NotFound from './pages/NotFound';
-
-import { authActions } from './store/auth';
-import { useAppDispatch, useAppSelector } from './hooks/redux-hooks';
-import { refreshToken } from './store/auth-actions';
-
-import './App.scss';
 import FeedbackBar from './components/UI/FeedbackBar';
 import RoutePlanner from './pages/RoutePlanner';
+
+import './App.scss';
 
 const Home = React.lazy(() => import('./pages/Home'));
 const Login = React.lazy(() => import('./pages/Login'));
@@ -25,8 +25,9 @@ const Profile = React.lazy(() => import('./pages/Profile'));
 
 function App() {
   const dispatch = useAppDispatch();
-  const user = useAppSelector((state) => state.auth);
-  const feedback = useAppSelector((state) => state.feedback);
+  
+  const user: AuthState = useAppSelector((state) => state.auth);
+  const feedback: FeedbackState = useAppSelector((state) => state.feedback);
 
   // Start timer to log them out if they are over expiresIn period
   useEffect(() => {
@@ -45,8 +46,6 @@ function App() {
   useEffect(() => {
     refreshToken(user.token);
   }, [dispatch, user.isAuthenticated]);
-
-  // console.log(feedback.shown);
 
   return (
     <>

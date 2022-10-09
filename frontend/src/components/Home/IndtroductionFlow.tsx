@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import styles from './IntroductionFlow.module.scss';
 
-const baseWaypoint = {
+interface WayPoint {
+  id: number;
+  title: string;
+  text: string;
+  classes: string[];
+}
+
+const baseWaypoint: WayPoint = {
   id: 0,
   title: '',
   text: '',
@@ -10,7 +17,7 @@ const baseWaypoint = {
 
 // Does not need to be in usestate
 // Because it is used in setActiveWaypoint() which rerenders component
-let waypoints = [
+let waypoints: WayPoint[] = [
   {
     id: 1,
     title: 'Planning',
@@ -38,21 +45,24 @@ let waypoints = [
 ];
 
 const IntroductionFlow = () => {
-  const [activeWaypoint, setActiveWaypoint] = useState(waypoints[0]);
-  const [waypointHovered, setWaypointHovered] = useState(false);
-  const [textClass, setTextClass] = useState(styles['fade-in']);
+  const [activeWaypoint, setActiveWaypoint] = useState<WayPoint>(waypoints[0]);
+  const [waypointHovered, setWaypointHovered] = useState<boolean>(false);
+  const [textClass, setTextClass] = useState<string>(styles['fade-in']);
 
   useEffect(() => {
-    let fadeoutTimeout: ReturnType<typeof setTimeout>;
+    let fadeoutTimeout: NodeJS.Timeout;
+
     if (!waypointHovered) {
       fadeoutTimeout = setTimeout(() => {
         setTextClass(styles['fade-out']);
-      }, 6300);
+      }, 4300);
 
-      const changeTimeout = setTimeout(() => {
+      const changeTimeout: NodeJS.Timeout = setTimeout(() => {
         setActiveWaypoint((prevState) => {
-          const id = prevState.id === 4 ? 1 : prevState.id + 1;
-          const waypoint = waypoints.find((waypoint) => waypoint.id === id);
+          const id: number = prevState.id === 4 ? 1 : prevState.id + 1;
+          const waypoint: WayPoint | undefined = waypoints.find(
+            (waypoint) => waypoint.id === id
+          );
 
           setTextClass(styles['fade-in']);
 
@@ -75,7 +85,7 @@ const IntroductionFlow = () => {
 
           return baseWaypoint;
         });
-      }, 8000);
+      }, 6000);
       return () => {
         clearTimeout(changeTimeout);
         if (fadeoutTimeout) {

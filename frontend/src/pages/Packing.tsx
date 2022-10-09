@@ -4,7 +4,7 @@ import { useAppSelector } from '../hooks/redux-hooks';
 import PackingMain from '../components/Packing/PackingMain';
 
 const Packing = () => {
-  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const isAuthenticated: boolean = useAppSelector((state) => state.auth.isAuthenticated);
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;

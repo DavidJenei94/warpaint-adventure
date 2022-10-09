@@ -7,6 +7,7 @@ import { createRoute, updateRoute } from '../../../../lib/route-api';
 import { toggleWarningFeedback } from '../../../../store/feedback-toggler-actions';
 import { routeActions } from '../../../../store/route';
 import { createBasicGeoJsonFC } from '../../Utils/geojson.utils';
+import { Route } from '../../../../models/route.model';
 
 import Button from '../../../UI/Button';
 import BasicConfirmation from '../../../UI/ConfirmationModals/BasicConfirmation';
@@ -17,10 +18,12 @@ import styles from './FinalRouteActions.module.scss';
 const FinalRouteActions = () => {
   const dispatch = useAppDispatch();
 
-  const token = useAppSelector((state) => state.auth.token);
+  const token: string = useAppSelector((state) => state.auth.token);
 
-  const route = useAppSelector((state) => state.route.route);
-  const routeSections = useAppSelector((state) => state.route.routeSections);
+  const route: Route = useAppSelector((state) => state.route.route);
+  const routeSections: GeoJSON.FeatureCollection<any>[] = useAppSelector(
+    (state) => state.route.routeSections
+  );
 
   const { isShown: clearModalIsShown, toggleModal: toggleClearModal } =
     useModal();
@@ -133,7 +136,7 @@ const FinalRouteActions = () => {
         : 0;
     });
 
-    const mergedGeoJson = createBasicGeoJsonFC(
+    const mergedGeoJson: GeoJSON.FeatureCollection<any> = createBasicGeoJsonFC(
       { coordinates: mergedCoordinates, type: 'LineString' },
       totalDistance
     );

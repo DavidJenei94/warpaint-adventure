@@ -1,10 +1,11 @@
 import { Navigate } from 'react-router-dom';
-import Footer from '../components/Layout/Footer';
-import LoginForm from '../components/User/LoginForm';
 import { useAppSelector } from '../hooks/redux-hooks';
 
+import Footer from '../components/Layout/Footer';
+import LoginForm from '../components/User/LoginForm';
+
 const Login = () => {
-  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const isAuthenticated: boolean = useAppSelector((state) => state.auth.isAuthenticated);
 
   if (isAuthenticated) {
     return <Navigate to="/profile" replace />;

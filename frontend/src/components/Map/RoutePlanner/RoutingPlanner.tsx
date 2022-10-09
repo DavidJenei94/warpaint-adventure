@@ -7,6 +7,7 @@ import useMapControl from '../../../hooks/map-controls-hook';
 import { routeActions } from '../../../store/route';
 import { toggleWarningFeedback } from '../../../store/feedback-toggler-actions';
 import { usePrompt } from '../../../hooks/prompt-hook';
+import { Route } from '../../../models/route.model';
 
 import MapLayout from '../Layout/MapLayout';
 import RoutingMenu from './RoutingMenu';
@@ -14,15 +15,13 @@ import Map from '../Layout/Map';
 import NodeMarkers from './DataDisplay/NodeMarkers';
 import RouteGeoJSONs from './DataDisplay/RouteGeoJSONs';
 
-import styles from './RoutingPlanner.module.scss';
-
 const RoutingPlanner = () => {
   const dispatch = useAppDispatch();
 
-  const route = useAppSelector((state) => state.route.route);
-  const routeSections = useAppSelector((state) => state.route.routeSections);
-  const nodes = useAppSelector((state) => state.route.nodes);
-  const isChanged = useAppSelector((state) => state.route.isChanged);
+  const route: Route = useAppSelector((state) => state.route.route);
+  const routeSections: GeoJSON.FeatureCollection<any>[] = useAppSelector((state) => state.route.routeSections);
+  const nodes: number[][] = useAppSelector((state) => state.route.nodes);
+  const isChanged: boolean = useAppSelector((state) => state.route.isChanged);
 
   usePrompt('You have unsaved work. Do you want to navigate away?', isChanged);
 
@@ -92,8 +91,8 @@ const RoutingPlanner = () => {
     }
 
     // otherwise if new node is placed
-    const newLat = coordinates[coordinatesLength - 1][1];
-    const newLng = coordinates[coordinatesLength - 1][0];
+    const newLat: number = coordinates[coordinatesLength - 1][1];
+    const newLng: number = coordinates[coordinatesLength - 1][0];
 
     // do not create new node at coordinate of a previous one
     // (it would create 1st node twice and do not create more at dead ends)
@@ -123,7 +122,6 @@ const RoutingPlanner = () => {
 
   // console.log(routeSections);
   // console.log(nodes);
-
   // const nodesLatLng = nodes.map((node) => new LatLng(node[0], node[1]));
 
   return (

@@ -1,13 +1,15 @@
 import { ComponentProps } from 'react';
-import styles from './CheckBox.module.scss';
+
 import Input from './Input';
 
-type CheckBoxProps = ComponentProps<'input'> & {
+import styles from './CheckBox.module.scss';
+
+interface CheckBoxProps extends ComponentProps<'input'> {
   id: string;
   checked: boolean;
   uncheckedImageClassName?: string;
   checkedImageClassName?: string;
-};
+}
 
 const CheckBox = ({
   id,
@@ -17,23 +19,17 @@ const CheckBox = ({
   checkedImageClassName,
   ...otherProps
 }: CheckBoxProps) => {
-
-  const uncheckedIconClass = uncheckedImageClassName
+  const uncheckedIconClass: string = uncheckedImageClassName
     ? `${styles.image} ${styles[uncheckedImageClassName]}`
     : '';
-  const checkedIconClass = checkedImageClassName
+  const checkedIconClass: string = checkedImageClassName
     ? `${styles.image} ${styles[checkedImageClassName]}`
     : '';
-  const emptyTextClass = !children ? styles.empty : '';
+  const emptyTextClass: string = !children ? styles.empty : '';
 
   return (
     <div className={styles['container']}>
-      <Input
-        type="checkbox"
-        checked={checked}
-        id={id}
-        {...otherProps}
-      />
+      <Input type="checkbox" checked={checked} id={id} {...otherProps} />
       <label htmlFor={id}>
         {!checked && (
           <span className={`${emptyTextClass} ${uncheckedIconClass}`}></span>

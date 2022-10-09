@@ -5,7 +5,7 @@ import PackingItemSingle from './PackingItemSingle';
 
 import styles from './PackingItemList.module.scss';
 
-type PackingItemListProps = {
+interface PackingItemListProps {
   category: string;
   packingItems: PackingItem[];
   packingListId: number;
@@ -20,7 +20,7 @@ const PackingItemList = ({
   cardView,
   onEditItems,
 }: PackingItemListProps) => {
-  const packingItemsClass = cardView ? styles.card : '';
+  const packingItemsClass: string = cardView ? styles.card : '';
 
   return (
     <>

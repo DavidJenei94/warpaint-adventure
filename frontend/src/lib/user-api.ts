@@ -1,13 +1,9 @@
 const BACKEND_DOMAIN = 'http://localhost:4000/api';
 
-type LoginArgs = {
+interface LoginArgs {
   email: string;
   password: string;
-};
-
-type SignupArgs = LoginArgs & {
-  name: string;
-};
+}
 
 export const loginUser = async ({ email, password }: LoginArgs) => {
   const response = await fetch(`${BACKEND_DOMAIN}/auth/login/`, {
@@ -28,6 +24,10 @@ export const loginUser = async ({ email, password }: LoginArgs) => {
 
   return data;
 };
+
+interface SignupArgs extends LoginArgs {
+  name: string;
+}
 
 export const signupUser = async ({ email, password, name }: SignupArgs) => {
   const response = await fetch(`${BACKEND_DOMAIN}/auth/signup/`, {

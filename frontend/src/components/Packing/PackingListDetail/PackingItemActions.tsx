@@ -4,18 +4,20 @@ import useHttp from '../../../hooks/http-hook';
 import { useAppDispatch, useAppSelector } from '../../../hooks/redux-hooks';
 import { updatePackingItem } from '../../../lib/packingitem-api';
 import { PackingItem } from '../../../models/packing.models';
-import { Status, toggleFeedback } from '../../../store/feedback';
+import { FeedbackStatus, toggleFeedback } from '../../../store/feedback';
 import { arraysEqual } from '../../../utils/general.utils';
 
 import CheckBox from '../../UI/CheckBox';
 
-type PackingItemActionsProps = {
+type checkedStatus = [boolean, boolean, boolean];
+
+interface PackingItemActionsProps {
   packingListId: number;
   packingItem: PackingItem;
   onEditItems: Dispatch<SetStateAction<PackingItem[]>>;
-};
+}
 
-const getCheckedValuesFromStatus = (status: number) => {
+const getCheckedValuesFromStatus = (status: number): checkedStatus => {
   switch (status) {
     case 0:
       return [false, true, false];
@@ -34,9 +36,9 @@ const PackingItemActions = ({
   onEditItems,
 }: PackingItemActionsProps) => {
   const dispatch = useAppDispatch();
-  const token = useAppSelector((state) => state.auth.token);
+  const token: string = useAppSelector((state) => state.auth.token);
 
-  const [actionValues, setActionValues] = useState(
+  const [actionValues, setActionValues] = useState<checkedStatus>(
     getCheckedValuesFromStatus(packingItem.status)
   );
 
@@ -89,7 +91,7 @@ const PackingItemActions = ({
       default:
         dispatch(
           toggleFeedback({
-            status: Status.ERROR,
+            status: FeedbackStatus.ERROR,
             message: 'Unexpected error while selecting id.',
           })
         );

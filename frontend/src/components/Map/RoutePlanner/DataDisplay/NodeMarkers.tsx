@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LatLng, Point } from 'leaflet';
+import { Icon, LatLng, Point } from 'leaflet';
 import { Marker, Popup, useMapEvents } from 'react-leaflet';
 import {
   createBasicGeoJsonFC,
@@ -14,21 +14,25 @@ import styles from './NodeMarkers.module.scss';
 import nodeIcons from '../../Utils/Icons';
 import deleteIcon from '../../../../assets/icons/icons-trash-16.png';
 
-type NodeMarkersProps = {
+interface NodeMarkersProps {
   handleFetchedRoutingData: (
     data: any,
     nodeIndex?: number,
     startNode?: boolean
   ) => void;
-};
+}
 
 const NodeMarkers = ({ handleFetchedRoutingData }: NodeMarkersProps) => {
   const dispatch = useAppDispatch();
 
-  const nodes = useAppSelector((state) => state.route.nodes);
-  const nodesLatLng = nodes.map((node) => new LatLng(node[0], node[1]));
-  const routeSections = useAppSelector((state) => state.route.routeSections);
-  const routeColor = useAppSelector((state) => state.route.route.color);
+  const nodes: number[][] = useAppSelector((state) => state.route.nodes);
+  const nodesLatLng: LatLng[] = nodes.map(
+    (node) => new LatLng(node[0], node[1])
+  );
+  const routeSections: GeoJSON.FeatureCollection<any>[] = useAppSelector(
+    (state) => state.route.routeSections
+  );
+  const routeColor: string = useAppSelector((state) => state.route.route.color);
 
   const [selectedNode, setSelectedNode] = useState<LatLng | null>(null);
 
@@ -39,7 +43,7 @@ const NodeMarkers = ({ handleFetchedRoutingData }: NodeMarkersProps) => {
   });
 
   const newNodeHandler = async (position: LatLng) => {
-    let routingData;
+    let routingData: any;
     // fetch route with first node (both from and to) to adjust to a route point
     if (nodes[0]) {
       routingData = await fetchGeoJSONRoute(
@@ -54,8 +58,9 @@ const NodeMarkers = ({ handleFetchedRoutingData }: NodeMarkersProps) => {
   };
 
   const deleteMarkerHandler = () => {
-    const selectedNodeStringed = '' + selectedNode!.lat + selectedNode!.lng;
-    const selectedNodeIndex = nodes
+    const selectedNodeStringed: string =
+      '' + selectedNode!.lat + selectedNode!.lng;
+    const selectedNodeIndex: number = nodes
       .map((node) => '' + node[0] + node[1])
       .lastIndexOf(selectedNodeStringed);
 
@@ -73,15 +78,15 @@ const NodeMarkers = ({ handleFetchedRoutingData }: NodeMarkersProps) => {
       return;
     }
     // handle middle nodes
-    const mergedCoordinates = routeSections[
+    const mergedCoordinates: number[][] = routeSections[
       selectedNodeIndex - 1
     ].features[0].geometry.coordinates.concat(
       routeSections[selectedNodeIndex].features[0].geometry.coordinates
     );
-    const distanceSum =
+    const distanceSum: number =
       routeSections[selectedNodeIndex - 1].features[0].properties!.distance +
       routeSections[selectedNodeIndex].features[0].properties!.distance;
-    const mergedRoutes = createBasicGeoJsonFC(
+    const mergedRoutes: GeoJSON.FeatureCollection<any> = createBasicGeoJsonFC(
       { coordinates: mergedCoordinates, type: 'LineString' },
       distanceSum
     );
@@ -95,7 +100,7 @@ const NodeMarkers = ({ handleFetchedRoutingData }: NodeMarkersProps) => {
   };
 
   const dragNodeHandler = async (newNode: LatLng) => {
-    let routingData;
+    let routingData: any;
     // only one node is there
     if (nodes.length === 1) {
       routingData = await fetchGeoJSONRoute(newNode, newNode);
@@ -105,7 +110,7 @@ const NodeMarkers = ({ handleFetchedRoutingData }: NodeMarkersProps) => {
       return;
     }
 
-    const selectedNodeIndex = nodes
+    const selectedNodeIndex: number = nodes
       .map((node) => '' + node[0] + node[1])
       .lastIndexOf('' + selectedNode!.lat + selectedNode!.lng);
 
@@ -148,13 +153,12 @@ const NodeMarkers = ({ handleFetchedRoutingData }: NodeMarkersProps) => {
     }
   };
 
-  const nodeIcon = selectNodeIcon();
+  const nodeIcon: Icon = selectNodeIcon();
 
   return (
     <>
       {nodes[0] &&
         nodesLatLng.map((node, index) => {
-
           return (
             <Marker
               // This key is enough as there can't be 2 node placed on each other

@@ -3,17 +3,17 @@ import { isUppercase } from '../../utils/validation.utils';
 
 import styles from './Select.module.scss';
 
-type Option = {
+interface Option {
   value: string;
   text: string;
-};
+}
 
-type SelectProps = ComponentProps<'select'> & {
+interface SelectProps extends ComponentProps<'select'> {
   optionList: Option[] | null;
-};
+}
 
 const Select = ({ optionList, className, ...otherProps }: SelectProps) => {
-  let adjClassName = '';
+  let adjClassName: string = '';
   if (className) {
     adjClassName = isUppercase(className) ? className : styles[className];
   }

@@ -2,16 +2,16 @@ import { LatLng } from 'leaflet';
 import { round } from '../../../utils/general.utils';
 import { toggleErrorFeedback } from '../../../store/feedback-toggler-actions';
 
-type GeometryType = {
+interface GeometryType {
   coordinates: number[][];
   type: string;
-};
+}
 
 export const createBasicGeoJsonFC = (
   geometry: GeometryType,
   distance?: number
-) => {
-  const calculatedDistance = distance ? distance : 0;
+): GeoJSON.FeatureCollection<any> => {
+  const calculatedDistance: number = distance ? distance : 0;
 
   const newFeatureCollection: GeoJSON.FeatureCollection<any> = {
     type: 'FeatureCollection',
@@ -27,10 +27,10 @@ export const createBasicGeoJsonFC = (
   return newFeatureCollection;
 };
 
-export const getDistanceOfRoute = (coordinates: number[][]) => {
+export const getDistanceOfRoute = (coordinates: number[][]): number => {
   let previousCoordinate: number[];
 
-  const totalDistance = coordinates.reduce(
+  const totalDistance: number = coordinates.reduce(
     (previousValue, currentCoordinate, index) => {
       if (index === 0) return 0;
 
@@ -49,7 +49,7 @@ export const getDistanceOfRoute = (coordinates: number[][]) => {
   return round(totalDistance, 1);
 };
 
-export const sameCoordinates = (node1: LatLng, node2: LatLng) => {
+export const sameCoordinates = (node1: LatLng, node2: LatLng): boolean => {
   return node1.lat === node2.lat && node1.lng === node2.lng;
 };
 

@@ -4,7 +4,7 @@ import { isUppercase } from '../../utils/validation.utils';
 import styles from './Input.module.scss';
 
 const Input = ({ className, ...otherProps }: ComponentProps<'input'>) => {
-  let adjClassName = '';
+  let adjClassName: string = '';
   if (className) {
     adjClassName = isUppercase(className) ? className : styles[className];
   }

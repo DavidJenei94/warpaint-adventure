@@ -4,10 +4,10 @@ import ControlButton from './ControlButton';
 import hideMenuIcon from '../../../assets/map-assets/hide-menu-icon.png';
 import showMenuIcon from '../../../assets/map-assets/show-menu-icon.png';
 
-type ToggleMenuControlProps = {
+interface ToggleMenuControlProps {
   isMenuShown: boolean;
   toggleMenu: Dispatch<SetStateAction<boolean>>;
-};
+}
 
 const ToggleMenuControl = ({
   isMenuShown,
@@ -19,7 +19,10 @@ const ToggleMenuControl = ({
   };
 
   return (
-    <ControlButton position="topleft" title="Hide Menu">
+    <ControlButton
+      position="topleft"
+      title={isMenuShown ? 'Hide Menu' : 'Show Menu'}
+    >
       <img
         src={isMenuShown ? hideMenuIcon : showMenuIcon}
         onClick={toggleMenuHandler}

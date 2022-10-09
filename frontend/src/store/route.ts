@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Route } from '../models/route.model';
 
-type RouteState = {
+export interface RouteState {
   route: Route;
   isChanged: boolean;
   routeSections: GeoJSON.FeatureCollection<any>[];
@@ -31,7 +31,7 @@ const routeSlice = createSlice({
     setIsChanged: (state, action: PayloadAction<boolean>) => {
       state.isChanged = action.payload;
     },
-    setRouteSections: (state, action) => {
+    setRouteSections: (state, action: PayloadAction<GeoJSON.FeatureCollection<any>[]>) => {
       state.routeSections = action.payload;
       state.isChanged = true;
     },
@@ -81,7 +81,7 @@ const routeSlice = createSlice({
       state.routeSections = [];
       state.isChanged = true;
     },
-    setNodes: (state, action) => {
+    setNodes: (state, action: PayloadAction<number[][]>) => {
       state.nodes = action.payload;
       state.isChanged = true;
     },

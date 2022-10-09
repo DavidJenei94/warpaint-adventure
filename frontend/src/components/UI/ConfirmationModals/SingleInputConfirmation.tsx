@@ -1,13 +1,11 @@
 import { ComponentProps } from 'react';
-import {
-  ChildrenConditionalProps,
-  ResponseStringProp,
-} from '../../../models/basic.props';
+import { ChildrenConditionalProps } from '../../../models/basic.props';
 
 import Input from '../Input';
 
-type SingleInputConfirmationProps = ChildrenConditionalProps &
-  ComponentProps<'input'>;
+interface SingleInputConfirmationProps
+  extends ChildrenConditionalProps,
+    ComponentProps<'input'> {}
 
 const SingleInputConfirmation = ({
   children,

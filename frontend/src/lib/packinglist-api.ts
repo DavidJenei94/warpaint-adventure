@@ -1,6 +1,10 @@
 const BACKEND_DOMAIN = 'http://localhost:4000/api';
 
-export const getAllPackingList = async ({ token }: { token: string }) => {
+interface PackingListDefaultArgs {
+  token: string;
+}
+
+export const getAllPackingList = async ({ token }: PackingListDefaultArgs) => {
   const response = await fetch(`${BACKEND_DOMAIN}/packinglist/`, {
     method: 'GET',
     headers: {
@@ -17,13 +21,14 @@ export const getAllPackingList = async ({ token }: { token: string }) => {
   return data;
 };
 
+interface CreatePackingListArgs extends PackingListDefaultArgs {
+  name: string;
+}
+
 export const createPackingList = async ({
   token,
   name,
-}: {
-  token: string;
-  name: string;
-}) => {
+}: CreatePackingListArgs) => {
   const response = await fetch(`${BACKEND_DOMAIN}/packinglist/`, {
     method: 'POST',
     headers: {
@@ -41,14 +46,14 @@ export const createPackingList = async ({
   return data;
 };
 
-type PackingListBaseArgs = {
+interface PackingListBaseArgs {
   token: string;
   id: number;
-};
+}
 
-type UpdatePackingListNameArgs = PackingListBaseArgs & {
+interface UpdatePackingListNameArgs extends PackingListBaseArgs {
   name: string;
-};
+}
 
 export const updatePackingListName = async ({
   token,

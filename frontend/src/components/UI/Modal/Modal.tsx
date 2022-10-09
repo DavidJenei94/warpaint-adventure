@@ -6,13 +6,13 @@ import Backdrop from './Backdrop';
 
 import styles from './Modal.module.scss';
 
-type ModalProps = ChildrenProps & {
+interface ModalProps extends ChildrenProps {
   onClose: () => void;
   onConfirm: () => void;
   type?: string;
-};
+}
 
-const portalElement = document.getElementById('overlays')!;
+const portalElement: HTMLElement = document.getElementById('overlays')!;
 
 const Modal = ({
   children,

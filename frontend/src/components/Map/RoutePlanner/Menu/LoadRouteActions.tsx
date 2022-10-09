@@ -22,9 +22,9 @@ type LoadRouteActionsProps = {
 const LoadRouteActions = ({ setSelectedColor }: LoadRouteActionsProps) => {
   const dispatch = useAppDispatch();
 
-  const token = useAppSelector((state) => state.auth.token);
+  const token: string = useAppSelector((state) => state.auth.token);
 
-  const [userRoutes, setUserRoutes] = useState([]);
+  const [userRoutes, setUserRoutes] = useState<Route[]>([]);
   // In route selection option in Load Route
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(0);
 

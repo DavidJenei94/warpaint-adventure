@@ -2,7 +2,11 @@ import { Route } from '../models/route.model';
 
 const BACKEND_DOMAIN = 'http://localhost:4000/api';
 
-export const getAllRoutes = async ({ token }: { token: string }) => {
+interface getAllRoutesArgs {
+  token: string;
+}
+
+export const getAllRoutes = async ({ token }: getAllRoutesArgs) => {
   const response = await fetch(`${BACKEND_DOMAIN}/route/`, {
     method: 'GET',
     headers: {
@@ -19,11 +23,11 @@ export const getAllRoutes = async ({ token }: { token: string }) => {
   return data;
 };
 
-type CreateRouteArgs = {
+interface CreateRouteArgs {
   token: string;
   activeRoute: Route;
   mergedGeoJson: string;
-};
+}
 
 export const createRoute = async ({
   token,
@@ -50,10 +54,10 @@ export const createRoute = async ({
   return data;
 };
 
-type RouteBaseArgs = {
+interface RouteBaseArgs {
   token: string;
   id: number;
-};
+}
 
 export const getRoute = async ({ token, id }: RouteBaseArgs) => {
   const response = await fetch(`${BACKEND_DOMAIN}/route/${id}`, {
@@ -72,12 +76,12 @@ export const getRoute = async ({ token, id }: RouteBaseArgs) => {
   return data;
 };
 
-type UpdateRouteArgs = {
+interface UpdateRouteArgs {
   token: string;
   id: number;
   route: Route;
   mergedGeoJson: string;
-};
+}
 
 export const updateRoute = async ({
   token,
@@ -105,11 +109,11 @@ export const updateRoute = async ({
   return data;
 };
 
-type DeleteRouteArgs = {
+interface DeleteRouteArgs {
   token: string;
   id: number;
   path: string;
-};
+}
 
 export const deleteRoute = async ({ token, id, path }: DeleteRouteArgs) => {
   const response = await fetch(`${BACKEND_DOMAIN}/route/${id}`, {

@@ -1,19 +1,20 @@
 import { useNavigate } from 'react-router-dom';
 import { authActions } from '../../store/auth';
-
-import Button from '../UI/Button';
-import Input from '../UI/Input';
-import styles from './LoginForm.module.scss';
 import { useAppDispatch } from '../../hooks/redux-hooks';
-import useInput from '../../hooks/use-input';
 import { validateEmail } from '../../utils/validation.utils';
+import useInput from '../../hooks/use-input';
 import useHttp from '../../hooks/http-hook';
 import { loginUser } from '../../lib/user-api';
 import useFetchDataEffect from '../../hooks/fetch-data-effect-hook';
 
+import Button from '../UI/Button';
+import Input from '../UI/Input';
+
+import styles from './LoginForm.module.scss';
+
 const LoginForm = () => {
   const dispatch = useAppDispatch();
-  let navigate = useNavigate();
+  const navigate = useNavigate();
 
   const {
     sendRequest: sendLoginRequest,
@@ -40,7 +41,7 @@ const LoginForm = () => {
     reset: passwordReset,
   } = useInput((value) => value.trim() !== '');
 
-  const formIsValid = emailIsValid && passwordIsValid;
+  const formIsValid: boolean = emailIsValid && passwordIsValid;
 
   const loginHandler = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -70,10 +71,10 @@ const LoginForm = () => {
     navigate('/registration', { replace: true });
   };
 
-  const emailClass = `${emailHasError ? 'invalid' : ''}`;
-  const passwordClass = `${passwordHasError ? 'invalid' : ''}`;
-  const signInButtonClass = `${!formIsValid ? 'disabled' : ''}`;
-  const signInButtonDisabled = !formIsValid ? true : false;
+  const emailClass: string = `${emailHasError ? 'invalid' : ''}`;
+  const passwordClass: string = `${passwordHasError ? 'invalid' : ''}`;
+  const signInButtonClass: string = `${!formIsValid ? 'disabled' : ''}`;
+  const signInButtonDisabled: boolean = !formIsValid ? true : false;
 
   return (
     <div className={styles['login-container']}>

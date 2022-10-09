@@ -2,12 +2,12 @@ import { ChangeEvent, useReducer } from 'react';
 
 type InputValidation = (value: string) => boolean;
 
-type State = {
+interface State {
   value: string;
   isTouched: boolean;
 };
 
-type StateAction = {
+interface StateAction {
   type: string;
   value: string;
 };
@@ -46,11 +46,11 @@ const useInput = (validateValue: InputValidation, validateEqualToValue?: string)
     initialInputState
   );
 
-  let valueIsValid = validateValue(inputState.value);
+  let valueIsValid: boolean = validateValue(inputState.value);
   if (validateEqualToValue) {
     valueIsValid = valueIsValid && inputState.value === validateEqualToValue
   }
-  const hasError = !valueIsValid && inputState.isTouched;
+  const hasError: boolean = !valueIsValid && inputState.isTouched;
 
   const changeHandler = (event: ChangeEvent<HTMLInputElement>) => {
     dispatchInput({ type: 'INPUT', value: event.target.value });

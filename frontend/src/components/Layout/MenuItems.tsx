@@ -7,15 +7,19 @@ import Button from '../UI/Button';
 import styles from './MenuItems.module.scss';
 import logoutIcon from '../../assets/icons/logout.png';
 
-type Props = {
+interface MenuProps {
   isHamburgerMenu?: boolean;
-};
+}
 
-const MenuItems = ({ isHamburgerMenu }: Props) => {
+const MenuItems = ({ isHamburgerMenu }: MenuProps) => {
   const dispatch = useAppDispatch();
-  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const isAuthenticated: boolean = useAppSelector(
+    (state) => state.auth.isAuthenticated
+  );
 
-  const classNames = isHamburgerMenu ? styles['hamburger-menu-item'] : '';
+  const classNames: string = isHamburgerMenu
+    ? styles['hamburger-menu-item']
+    : '';
 
   const logoutHandler = () => {
     dispatch(authActions.logout());

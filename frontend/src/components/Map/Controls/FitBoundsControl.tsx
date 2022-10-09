@@ -4,9 +4,9 @@ import ControlButton from './ControlButton';
 
 import boundDataIcon from '../../../assets/map-assets/databound-button-icon.png';
 
-type FitBoundsControlProps = {
+interface FitBoundsControlProps {
   dataBounds: LatLngBounds;
-};
+}
 
 const FitBoundsControl = ({ dataBounds }: FitBoundsControlProps) => {
   const map = useMap();

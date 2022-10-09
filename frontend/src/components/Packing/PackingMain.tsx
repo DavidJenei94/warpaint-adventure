@@ -12,7 +12,7 @@ import LoadingIcon from '../UI/LoadingIcon';
 import styles from './PackingMain.module.scss';
 
 const PackingMain = () => {
-  const token = useAppSelector((state) => state.auth.token);
+  const token: string = useAppSelector((state) => state.auth.token);
 
   const [packingLists, setPackingLists] = useState<PackingList[]>([]);
   const [selectedPackingList, setSelectedPackingList] = useState<PackingList>({
