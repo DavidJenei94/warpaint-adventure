@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import store from '../../../store/store';
+
 import LoginForm from '../LoginForm';
 
 const MockLoginForm = () => {
@@ -101,10 +102,10 @@ describe('LoginForm component', () => {
       expect(submitButton).not.toBeDisabled();
     });
 
-    test('should the Sign In button remain disabled if inappropriate length credentials', () => {
+    test('should the Sign In button remain disabled if inappropriate length credentials (pwd length 0)', () => {
       render(<MockLoginForm />);
 
-      typeEmailPassword('test@test.com', '1234567');
+      typeEmailPassword('test@test.com', '');
 
       const submitButton = screen.getByRole('button', {
         name: /sign in/i,
@@ -112,8 +113,15 @@ describe('LoginForm component', () => {
       expect(submitButton).toBeDisabled();
     });
 
-    test.todo(
-      'should the Sign In button change back to disabled after login conditions no longer fulfilled'
-    );
+    test('should the Sign In button change back to disabled after login conditions no longer fulfilled', () => {
+      render(<MockLoginForm />);
+
+      typeEmailPassword('test@test.com', '12345678');
+
+      typeEmailPassword('', '');
+
+      const submitButton = screen.getByRole('button', { name: /sign in/i });
+      expect(submitButton).toBeDisabled();
+    });
   });
 });
