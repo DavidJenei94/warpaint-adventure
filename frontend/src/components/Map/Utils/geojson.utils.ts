@@ -56,7 +56,8 @@ export const sameCoordinates = (node1: LatLng, node2: LatLng): boolean => {
 export const fetchGeoJSONRoute = async (startPos: LatLng, endPos: LatLng) => {
   try {
     const response = await fetch(
-      `http://localhost:8080/ors/v2/directions/foot-hiking?start=${startPos.lng},${startPos.lat}&end=${endPos.lng},${endPos.lat}`
+      // `http://localhost:8080/ors/v2/directions/foot-hiking?start=${startPos.lng},${startPos.lat}&end=${endPos.lng},${endPos.lat}`
+      `https://api.openrouteservice.org/v2/directions/foot-hiking?api_key=5b3ce3597851110001cf6248e84c7d602b6f468b9f55c273023bcc70&start=${startPos.lng},${startPos.lat}&end=${endPos.lng},${endPos.lat}`
     );
 
     const data = await response.json();

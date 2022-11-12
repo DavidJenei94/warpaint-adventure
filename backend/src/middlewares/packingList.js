@@ -1,19 +1,19 @@
-const db = require('../services/db.service');
+const db = require('../models/index');
 const HttpError = require('../utils/HttpError');
+
+const PackingList = db.models.PackingList;
 
 const verifyPackingList = async (req, res, next) => {
   const user = req.user;
   const listId = req.params.listId;
 
   try {
-    const result = (
-      await db.query('Select UserID FROM PackingList WHERE ID = ? AND UserID = ?;', [
-        listId,
-        user.id,
-      ])
-    )[0];
+    const dbPackingList = await PackingList.findOne({
+      attributes: ['userId'],
+      where: { id: listId, userId: user.id },
+    });
 
-    if (!result || user.id !== result.UserID) {
+    if (!dbPackingList || user.id !== dbPackingList.userId) {
       throw new HttpError('User has no access to this packing list.', 401);
     }
 

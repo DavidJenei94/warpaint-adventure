@@ -10,7 +10,7 @@ export const validateEmail = (email: string | number): boolean => {
 };
 
 export const validatePassword = (password: string): boolean => {
-  const regex = new RegExp('^(?=.*?[a-zA-Z])(?=.*?[0-9]).{8,}$');
+  const regex = new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$');
   return regex.test(password);
 };
 

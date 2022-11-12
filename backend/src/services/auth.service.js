@@ -1,11 +1,13 @@
 const bcrypt = require('bcryptjs');
-const db = require('./db.service');
+const db = require('../models/index');
 const config = require('../configs/general.config');
 
 const jwt = require('jsonwebtoken');
-const User = require('../models/user');
+// const User = require('../models/user');
 const HttpError = require('../utils/HttpError');
 const validateEmail = require('../utils/general.utils');
+
+const User = db.models.User;
 
 const login = async (user) => {
   // Validate user input
@@ -14,34 +16,15 @@ const login = async (user) => {
   }
 
   // Validate if user exist in our database
-  const dbUser = await db
-    .query(`SELECT * FROM Users WHERE email=?`, [user.email])
-    .then((data) => {
-      if (data.length === 0) {
-        throw new HttpError('User does not exist.', 401);
-      }
-
-      const userData = data[0];
-
-      return new User(
-        userData.ID,
-        userData.Email,
-        userData.Password,
-        userData.Name,
-        userData.Role,
-        userData.PremiumEndDate,
-        userData.PremiumRecurring,
-        userData.Created
-      );
-    })
-    .catch((err) => {
-      throw err;
-    });
+  const dbUser = await User.findOne({where: { email: user.email }})
+  if (!dbUser) {
+    throw new HttpError('User does not exist.', 401);
+  }
 
   if (dbUser && (await bcrypt.compare(user.password, dbUser.password))) {
     // Create token
     const token = jwt.sign(
-      { id: dbUser.id, email: dbUser.email },
+      { id: dbUser.id, email: dbUser.email, role: dbUser.role },
       config.tokenKey,
       {
         expiresIn: config.loginExpiresIn,
@@ -81,42 +64,33 @@ const signup = async (user) => {
   }
 
   // Validate if user email already exists
-  await db
-    .query(`SELECT * FROM Users WHERE email=?`, [user.email])
-    .then((data) => {
-      if (data.length !== 0) {
-        throw new HttpError('User already exists.', 400);
-      }
+  const existingUser = await User.findOne({
+    where: { email: user.email },
+  });
 
-      return data[0];
-    })
-    .catch((err) => {
-      throw err;
-    });
+  if (existingUser) {
+    throw new HttpError('User already exists.', 400);
+  }
 
   const pwdHash = await bcrypt.hash(user.password, config.saltRounds);
-  const result = await db.query(
-    `INSERT INTO Users
-    (Email, Password, Name)
-    VALUES
-    (?)`,
-    [[user.email, pwdHash, user.name]]
-  );
+  const newUser = await User.create({
+    email: user.email,
+    password: pwdHash,
+    name: user.name,
+  });
 
-  if (!result.affectedRows) {
+  if (!newUser) {
     throw new HttpError('Error in creating user.', 400);
   }
 
-  const userId = result.insertId.toString();
-  user.id = userId;
-
-  const token = jwt.sign({ id: userId, email: user.email }, config.tokenKey, {
+  const userId = newUser.id.toString();
+  const token = jwt.sign({ id: userId, email: newUser.email, role: newUser.role }, config.tokenKey, {
     expiresIn: config.loginExpiresIn,
   });
-  user.token = token;
+  newUser.token = token;
 
   // return new user
-  return { message: 'User created successfully.', user };
+  return { message: 'User created successfully.', newUser };
 };
 
 const refresh = async (token) => {
@@ -124,21 +98,13 @@ const refresh = async (token) => {
 
   // Validate if user already exists
   const userId = decodedToken.id;
-  const dbUser = await db
-    .query(`SELECT * FROM Users WHERE id=?`, [userId])
-    .then((data) => {
-      if (data.length === 0) {
-        throw new HttpError('User does not exists.', 401);
-      }
-
-      return data[0];
-    })
-    .catch((err) => {
-      throw err;
-    });
+  const dbUser = await User.findOne({where: { id: userId }})
+  if (!dbUser) {
+    throw new HttpError('User does not exist.', 401);
+  }
 
   const newToken = jwt.sign(
-    { id: userId, email: dbUser.Email },
+    { id: userId, email: dbUser.email, role: dbUser.role },
     config.tokenKey,
     {
       expiresIn: config.loginExpiresIn,

@@ -25,13 +25,13 @@ export const getAllRoutes = async ({ token }: getAllRoutesArgs) => {
 
 interface CreateRouteArgs {
   token: string;
-  activeRoute: Route;
+  route: Route;
   mergedGeoJson: string;
 }
 
 export const createRoute = async ({
   token,
-  activeRoute,
+  route,
   mergedGeoJson,
 }: CreateRouteArgs) => {
   const response = await fetch(`${BACKEND_DOMAIN}/route/`, {
@@ -41,7 +41,7 @@ export const createRoute = async ({
       'x-access-token': token,
     },
     body: JSON.stringify({
-      route: { ...activeRoute },
+      route: { ...route },
       geoJson: mergedGeoJson,
     }),
   });
