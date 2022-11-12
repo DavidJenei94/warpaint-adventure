@@ -4,8 +4,9 @@ const db = {
   host: env.DB_HOST,
   user: env.DB_USER,
   password: env.DB_PASSWORD,
-  database: env.DB_NAME || 'TodoApp',
-  port: env.DB_PORT || 3306,
+  name: env.DB_NAME || 'WarpaintAdventure',
+  port: env.DB_PORT || 5432,
+  dialect: env.DB_DIALECT,
 };
 
 module.exports = db;

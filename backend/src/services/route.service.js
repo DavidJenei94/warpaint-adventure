@@ -1,24 +1,28 @@
 const fs = require('fs');
-const db = require('./db.service');
+const db = require('../models/index');
 
 const HttpError = require('../utils/HttpError');
-const Route = require('../models/Route');
+
+const Route = db.models.Route;
 
 const getAll = async (user) => {
-  const result = await db.query(
-    `SELECT ID AS id, Name AS name, Path as path, Color as color FROM Route WHERE UserID = ?`,
-    [user.id]
-  );
+  const dbRoutes = await Route.findAll({
+    where: { userId: user.id },
+    attributes: { exclude: ['createdAt', 'updatedAt'] },
+  });
 
-  const routes = result.map(
-    (route) => new Route(route.id, route.name, route.path, route.color)
-  );
+  if (!dbRoutes) {
+    return [];
+  }
 
-  return routes;
+  if (!Array.isArray(dbRoutes)) {
+    return [dbRoutes];
+  }
+
+  return dbRoutes;
 };
 
 const create = async (user, route, geoJson) => {
-
   if (!route.name) {
     throw new HttpError('Route has no name.', 400);
   }
@@ -36,46 +40,51 @@ const create = async (user, route, geoJson) => {
     }
   });
 
-  const result = await db.query(
-    `INSERT INTO Route (UserID, Name, Path, Color) VALUES (?);`,
-    [[user.id, route.name, path, route.color]]
-  );
+  const dbRoute = await Route.create({
+    userId: user.id,
+    name: route.name,
+    path: path,
+    color: route.color,
+  });
 
-  if (!result.affectedRows) {
+  if (!dbRoute) {
     throw new HttpError('Error in creating new Route.', 400);
   }
 
-  const routeId = result.insertId.toString();
-  const newRoute = new Route(routeId, route.name, path, route.color);
   return {
     message: 'New route is created!',
-    route: { ...newRoute },
+    route: dbRoute,
   };
 };
 
 const get = async (routeId) => {
-  const result = (
-    await db.query(`SELECT * FROM Route WHERE ID = ?;`, [routeId])
-  )[0];
+  const dbRoute = await Route.findByPk(routeId, {
+    attributes: { exclude: ['createdAt', 'updatedAt'] },
+  });
 
-  if (!result) {
+  if (!dbRoute) {
     throw new HttpError('Route does not exist in the database.', 400);
   }
 
-  const route = new Route(result.ID, result.Name, result.Path, result.Color);
-  const geoJson = JSON.parse(fs.readFileSync(route.path, 'utf-8'));
+  const geoJson = JSON.parse(fs.readFileSync(dbRoute.path, 'utf-8'));
 
-  return { message: 'Route is selected!', route, geoJson };
+  return {
+    message: 'Route is selected!',
+    route: dbRoute,
+    geoJson,
+  };
 };
 
 const update = async (routeId, route, geoJson) => {
   if (route) {
-    const result = await db.query(
-      `UPDATE Route
-      SET Name = ?, Color = ?
-      WHERE ID = ?;`,
-      [route.name, route.color, routeId]
+    const dbRoute = await Route.update(
+      { name: route.name, color: route.color },
+      { where: { id: routeId } }
     );
+
+    if (!dbRoute || dbRoute[0] === 0) {
+      throw new HttpError('Error in updating route.', 400);
+    }
   }
 
   if (route && geoJson && geoJson.features.length !== 0) {
@@ -84,7 +93,7 @@ const update = async (routeId, route, geoJson) => {
 
     fs.writeFile(path, geoJsonString, (error) => {
       if (error) {
-        throw new HttpError('Error in updateing route.', 400);
+        throw new HttpError('Error in updating route.', 400);
       }
     });
   }
@@ -98,10 +107,10 @@ const remove = async (routeId, routePath) => {
       throw new HttpError('Route does not exist or cannot be deleted.', 400);
   });
 
-  const result = await db.query(`DELETE FROM Route WHERE ID = ?;`, [routeId]);
+  const dbRoute = await Route.destroy({ where: { id: routeId } });
 
-  if (!result.affectedRows) {
-    throw new HttpError('Route does not exist or cannot be deleted..', 400);
+  if (!dbRoute) {
+    throw new HttpError('Route does not exist or cannot be deleted.', 400);
   }
 
   return { message: 'Route deleted.' };

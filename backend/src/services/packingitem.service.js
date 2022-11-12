@@ -1,48 +1,60 @@
-const db = require('./db.service');
-const packinglist = require('../services/packinglist.service');
+const db = require('../models/index');
 const HttpError = require('../utils/HttpError');
-const PackingItem = require('../models/PackingItem');
+
+const PackingItem = db.models.PackingItem;
+const PackingList = db.models.PackingList;
 
 const getAll = async (listId) => {
-  const result = await db.query(
-    `SELECT PackingItem.ID AS id, PackingItem.Name AS name, PackingItem.Status AS status 
-    FROM PackingList 
-    JOIN PackingItem WHERE PackingList.ID = PackingItem.PackingListID 
-    AND PackingList.ID = ?;`,
-    [listId]
-  );
+  const dbPackingList = await PackingList.findAll({
+    where: { id: listId },
+    include: [
+      {
+        model: PackingItem,
+        required: true,
+        attributes: ['id', 'name', 'status'],
+      },
+    ],
+    attributes: {
+      exclude: ['createdAt', 'updatedAt'],
+    },
+  });
 
-  const packingItems = result.map(
-    (packignItem) =>
-      new PackingItem(packignItem.id, packignItem.name, packignItem.status)
-  );
+  const message = 'Packing items are selected!';
 
-  return { message: 'Packing items are selected!', packingItems };
+  if (!dbPackingList || dbPackingList.length === 0) {
+    return { message, packingItems: [] };
+  }
+
+  if (!Array.isArray(dbPackingList)) {
+    return { message, packingItems: [dbPackingList[0].PackingItems] };
+  }
+
+  return { message, packingItems: dbPackingList[0].PackingItems };
 };
 
 const create = async (packingItem, listId) => {
-  const result = await db.query(
-    `INSERT INTO PackingItem (PackingListID, Name, Status) VALUES (?);`,
-    [[listId, packingItem.name, 0]]
-  );
+  const dbPackingItem = await PackingItem.create({
+    packingListId: listId,
+    name: packingItem.name,
+  });
 
-  if (!result.affectedRows) {
+  if (!dbPackingItem) {
     throw new HttpError('Error in creating new packing item.', 400);
   }
 
-  const packingItemId = result.insertId.toString();
-  return { message: 'New packing item created!', packingItemId };
+  return {
+    message: 'New packing item created!',
+    packingItemId: dbPackingItem.id,
+  };
 };
 
 const updateAll = async (packingItemNewStatus, listId) => {
-  const result = await db.query(
-    `UPDATE PackingItem
-    SET Status = ?
-    WHERE PackingListID = ?;`,
-    [packingItemNewStatus, listId]
+  const dbPackingItem = await PackingItem.update(
+    { status: packingItemNewStatus },
+    { where: { packingListId: listId } }
   );
 
-  if (!result.affectedRows) {
+  if (!dbPackingItem || dbPackingItem[0] === 0) {
     throw new HttpError('Error in updating all packing items.', 400);
   }
 
@@ -50,56 +62,47 @@ const updateAll = async (packingItemNewStatus, listId) => {
 };
 
 const get = async (itemId) => {
-  const result = (
-    await db.query(
-      `Select PackingItem.ID AS id, PackingItem.Name AS name, PackingItem.Status AS status
-        FROM PackingList 
-        JOIN PackingItem WHERE PackingList.ID = PackingItem.PackingListID 
-        AND PackingItem.ID = ?;`,
-      [itemId]
-    )
-  )[0];
+  const dbPackingItem = await PackingItem.findByPk(itemId, {
+    attributes: { exclude: ['createdAt', 'updatedAt'] },
+  });
 
-  if (!result) {
+  if (!dbPackingItem) {
     throw new HttpError('Packing item does not exists.', 400);
   }
 
-  const packingItem = new PackingItem(result.id, result.name, result.status);
-
-  return { packingItem };
+  return { packingItem: dbPackingItem };
 };
 
-const update = async (packingList, itemId) => {
-  if (!packingList.name || isNaN(packingList.status)) {
+const update = async (packingItem, itemId) => {
+  if (!packingItem.name || isNaN(packingItem.status)) {
     throw new HttpError('Wrong parameters for the packing item are sent.', 400);
   }
 
-  const result = await db.query(
-    `UPDATE PackingItem
-    SET Name = ?, Status = ?
-    WHERE ID = ?;`,
-    [packingList.name, packingList.status, itemId]
+  const dbPackingItem = await PackingItem.update(
+    { name: packingItem.name, status: packingItem.status },
+    {
+      where: { id: itemId },
+    }
   );
 
-  if (!result.affectedRows) {
+  if (!dbPackingItem || dbPackingItem[0] === 0) {
     throw new HttpError('Packing item does not exists.', 400);
   }
 
-  const packingItem = new PackingItem(
-    itemId,
-    packingList.name,
-    packingList.status
-  );
-
-  return { message: 'Packing item updated.', packingItem };
+  return {
+    message: 'Packing item updated.',
+    packingItem: {
+      id: itemId,
+      name: packingItem.name,
+      status: packingItem.status,
+    },
+  };
 };
 
 const remove = async (itemId) => {
-  const result = await db.query(`DELETE FROM PackingItem WHERE ID = ?;`, [
-    itemId,
-  ]);
+  const dbPackingItem = await PackingItem.destroy({ where: { id: itemId } });
 
-  if (!result.affectedRows) {
+  if (!dbPackingItem) {
     throw new HttpError('Packing item does not exists.', 400);
   }
 

@@ -10,14 +10,16 @@ const packingitemRouter = require('./src/routes/packingitem.route');
 const gpxGeoJsonRouter = require('./src/routes/gpxGeoJson.route');
 const routeRouter = require('./src/routes/route.route');
 
-const verifyToken = require('./src/middlewares/auth');
+const { verifyToken, verifyAdmin } = require('./src/middlewares/auth');
+
+const db = require('./src/models/index');
 
 const app = express();
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ limit: '5mb', extended: true }));
 app.use(cors());
 
-app.use('/api/users', userRouter);
+app.use('/api/users', verifyAdmin, userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/packinglist', verifyToken, packinglistRouter);
 app.use('/api/packinglist', verifyToken, packingitemRouter);
@@ -37,4 +39,7 @@ app.get('/', (req, res) => {
   res.json({ message: 'Server is ok' });
 });
 
-app.listen(port, () => console.log(`Server is listening on port ${port}.`));
+db.sequelize.sync().then(() => {
+  // sequelize.sync({ force: true }).then(async () => {
+  app.listen(port, () => console.log(`Server is listening on port ${port}.`));
+});

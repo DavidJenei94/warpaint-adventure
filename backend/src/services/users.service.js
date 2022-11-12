@@ -1,72 +1,56 @@
 const bcrypt = require('bcryptjs');
-const db = require('./db.service');
+const db = require('../models/index');
 const config = require('../configs/general.config');
+const HttpError = require('../utils/HttpError');
 
-/*
-const hash = await bcrypt.hash('PASSWORD', config.saltRounds)
-var sql = "INSERT INTO curd_table (first_name,last_name,username,password) VALUES ?";
-var values = [[firstname,lastname,username,hash]]
-const result = await bcrypt.compare('PASSWORD', hash)
-*/
+const User = db.models.User;
 
 const get = async () => {
-  return (rows = await db.query(`SELECT * FROM Users`));
+  const dbUsers = await User.findAll();
+
+  return dbUsers;
 };
 
 const create = async (user) => {
   const pwdHash = await bcrypt.hash(user.Password, config.saltRounds);
 
-  const result = await db.query(
-    `INSERT INTO Users
-    (Email, Password, Name)
-    VALUES
-    (?)`,
-    [[user.Email, pwdHash, user.Name]]
-  );
+  const dbUser = await User.create({
+    email: user.Email,
+    password: pwdHash,
+    name: user.Name,
+  });
 
-  let response = {
-    userId: '',
-    message: 'Error in creating user',
-  };
-
-  if (result.affectedRows) {
-    response.userId = result.insertId.toString();
-    response.message = 'User created successfully';
+  if (!dbUser) {
+    throw new HttpError('Error in creating user.', 400);
   }
 
-  return response;
+  return {message: 'User created successfully', userId: dbUser.id};
 };
 
 const getSingle = async (userId) => {
-  const row = await db.query(`SELECT * FROM Users WHERE ID = ?`, [userId]);
-  return row[0];
+  const dbUser = await User.findByPk(userId)
+
+  return dbUser;
 };
 
 const update = async (id, user) => {
-  const result = await db.query(
-    `UPDATE Users
-    SET Email=?, Name=?
-    WHERE ID=?;`,
-    [user.Email, user.Name, id]
-  );
+  const dbUser = await User.update({email: user.email, name: user.name, role: user.role}, {where: {id: id}})
 
-  let message = 'Error in updating user';
-  if (result.affectedRows) {
-    message = 'User updated successfully';
+  if (!dbUser || dbUser[0] === 0) {
+    throw new HttpError('Error in updating user.', 400);
   }
 
-  return { message };
+  return { message: 'User updated successfully' };
 };
 
 const remove = async (id) => {
-  const result = await db.query(`DELETE FROM Users WHERE id=?`, [id]);
+  const dbUser = await User.destroy({ where: { id: id } });
 
-  let message = 'Error in deleting user';
-  if (result.affectedRows) {
-    message = 'User deleted successfully';
+  if (!dbUser) {
+    throw new HttpError('User does not exist or cannot be deleted.', 400);
   }
 
-  return { message };
+  return { message: 'User deleted successfully' };
 };
 
 module.exports = {

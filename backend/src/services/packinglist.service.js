@@ -1,71 +1,71 @@
-const jwt = require('jsonwebtoken');
-const db = require('./db.service');
-const config = require('../configs/general.config');
+const db = require('../models/index');
 const HttpError = require('../utils/HttpError');
-const PackingList = require('../models/PackingList');
+
+const PackingList = db.models.PackingList;
 
 const getAll = async (user) => {
-  const result = await db.query(
-    `SELECT ID AS id, Name AS name FROM PackingList WHERE UserID = ?;`,
-    [user.id]
-  );
+  const dbPackingLists = await PackingList.findAll({
+    where: { userId: user.id },
+  });
 
-  const packingLists = result.map(
-    (packingList) => new PackingList(packingList.id, packingList.name)
-  );
+  const message = 'Packing lists are selected!'
 
-  return { message: 'Packing lists are selected!', packingLists };
+  if (!dbPackingLists) {
+    return {message, packingLists: []};
+  }
+  
+  if (!Array.isArray(dbPackingLists)) {
+    return {message, packingLists: [dbPackingLists]};
+  }
+
+  return { message, packingLists: dbPackingLists };
 };
 
 const create = async (user, packingList) => {
-  const result = await db.query(
-    `INSERT INTO PackingList (UserID, Name) VALUES (?);`,
-    [[user.id, packingList.name]]
-  );
+  const dbPackingList = await PackingList.create({
+    userId: user.id,
+    name: packingList.name,
+  });
 
-  if (!result.affectedRows) {
+  if (!dbPackingList) {
     throw new HttpError('Error in creating new packing list.', 400);
   }
 
-  const packingListId = result.insertId.toString();
-  return { message: 'New packing list created!', packingListId };
+  return {
+    message: 'New packing list created!',
+    packingListId: dbPackingList.id,
+  };
 };
 
 const get = async (packingListID) => {
-  const result = (
-    await db.query('Select * FROM PackingList WHERE ID = ? ;', [packingListID])
-  )[0];
+  const dbPackingList = await PackingList.findByPk(packingListID);
 
-  if (!result) {
+  if (!dbPackingList) {
     throw new HttpError('Packing list does not exist.', 400);
   }
 
-  const packingList = new PackingList(result.ID, result.Name);
-
-  return { message: 'Packing list is selected!', packingList };
+  return { message: 'Packing list is selected!', packingList: dbPackingList };
 };
 
-const update = async (packingList, packingListID) => {
-  const result = await db.query(
-    `UPDATE PackingList
-    SET Name = ?
-    WHERE ID = ?;`,
-    [packingList.name, packingListID]
+const update = async (packingList, packingListId) => {
+  const dbPackingList = await PackingList.update(
+    { name: packingList.name },
+    { where: { id: packingListId } }
   );
 
-  if (!result.affectedRows) {
+  if (!dbPackingList || dbPackingList[0] === 0) {
     throw new HttpError('Packing list does not exist.', 400);
   }
 
   return { message: 'Packing List updated.' };
 };
 
-const remove = async (packingListID) => {
-  const result = await db.query(`DELETE FROM PackingList WHERE ID = ?;`, [
-    packingListID,
-  ]);
+const remove = async (packingListId) => {
+  const dbPackingList = await PackingList.destroy({
+    where: { id: packingListId },
+  });
 
-  if (!result.affectedRows) {
+  if (!dbPackingList) {
     throw new HttpError('Packing list does not exist.', 400);
   }
 
